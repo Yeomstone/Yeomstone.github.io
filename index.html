@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="소프트웨어 엔지니어 염민규의 포트폴리오" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>염민규 (YEOM MINGYU) — Personal Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body id="top">
+  <!-- Scroll Progress -->
+  <div class="scroll-progress-bar" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- Header / Navbar -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-status">
+        <span class="status-pill">
+          <span class="status-dot"></span> 프로젝트 참여 가능
+        </span>
+      </div>
+
+      <nav class="site-nav" aria-label="메인 메뉴">
+        <a href="#work" class="nav-link">프로젝트 <span class="nav-count">[2]</span></a>
+        <a href="#service" class="nav-link">전문 역량 <span class="nav-count">[4]</span></a>
+        <a href="#experience" class="nav-link">실무 경력 <span class="nav-count">[8m+]</span></a>
+        <a href="#contact" class="nav-link">문의</a>
+      </nav>
+
+      <div class="header-action">
+        <a href="mailto:pardes0410@naver.com" class="btn-pill-black header-btn">
+          대화하기 <span class="arrow-glyph">↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" aria-labelledby="hero-title">
+      <div class="hero-container">
+        <!-- Big Name Typography Banner -->
+        <div class="hero-typography" id="hero-title">
+          <span class="name-outline">YEOM</span>
+          <span class="name-solid">MINGYU</span>
+        </div>
+
+        <!-- Centered Portrait Photo -->
+        <div class="hero-portrait-wrapper" id="heroPortrait">
+          <!-- Base B&W Photo with Natural Soft Feather Mask -->
+          <div class="feather-mask portrait-layer-base">
+            <img src="./profile.png" alt="염민규 YEOM MINGYU" class="hero-photo hero-photo-bw" />
+          </div>
+
+          <!-- Interactive Color Spotlight Layer (reveals original color on hover) -->
+          <div class="feather-mask portrait-layer-color">
+            <img src="./profile.png" alt="" class="hero-photo hero-photo-color" />
+          </div>
+
+          <!-- Follow Cursor Spotlight Lens Ring -->
+          <div class="color-lens-ring" aria-hidden="true"></div>
+        </div>
+
+        <!-- Floating Left Card / Copy -->
+        <div class="hero-side-left">
+          <h1 class="hero-role-title">소프트웨어 엔지니어</h1>
+          <p class="hero-role-desc">
+            솔루션 개발 및 운영, 데이터 및 AI 서비스 개발, 웹 프론트엔드 및 백엔드를 개발합니다.
+          </p>
+          <a href="#contact" class="btn-pill-black hero-cta-btn">
+            함께 협업하기 <span class="arrow-glyph">↗</span>
+          </a>
+        </div>
+
+        <!-- Floating Right Social Pills -->
+        <div class="hero-side-right">
+          <div class="social-pill-stack">
+            <a href="https://github.com/Yeomstone" class="social-pill" target="_blank" rel="noreferrer">
+              <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+              <span>GitHub (Yeomstone)</span>
+            </a>
+            <a href="tel:010-8670-3046" class="social-pill">
+              <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span>010-8670-3046</span>
+            </a>
+            <a href="mailto:pardes0410@naver.com" class="social-pill">
+              <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <span>이메일</span>
+            </a>
+            <a href="#work" class="social-pill">
+              <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 3v18" />
+                <path d="m14 9 3 3-3 3" />
+              </svg>
+              <span>프로젝트</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selected Work Section -->
+    <section class="work-section" id="work" aria-labelledby="work-title">
+      <div class="watermark-bg" aria-hidden="true">PORTFOLIO</div>
+
+      <div class="content-shell">
+        <div class="section-top-row">
+          <h2 id="work-title" class="section-heading-slash">
+            <span class="slash">/</span>주요 프로젝트
+          </h2>
+
+          <div class="work-toolbar">
+            <div class="filter-tabs" role="tablist" aria-label="프로젝트 필터">
+              <button class="filter-tab active" role="tab" aria-selected="true" data-filter="all">전체</button>
+              <button class="filter-tab" role="tab" aria-selected="false" data-filter="real">실무 프로젝트</button>
+              <button class="filter-tab" role="tab" aria-selected="false" data-filter="maintenance">유지보수·개선</button>
+            </div>
+
+            <a href="mailto:pardes0410@naver.com" class="btn-outline-pill">
+              전체 프로젝트 보기 <span class="arrow-glyph">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="projects-grid">
+          <!-- Project Card 1 -->
+          <article class="portfolio-card" data-category="real" tabindex="0">
+            <div class="card-image-box">
+              <span class="card-badge">실무 프로젝트</span>
+              <img src="./assets/project-skb.jpg" alt="SKB 품질 관제 시스템 대시보드 미리보기" class="card-img" />
+              <a href="#contact" class="card-circle-btn" aria-label="SKB 프로젝트 세부 문의">
+                <span class="arrow-glyph">↗</span>
+              </a>
+            </div>
+            <div class="card-info">
+              <h3 class="card-title">SKB 품질 관제 페이지 개발</h3>
+              <p class="card-subdesc">실시간 네트워크 품질 관제 및 모니터링 대시보드</p>
+              <div class="card-meta-tags">
+                <span class="meta-pill">품질 관제</span>
+                <span class="meta-pill">운영 화면</span>
+                <span class="meta-pill">웹 개발</span>
+                <span class="meta-pill">COGENT</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project Card 2 -->
+          <article class="portfolio-card" data-category="maintenance" tabindex="0">
+            <div class="card-image-box">
+              <span class="card-badge">실무 프로젝트</span>
+              <img src="./assets/project-inspection.jpg" alt="정기점검 관리시스템 미리보기" class="card-img" />
+              <a href="#contact" class="card-circle-btn" aria-label="정기점검 시스템 프로젝트 세부 문의">
+                <span class="arrow-glyph">↗</span>
+              </a>
+            </div>
+            <div class="card-info">
+              <h3 class="card-title">비산배출 정기점검 관리시스템 기능개선</h3>
+              <p class="card-subdesc">설비 점검 데이터 관리 및 운영 시스템 유지보수·개선</p>
+              <div class="card-meta-tags">
+                <span class="meta-pill">기능 개선</span>
+                <span class="meta-pill">시스템 관리</span>
+                <span class="meta-pill">유지보수</span>
+                <span class="meta-pill">COGENT</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Service Section -->
+    <section class="service-section" id="service" aria-labelledby="service-title">
+      <div class="watermark-bg" aria-hidden="true">SERVICE</div>
+
+      <div class="content-shell">
+        <h2 id="service-title" class="section-heading-slash">
+          <span class="slash">/</span>전문 역량
+        </h2>
+
+        <div class="service-accordion">
+          <!-- Service Item 1 (Default Active Dark Card) -->
+          <div class="service-item active" id="service-item-1">
+            <div class="service-collapsed-row" role="button" tabindex="0" aria-expanded="true">
+              <h3 class="service-row-title">백엔드 & 웹 애플리케이션 개발</h3>
+              <span class="service-row-arrow">↗</span>
+            </div>
+            <div class="service-expanded-card">
+              <div class="service-card-left">
+                <h3 class="service-card-title">백엔드 & 웹 애플리케이션 개발</h3>
+                <p class="service-card-desc">
+                  Java, Spring Boot, Flask 등을 활용하여 안정적인 RESTful API를 설계하고, 실제 운영 환경의 비즈니스 로직과 데이터베이스 연동을 견고하게 구현합니다.
+                </p>
+                <div class="service-card-tags">
+                  <span>Java</span>
+                  <span>Spring Boot</span>
+                  <span>Flask</span>
+                  <span>REST API</span>
+                </div>
+              </div>
+              <div class="service-card-right">
+                <img src="./assets/service-devices.jpg" alt="웹 및 모바일 시스템 디바이스 화면" class="service-card-img" />
+                <button class="service-close-toggle" aria-label="서비스 카드 닫기">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Item 2 -->
+          <div class="service-item" id="service-item-2">
+            <div class="service-collapsed-row" role="button" tabindex="0" aria-expanded="false">
+              <h3 class="service-row-title">실시간 관제 & 모니터링 대시보드</h3>
+              <span class="service-row-arrow">↗</span>
+            </div>
+            <div class="service-expanded-card">
+              <div class="service-card-left">
+                <h3 class="service-card-title">실시간 관제 & 모니터링 대시보드</h3>
+                <p class="service-card-desc">
+                  실시간 텔레메트리 관제와 핵심 시스템 상태를 직관적으로 파악할 수 있는 고성능 모니터링 웹 대시보드를 제작합니다.
+                </p>
+                <div class="service-card-tags">
+                  <span>품질 관제</span>
+                  <span>실시간 계측 (Telemetry)</span>
+                  <span>실시간 UI</span>
+                </div>
+              </div>
+              <div class="service-card-right">
+                <img src="./assets/project-skb.jpg" alt="대시보드 미리보기" class="service-card-img" />
+                <button class="service-close-toggle" aria-label="서비스 카드 닫기">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Item 3 -->
+          <div class="service-item" id="service-item-3">
+            <div class="service-collapsed-row" role="button" tabindex="0" aria-expanded="false">
+              <h3 class="service-row-title">시스템 유지보수 & 리팩토링</h3>
+              <span class="service-row-arrow">↗</span>
+            </div>
+            <div class="service-expanded-card">
+              <div class="service-card-left">
+                <h3 class="service-card-title">시스템 유지보수 & 리팩토링</h3>
+                <p class="service-card-desc">
+                  기존 레거시 관리시스템의 기능 개선과 코드 품질 향상, 장애 예방을 위한 유지보수 및 점검 자동화 로직을 개선합니다.
+                </p>
+                <div class="service-card-tags">
+                  <span>Maintenance</span>
+                  <span>기능 개선</span>
+                  <span>코드 품질 개선</span>
+                </div>
+              </div>
+              <div class="service-card-right">
+                <img src="./assets/project-inspection.jpg" alt="정기점검 관리시스템 미리보기" class="service-card-img" />
+                <button class="service-close-toggle" aria-label="서비스 카드 닫기">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Item 4 -->
+          <div class="service-item" id="service-item-4">
+            <div class="service-collapsed-row" role="button" tabindex="0" aria-expanded="false">
+              <h3 class="service-row-title">프론트엔드 & UI 연동 개발</h3>
+              <span class="service-row-arrow">↗</span>
+            </div>
+            <div class="service-expanded-card">
+              <div class="service-card-left">
+                <h3 class="service-card-title">프론트엔드 & UI 연동 개발</h3>
+                <p class="service-card-desc">
+                  React와 JSP 기반의 운영 화면을 개발하며, 백엔드 API와의 유연한 연동 및 최적화된 사용자 인터페이스를 제공합니다.
+                </p>
+                <div class="service-card-tags">
+                  <span>React</span>
+                  <span>JSP</span>
+                  <span>모던 웹 개발</span>
+                </div>
+              </div>
+              <div class="service-card-right">
+                <img src="./assets/service-devices.jpg" alt="프론트엔드 연동 디바이스 화면" class="service-card-img" />
+                <button class="service-close-toggle" aria-label="서비스 카드 닫기">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Section (Dark Theme Transition) -->
+    <section class="experience-section" id="experience" aria-labelledby="exp-title">
+      <div class="watermark-bg watermark-dark" aria-hidden="true">EXPERIENCE</div>
+
+      <div class="content-shell">
+        <div class="section-top-row">
+          <h2 id="exp-title" class="section-heading-slash text-light">
+            <span class="slash">/</span>실무 경력
+          </h2>
+          <span class="exp-counter-pill">8개월+ 실무 경력</span>
+        </div>
+
+        <div class="experience-list">
+          <!-- Row 1 -->
+          <div class="exp-item-row" tabindex="0">
+            <div class="exp-meta">
+              <h3 class="exp-org-name">주식회사 코젠트 (Cogent Inc.)</h3>
+              <p class="exp-job-role">소프트웨어 엔지니어 · 웹 및 관제 시스템 개발</p>
+            </div>
+            <div class="exp-period">2026.02.02 — 현재</div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="exp-item-row" tabindex="0">
+            <div class="exp-meta">
+              <h3 class="exp-org-name">SKB 품질 관제 시스템 프로젝트</h3>
+              <p class="exp-job-role">백엔드 및 웹 애플리케이션 개발</p>
+            </div>
+            <div class="exp-period">2026.06 — 2026.09</div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="exp-item-row" tabindex="0">
+            <div class="exp-meta">
+              <h3 class="exp-org-name">비산배출 정기점검 관리시스템</h3>
+              <p class="exp-job-role">시스템 기능 개선 및 유지보수</p>
+            </div>
+            <div class="exp-period">2026.02 — 2026.06</div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="exp-item-row" tabindex="0">
+            <div class="exp-meta">
+              <h3 class="exp-org-name">핵심 기술 스택</h3>
+              <p class="exp-job-role">Java, Spring Boot, Flask, React, JSP, MySQL, Git</p>
+            </div>
+            <div class="exp-period">현재 활용 스택</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- Contact & Footer Section (Clean Engineering Layout) -->
+    <section class="contact-section" id="contact" aria-labelledby="contact-title">
+      <div class="watermark-bg" aria-hidden="true">CONTACT</div>
+
+      <div class="content-shell">
+        <div class="contact-header">
+          <h2 id="contact-title" class="section-heading-slash">
+            <span class="slash">/</span>연락처
+          </h2>
+          <p class="contact-lead-text">
+            프로젝트 협업, 기술 문의, 채용 관련 제안은 언제든 편하게 연락해 주세요.
+          </p>
+        </div>
+
+        <div class="contact-cards-grid">
+          <!-- Email Card -->
+          <a href="mailto:pardes0410@naver.com" class="contact-card">
+            <div class="contact-card-top">
+              <span class="contact-card-label">Email</span>
+              <span class="contact-card-arrow">↗</span>
+            </div>
+            <div class="contact-card-value">pardes0410@naver.com</div>
+            <span class="contact-card-action">메일 보내기</span>
+          </a>
+
+          <!-- Phone Card -->
+          <a href="tel:010-8670-3046" class="contact-card">
+            <div class="contact-card-top">
+              <span class="contact-card-label">Phone</span>
+              <span class="contact-card-arrow">↗</span>
+            </div>
+            <div class="contact-card-value">010-8670-3046</div>
+            <span class="contact-card-action">전화 연결</span>
+          </a>
+
+          <!-- GitHub Card -->
+          <a href="https://github.com/Yeomstone" target="_blank" rel="noreferrer" class="contact-card">
+            <div class="contact-card-top">
+              <span class="contact-card-label">GitHub</span>
+              <span class="contact-card-arrow">↗</span>
+            </div>
+            <div class="contact-card-value">github.com/Yeomstone</div>
+            <span class="contact-card-action">저장소 방문</span>
+          </a>
+        </div>
+
+        <!-- Site Footer Bar -->
+        <footer class="site-footer">
+          <div class="footer-inner">
+            <div class="footer-brand">
+              <span class="footer-name">YEOM MINGYU</span>
+              <span class="footer-role">Software Engineer</span>
+            </div>
+            <div class="footer-links">
+              <a href="#work" class="footer-link">프로젝트</a>
+              <a href="#service" class="footer-link">전문 역량</a>
+              <a href="#experience" class="footer-link">실무 경력</a>
+              <a href="#top" class="footer-link footer-top-btn">맨 위로 이동 ↑</a>
+            </div>
+          </div>
+          <p class="site-copyright">
+            © 2026 YEOM MINGYU. All rights reserved.
+          </p>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <script src="./main.js"></script>
+</body>
+
+</html>

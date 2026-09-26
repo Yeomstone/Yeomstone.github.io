@@ -1,0 +1,27 @@
+body { padding-top: 42px !important; }
+#skb-demo-bar {
+  position: fixed;
+  z-index: 15000;
+  inset: 0 0 auto;
+  min-height: 42px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 18px;
+  background: #141820;
+  color: #fff;
+  font: 600 12px/1.35 sans-serif;
+}
+#skb-demo-bar a { color: #fff; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; }
+#skb-demo-bar a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.wf-toolbar { top: 42px !important; }
+header.MuiBox-root { top: 42px !important; }
+@media (max-width: 600px) {
+  body { padding-top: 56px !important; }
+  #skb-demo-bar { min-height: 56px; padding: 6px 10px; font-size: 11px; }
+  #skb-demo-bar span { max-width: 60%; }
+  #skb-demo-bar a { white-space: normal; text-align: right; }
+  .wf-toolbar, header.MuiBox-root { top: 56px !important; }
+}

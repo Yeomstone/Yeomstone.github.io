@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>SKB C-One 품질 관제 | 염민규 포트폴리오</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="./overview.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="project-brand" href="../../index.html">YEOM MINGYU</a>
+      <nav class="site-nav" aria-label="프로젝트 메뉴">
+        <a class="nav-link" href="#project-overview">프로젝트 소개</a>
+        <a class="nav-link" href="#work">목업 화면</a>
+      </nav>
+      <a class="btn-pill-black project-back" href="../../index.html">포트폴리오로 돌아가기</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="project-hero" id="project-overview" aria-labelledby="project-title">
+      <div class="content-shell hero-layout">
+        <div class="hero-copy">
+          <p class="hero-category">SKB · 네트워크 품질 운영</p>
+          <h1 id="project-title">C-One<br><span>품질 관제 및 조치 연결</span></h1>
+          <p class="hero-description">장비 이상 징후를 망 계위와 증상별로 확인하고, 진단 근거에서 조치 검토·Ticket 발행·품질 효과 확인까지 연결한 운영 화면입니다.</p>
+          <div class="hero-actions">
+            <a class="btn-pill-black" href="#work">목업 화면 보기</a>
+            <p>원본 화면 구조 · 브라우저 내 샘플 데이터</p>
+          </div>
+        </div>
+        <div class="hero-image-wrap">
+          <img src="./brand-logo.png" alt="C-One 프로젝트 로고">
+        </div>
+      </div>
+    </section>
+
+    <section class="work-section" id="work" aria-labelledby="work-title">
+      <div class="watermark-bg" aria-hidden="true">PROJECT</div>
+      <div class="content-shell">
+        <div class="section-top-row">
+          <h2 id="work-title" class="section-heading-slash"><span class="slash">/</span>화면과 업무 흐름</h2>
+          <p class="work-intro">React와 Flask/Jinja 화면을 브라우저 내 샘플 데이터로 재현했습니다.</p>
+        </div>
+        <div class="task-list">
+          <section class="task-card" aria-labelledby="task-one">
+            <div class="task-copy">
+              <p class="task-index">01</p>
+              <h3 id="task-one">이상 징후에서<br>진단 근거까지</h3>
+              <p>대시보드에서 전체 대상 규모와 OLT·ONU·단말별 이상 현황을 살핀 뒤, 증상별 장비 목록과 측정 근거를 확인합니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>Classic 화면</h4><nav aria-label="Classic 진단 화면"><a href="./app/demo-m3/index.html?design=classic#/home">종합 대시보드</a><a href="./app/demo-m3/index.html?design=classic#/symptom/ONU_MISSMATCH">속도 MisMatch 진단</a><a href="./app/demo-m3/index.html?design=classic#/symptom/OLT_OPTICAL_LOW">OLT 광신호 진단</a><a href="./app/demo-m3/index.html?design=classic#/symptom/LOSS">Loss / Flap / RTT 진단</a></nav></div>
+              <div class="page-group"><h4>Workflow 화면</h4><nav aria-label="Workflow 진단 화면"><a href="./app/demo-m3/index.html?design=workflow&amp;screen=home">Daily Report</a><a href="./app/demo-m3/index.html?design=workflow&amp;screen=diagnosis">증상별 진단</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-two">
+            <div class="task-copy">
+              <p class="task-index">02</p>
+              <h3 id="task-two">조치와 원격 자율복구</h3>
+              <p>증상 기준으로 조치 대상을 살피고 Ticket 상태를 확인합니다. 원격 복구 대상은 포트를 선택해 예약과 결과 흐름을 시연할 수 있습니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>Classic 화면</h4><nav aria-label="Classic 조치 화면"><a href="./app/demo-m3/index.html?design=classic#/action">오늘 조치</a><a href="./app/demo-m3/index.html?design=classic#/autoreset">원격 자율복구</a></nav></div>
+              <div class="page-group"><h4>Workflow 화면</h4><nav aria-label="Workflow 조치 화면"><a href="./app/demo-m3/index.html?design=workflow&amp;screen=action">조치 관리</a><a href="./app/demo-m3/index.html?design=workflow&amp;screen=recovery">원격 자율복구</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-three">
+            <div class="task-copy">
+              <p class="task-index">03</p>
+              <h3 id="task-three">지도와 개선 결과</h3>
+              <p>장비 위치와 불량 분포를 지도에서 검토하고, 작업 이력·자율복구·TOP30 건물의 품질 변화 화면으로 이어집니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>Classic 화면</h4><nav aria-label="Classic 분석 화면"><a href="./app/demo-m3/index.html?design=classic#/map">관제 지도</a><a href="./app/demo-m3/index.html?design=classic#/report">품질 리포트</a><a href="./app/demo-m3/index.html?design=classic#/top30">TOP30</a><a href="./app/demo-m3/index.html?design=classic#/cell">FTTH Cell</a></nav></div>
+              <div class="page-group"><h4>Workflow 화면</h4><nav aria-label="Workflow 분석 화면"><a href="./app/demo-m3/index.html?design=workflow&amp;screen=map">관제 지도</a><a href="./app/demo-m3/index.html?design=workflow&amp;screen=report">품질 리포트</a><a href="./app/demo-m3/index.html?design=workflow&amp;screen=top30">TOP30</a><a href="./app/demo-m3/index.html?design=workflow&amp;screen=cell">FTTH Cell</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-four">
+            <div class="task-copy">
+              <p class="task-index">04</p>
+              <h3 id="task-four">계정 화면</h3>
+              <p>원본 로그인·회원가입 화면도 같은 진입 흐름으로 볼 수 있습니다. 입력과 로그인은 화면 전환만 시연하며 계정은 생성되지 않습니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>공통 화면</h4><nav aria-label="계정 화면"><a href="./app/login/index.html">로그인</a><a href="./app/signup/index.html">회원가입</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-five">
+            <div class="task-copy">
+              <p class="task-index">05</p>
+              <h3 id="task-five">별도 운영 화면</h3>
+              <p>React 화면과 함께 남아 있는 원본 Flask/Jinja 관제, 시연, 관리자 화면입니다. 화면 구성과 탭 이동을 유지하며, 서버가 필요한 일부 분석·처리는 제한됩니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>Legacy 화면</h4><nav aria-label="별도 운영 화면"><a href="./legacy/index.html">관제 및 AI 모델 화면</a><a href="./legacy/demo/index.html">초기 시연 목업</a><a href="./legacy/admin/index.html">관리자 화면</a></nav></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="project-footer"><div class="content-shell"><p>화면의 장비·조직·작업 정보는 시연용 샘플입니다. 발행, 예약, 인증, 다운로드는 실제 시스템에 반영되지 않습니다.</p></div></footer>
+</body>
+</html>

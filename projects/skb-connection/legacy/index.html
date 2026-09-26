@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><link rel="stylesheet" href="../app/mock-ui.css"><script>window.__C_ONE_MOCK_BASE__="/projects/skb-connection/legacy";</script><script src="../app/mock-api.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C-One Agent</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231B3F8F'/><text x='16' y='22' text-anchor='middle' font-size='18' font-family='sans-serif' fill='white' font-weight='bold'>C</text></svg>">
+  <link rel="stylesheet" href="static/css/style.css?v=sample" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.23.0/dist/umd/lucide.min.js"></script>
+  <!-- html2canvas-pro: 원본 1.4.1이 최신 브라우저의 color() 색상 함수를 파싱 못해 교체 (동일 API) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js"></script>
+  <link rel="stylesheet" href="static/css/icons.css?v=sample" />
+  <link rel="stylesheet" href="static/css/theme.css?v=sample" />
+  <link rel="stylesheet" href="static/css/c1-port.css?v=sample" />
+</head>
+<body>
+
+<!-- 데이터 로딩 배너 -->
+<div class="data-loading-msg" id="data-loading-banner"
+     style="position:fixed;top:0;left:0;right:0;z-index:9999;
+            background:var(--primary);color:#fff;
+            text-align:center;padding:10px 0;font-size:var(--fs-base, 14px);font-weight:500;
+            box-shadow:0 1px 2px rgba(0,0,0,.08);transition:opacity .4s">
+  데이터를 불러오는 중입니다...
+</div>
+
+<!-- ===== SIDEBAR (좌측 라벨형 내비 — c-1 이식) ===== -->
+<aside class="sidebar" id="sidebar">
+  <!-- 접힌 상태에서 로고 클릭으로도 다시 펼침 (0820) -->
+  <div class="sidebar-brand" onclick="if (document.body.classList.contains('sidebar-collapsed')) toggleSidebar()"
+       title="메뉴 펼치기">
+    <div class="header-brand-icon"><i data-lucide="cpu"></i></div>
+    <div class="sidebar-brand-text">
+      <span class="sidebar-brand-name">C-One <span class="header-brand-tag">AI</span></span>
+      <span class="sidebar-brand-sub">품질 관리 종합 Agent</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav" role="tablist" aria-label="주 메뉴">
+    <button class="snav-item tab" id="snav-home" data-tab-label="홈" title="홈"
+            onclick="switchTab('home', this)">
+      <i data-lucide="house"></i><span class="snav-label">홈</span>
+    </button>
+    <button class="snav-item tab active" id="snav-main" data-tab-label="관제" title="관제"
+            onclick="switchTab('main', this)">
+      <i data-lucide="map"></i><span class="snav-label">관제</span>
+    </button>
+
+    <!-- 도메인 그룹 — 장비(구 점검·조치)/TOP30(구 전후 트렌드)과
+         Reset 개선현황/reset 수행내역은 기존 화면을 공유하고,
+         브레드크럼의 도메인 표기(data-tab-domain)만 다르다.
+         Factor별 연관도 분석은 별도 탭이 아니라 reset 수행내역 화면 하단 섹션 -->
+    <div class="snav-group">장비품질개선</div>
+    <button class="snav-item snav-item--sub tab" id="snav-eq-ops" data-tab-label="진단"
+            data-tab-domain="장비품질개선" title="장비품질개선 — 진단 (건물→장비 진단·지시서 발행)"
+            onclick="switchTab('eqp', this); eqpInit()">
+      <i data-lucide="clipboard-check"></i><span class="snav-label">진단</span>
+    </button>
+    <button class="snav-item snav-item--sub tab" id="snav-eq-board" data-tab-label="지시서 보드"
+            data-tab-domain="장비품질개선" title="장비품질개선 — 지시서 보드 (진행·실적)"
+            onclick="switchTab('board', this); eqpBoardInit()">
+      <i data-lucide="list-checks"></i><span class="snav-label">지시서 보드</span>
+    </button>
+    <button class="snav-item snav-item--sub tab" id="snav-eq-trend" data-tab-label="TOP30"
+            data-tab-domain="장비품질개선" title="장비품질개선 — TOP30"
+            onclick="switchTab('top30', this); top30Init()">
+      <i data-lucide="activity"></i><span class="snav-label">TOP30</span>
+    </button>
+    <button class="snav-item snav-item--sub tab" id="snav-eq-work" data-tab-label="작업"
+            data-tab-domain="장비품질개선" title="장비품질개선 — 작업"
+            onclick="switchTab('work', this); workInit()">
+      <i data-lucide="wrench"></i><span class="snav-label">작업</span>
+    </button>
+
+    <div class="snav-group">회선품질개선</div>
+    <button class="snav-item snav-item--sub tab" id="snav-ln-ops" data-tab-label="Reset 개선현황"
+            data-tab-domain="회선품질개선" title="회선품질개선 — Reset 개선현황"
+            onclick="switchTab('ops', this)">
+      <i data-lucide="clipboard-check"></i><span class="snav-label">Reset 개선현황</span>
+    </button>
+    <button class="snav-item snav-item--sub tab" id="snav-ln-trend" data-tab-label="reset 수행내역"
+            data-tab-domain="회선품질개선" title="회선품질개선 — reset 수행내역 · Factor별 연관도 분석"
+            onclick="switchTab('equip', this)">
+      <i data-lucide="activity"></i><span class="snav-label">reset 수행내역</span>
+    </button>
+
+    <div class="snav-group">AI</div>
+    <button class="snav-item snav-item--sub tab" id="snav-model" data-tab-label="AI 모델 구조도"
+            data-tab-domain="AI" title="AI — 학습된 모델 4종 구조·성능·근거"
+            onclick="switchTab('model', this); modelTabInit()">
+      <i data-lucide="brain-circuit"></i><span class="snav-label">AI 모델 구조도</span>
+    </button>
+  </nav>
+  <div class="sidebar-bottom">
+    <!-- 9/30 임원 시연 목업 (별도 페이지, 더미 데이터) -->
+    <a class="snav-item" href="demo/" title="시연 목업 (9/30) — 예시 데이터">
+      <i data-lucide="flask-conical"></i><span class="snav-label">시연 목업 (9/30)</span>
+    </a>
+    
+    <a class="snav-item" href="admin/" title="관리자 페이지">
+      <i data-lucide="settings"></i><span class="snav-label">관리자 페이지</span>
+    </a>
+    
+    
+    <button class="snav-item" onclick="doLogout()" title="로그아웃">
+      <i data-lucide="log-out"></i><span class="snav-label">로그아웃</span>
+    </button>
+    
+    <button class="snav-item sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()"
+            title="사이드바 접기/펼치기" aria-label="사이드바 접기/펼치기">
+      <i data-lucide="panel-left-close" class="snav-icon-close"></i>
+      <i data-lucide="panel-left-open" class="snav-icon-open"></i>
+      <span class="snav-label">접기</span>
+    </button>
+  </div>
+</aside>
+<script>
+  // 접힘 상태 복원 — 렌더 전에 클래스 부여해 깜빡임 방지
+  // 사이드바는 항상 접힌 상태로 시작 (0820 피드백 — 이전 선택 무관, 세션 중 펼치기만 허용)
+  document.body.classList.add('sidebar-collapsed');
+</script>
+
+<!-- ===== MAIN AREA (헤더 + 탭 콘텐츠) ===== -->
+<div class="app-main" id="app-main">
+
+
+
+
+
+<!-- ===== HEADER (브레드크럼 + 서브라인 — c-1 이식) ===== -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-titles">
+      <nav class="header-crumbs" aria-label="breadcrumb">
+        <span class="crumb-root">C-One</span>
+        <span class="crumb-sep" aria-hidden="true">›</span>
+        <span class="crumb-domain" id="crumb-domain" hidden></span>
+        <span class="crumb-sep" id="crumb-domain-sep" aria-hidden="true" hidden>›</span>
+        <span class="crumb-current" id="crumb-current">홈</span>
+      </nav>
+      <div class="header-subline" id="header-subline">품질 관리 종합 Agent · 전국 건물/고객 CEI 관제</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-time-wrap">
+      <span class="header-time" id="clock">2026-09-18 09:00</span>
+    </div>
+    
+    <span class="user-chip">
+      <b>시연 사용자 님</b>
+      <span class="user-team"></span>
+    </span>
+    
+    <span class="agent-pill"><span class="agent-dot"></span> Agent Live</span>
+    <button class="screenshot-btn" id="ad-start-btn" onclick="adStart()"
+            title="자동 시연 — 고스트 커서가 골든 패스를 직접 눌러가며 재생 (Space 일시정지 · ESC 중단)"><i data-lucide="play-circle"></i></button>
+    <button class="screenshot-btn" onclick="resetCurrentView()" title="화면 초기화 — 현재 화면을 처음 상태로"><i data-lucide="rotate-ccw"></i></button>
+    <button class="screenshot-btn" onclick="openHelpModal()" title="화면 사용법"><i data-lucide="circle-help"></i></button>
+    <button class="screenshot-btn" onclick="openMailModal()" title="메일 발송"><i data-lucide="mail"></i></button>
+    <button class="ai-panel-btn" id="ai-panel-btn" onclick="togglePanel()">
+      <span class="ai-btn-orbit" aria-hidden="true">
+        <span class="ai-btn-ring"></span>
+        <span class="ai-btn-dot"></span>
+      </span>
+      <span class="ai-btn-label">AI Native Service Company</span>
+    </button>
+  </div>
+</header>
+
+<!-- ================================================================
+     TAB 0 — 모닝 브리핑 홈 (0819 3차 R1)
+     열자마자 "오늘 할 일"이 먼저 — 자율복구 결과·조치 대상·진행 지시서.
+     home.js 가 데이터 로드 후 #brf-root 를 렌더한다.
+================================================================ -->
+<div id="tab-home" class="tab-content">
+  <div class="brf" id="brf-root">
+    <div class="ldg"><span class="ldg-spin" aria-hidden="true"></span>
+      <span class="ldg-txt">C-One이 금일 레포트를 출력하는 중…</span></div>
+  </div>
+</div><!-- /tab-home -->
+
+<!-- ================================================================
+     TAB 1 — 메인 대시보드
+================================================================ -->
+<div id="tab-main" class="tab-content active">
+
+  <!-- ══ 통합 대시보드 스트립 ══ -->
+  <section class="dash-strip">
+
+    <!-- 왼쪽: 팀·날짜 -->
+    <div class="ds-context" id="kpi-now-panel">
+      <span class="ds-context-team" id="kpi-now-label">전국 현황</span>
+      <button class="ds-reset-btn" id="kpi-reset-btn" onclick="resetAllFilters()" style="display:none">초기화</button>
+    </div>
+
+    <!-- 핵심 수치 카드들 -->
+    <div class="ds-metrics">
+
+      <div class="ds-card ds-card--primary">
+        <div class="ds-primary-combo">
+          <div class="ds-primary-col">
+            <span class="ds-card-label" title="CEI (Customer Experience Index) — 고객 체감 품질 지수, 높을수록 양호">CEI 평균</span>
+            <div class="ds-card-row">
+              <span class="ds-card-value" id="kpi-cei-avg">—</span>
+              <div class="ds-card-deltas">
+                <span class="ds-card-delta" id="kpi-cei-delta-day"></span>
+                <span class="ds-card-delta ds-card-delta--week" id="kpi-cei-delta-week"></span>
+              </div>
+            </div>
+          </div>
+          <div class="ds-primary-divider"></div>
+          <div class="ds-primary-col">
+            <span class="ds-card-label" title="VoC (Voice of Customer) — 고객 불만 접수 건수, 낮을수록 양호">VoC</span>
+            <div class="ds-card-row">
+              <span class="ds-card-value ds-card-value--sub" id="kpi-voc">—</span>
+              <div class="ds-card-deltas">
+                <span class="ds-card-delta" id="kpi-voc-delta-day"></span>
+                <span class="ds-card-delta ds-card-delta--week" id="kpi-voc-delta-week"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-divider"></div>
+
+      <div class="ds-card ds-card--grades">
+        <span class="ds-card-label" title="고객별 CEI 등급 분포 — S(우수)부터 D(열위·최우선 조치)까지">고객 등급</span>
+        <div class="ds-grades">
+          <div class="ds-grade"><span class="ds-grade-letter ds-grade-s" title="S등급 — CEI 90 초과 (우수)">S</span><span class="ds-grade-num" id="kpi-s">—</span></div>
+          <div class="ds-grade"><span class="ds-grade-letter ds-grade-a" title="A등급 — CEI 87 초과">A</span><span class="ds-grade-num" id="kpi-a">—</span></div>
+          <div class="ds-grade"><span class="ds-grade-letter ds-grade-b" title="B등급 — CEI 85 초과">B</span><span class="ds-grade-num" id="kpi-b">—</span></div>
+          <div class="ds-grade"><span class="ds-grade-letter ds-grade-c" title="C등급 — CEI 80 초과 (주의)">C</span><span class="ds-grade-num" id="kpi-c">—</span></div>
+          <div class="ds-grade"><span class="ds-grade-letter ds-grade-d" title="D등급 — CEI 80 이하 (열위·최우선 조치)">D</span><span class="ds-grade-num" id="kpi-d">—</span><span class="ds-grade-delta" id="kpi-bad-delta"></span></div>
+        </div>
+      </div>
+
+      <div class="ds-divider"></div>
+
+      <div class="ds-card ds-card--pair">
+        <div class="ds-pair-item">
+          <span class="ds-card-label">망작업</span>
+          <span class="ds-pair-val ds-pair-val--accent" id="kpi-work">—</span>
+        </div>
+        <div class="ds-pair-item">
+          <span class="ds-card-label">망장애</span>
+          <span class="ds-pair-val ds-pair-val--err" id="kpi-fault">—</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 주간 추이 ══ -->
+  <section class="weekly-strip" id="weather-bar">
+    <div class="ws-days" id="weather-days">
+      <span class="weather-loading">불러오는 중…</span>
+    </div>
+  </section>
+
+  <!-- 본문 3컬럼 — Bad CE Top 10 패널 기본 열림 (2026-08-19 사용자 요청) -->
+  <div class="main-grid">
+
+    <!-- LEFT — 컨트롤 허브: 팀 선택 + 주소 검색 + 시군구 Bad CE Top 10 (0820) -->
+    <aside class="left-panel" id="left-panel">
+      <!-- 팀 선택 드롭다운 — 지도 오버레이에서 이동 (id·JS 무수정) -->
+      <div class="map-team-filter" id="map-team-filter" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+        <div class="team-filter-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="team-filter-body">
+          <span class="team-filter-label">운용팀</span>
+          <span class="team-filter-value" id="team-filter-value">전체 팀</span>
+          <select id="team-select" onchange="onTeamChange(this.value)" aria-hidden="true" tabindex="-1">
+            <option value="">전체 팀</option>
+          </select>
+        </div>
+        <div class="team-filter-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="team-filter-dropdown" id="team-filter-dropdown" role="listbox" hidden>
+          <ul class="team-filter-list" id="team-filter-list"></ul>
+        </div>
+      </div>
+
+      <!-- 주소 검색 — 지도 오버레이에서 이동 (id·JS 무수정) -->
+      <div class="map-search-box" id="map-search-box">
+        <input type="text" id="map-addr-input" class="map-addr-input" placeholder="주소 검색 (예: 서울역, 강남구 테헤란로)" autocomplete="off" />
+        <button class="map-addr-btn" id="map-addr-btn" title="검색">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="map-addr-results" id="map-addr-results"></div>
+      </div>
+
+      <!-- 오늘 조치 대상 — AI 추천 리스트 (모델 ② 등급하락 예측 기반 대상선정) -->
+      <div class="badce-card ctl-ai-card">
+        <div class="badce-card-hdr">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.2-2.6 5.5-.7.7-1.4 1.9-1.4 2.5v1h-6v-1c0-.6-.7-1.8-1.4-2.5C6.2 13.2 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+          <span>오늘 조치 대상 <b id="ctl-ai-count"></b> — AI 추천</span>
+          <span class="loop-tag" title="Closed-loop 단계: 대상선정 — 학습된 모델이 효과 높은 대상을 선별하는 단계">대상선정</span>
+        </div>
+        <div class="ctl-ai-headline" id="ctl-ai-headline">C-One AI가 오늘의 조치 대상을 선별하고 있습니다…</div>
+        <div class="ctl-ai-list" id="ctl-ai-list">
+          <div class="badce-loading">데이터 로딩 중…</div>
+        </div>
+      </div>
+
+      <div class="badce-card">
+        <div class="badce-card-hdr">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <span id="badce-title"><span class="badce-desc" title="Bad CE — CEI C·D등급(품질 열위) 고객">전국 시군구 Bad CE 고객수 Top 10</span></span>
+          <span class="loop-tag" title="Closed-loop 단계: 탐지 — CEI·VoC·장비 데이터에서 이상 신호를 발견하는 단계">탐지</span>
+        </div>
+        <div class="badce-list" id="badce-list">
+          <div class="badce-loading">데이터 로딩 중…</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 좌측 패널 토글 버튼 (main-grid 기준 절대배치, 패널 오른쪽 끝) -->
+    <button class="left-panel-collapse-btn" id="left-panel-collapse-btn" onclick="toggleLeftPanel()" title="패널 접기">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <!-- CENTER — 지도 (팀 선택·검색은 좌측 패널로 이동, 0820) -->
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-legend" id="map-legend">
+        <button class="map-filter-btn active" data-grade="S" onclick="toggleGradeFilter('S', this)"
+                title="S등급 건물 표시 켜기/끄기 — CEI 90 초과 (우수)">
+          <span class="mf-dot" style="background:var(--grade-s)"></span>S
+        </button>
+        <button class="map-filter-btn active" data-grade="A" onclick="toggleGradeFilter('A', this)"
+                title="A등급 건물 표시 켜기/끄기 — CEI 87 초과">
+          <span class="mf-dot" style="background:var(--grade-a)"></span>A
+        </button>
+        <button class="map-filter-btn active" data-grade="B" onclick="toggleGradeFilter('B', this)"
+                title="B등급 건물 표시 켜기/끄기 — CEI 85 초과">
+          <span class="mf-dot" style="background:var(--grade-b)"></span>B
+        </button>
+        <button class="map-filter-btn active" data-grade="C" onclick="toggleGradeFilter('C', this)"
+                title="C등급 건물 표시 켜기/끄기 — CEI 80 초과 (주의)">
+          <span class="mf-dot" style="background:var(--grade-c)"></span>C
+        </button>
+        <button class="map-filter-btn active" data-grade="D" onclick="toggleGradeFilter('D', this)"
+                title="D등급 건물 표시 켜기/끄기 — CEI 80 이하 (열위·최우선 조치)">
+          <span class="mf-dot" style="background:var(--grade-d)"></span>D
+        </button>
+        <span class="mf-hint" id="mf-hint"></span>
+      </div>
+      <div class="map-zoom-hint" id="map-zoom-hint">확대하면 건물 상세 정보를 볼 수 있습니다</div>
+      <!-- 줌 기반 동적 통계 패널 -->
+      <div id="map-zoom-stats" class="mzs-panel mzs-hidden"></div>
+
+      <!-- RIGHT — 건물별 현황 패널 (지도 위 오버레이) -->
+      <aside class="right-panel visible">
+
+      <!-- 건물별 현황 카드 (AI 인사이트 콘솔) -->
+      <div class="bld-stat-card">
+        <div class="bld-stat-header">
+          <div class="bld-stat-header-top">
+            <span class="bld-stat-badge" title="데이터 + 생성형 AI">
+              <span class="bld-badge-orbit" aria-hidden="true">
+                <span class="bld-badge-ring"></span>
+                <span class="bld-badge-dot"></span>
+              </span>
+              <span class="bld-badge-label"><span class="bld-badge-brand">C-One</span> <span class="bld-badge-ai">AI Insight</span></span>
+            </span>
+            <button class="panel-collapse-btn" id="panel-collapse-btn" onclick="toggleRightPanel()" title="패널 접기">‹</button>
+          </div>
+          <span class="bld-stat-title" id="bld-stat-period">선택 영역</span>
+        </div>
+
+        <div class="bld-stat-metrics-label">요약 지표</div>
+
+        <!-- KPI 3칸 -->
+        <div class="bld-stat-kpi-row">
+          <div class="bld-stat-kpi">
+            <div class="bld-stat-kpi-val" id="rp-bld-cnt">—</div>
+            <div class="bld-stat-kpi-lbl">건물수</div>
+          </div>
+          <div class="bld-stat-kpi">
+            <div class="bld-stat-kpi-val" id="rp-svc-cnt">—</div>
+            <div class="bld-stat-kpi-lbl">서비스수</div>
+          </div>
+          <div class="bld-stat-kpi">
+            <div class="bld-stat-kpi-val cei-good" id="rp-avg-cei">—</div>
+            <div class="bld-stat-kpi-lbl">평균CEI</div>
+          </div>
+        </div>
+
+        <!-- 메타 정보 -->
+        <div class="bld-stat-meta" id="rp-meta">
+          <div class="bld-stat-meta-row">
+            <span class="bld-stat-meta-key">지역본부</span>
+            <span class="bld-stat-meta-val" id="rp-org">—</span>
+          </div>
+          <div class="bld-stat-meta-row">
+            <span class="bld-stat-meta-key">운용팀</span>
+            <span class="bld-stat-meta-val" id="rp-team">—</span>
+          </div>
+          <div class="bld-stat-meta-row">
+            <span class="bld-stat-meta-key">Bad CE</span>
+            <span class="bld-stat-meta-val" id="rp-bad-cnt" style="color:var(--red)">—</span>
+          </div>
+          <div class="bld-stat-meta-row">
+            <span class="bld-stat-meta-key">VoC</span>
+            <span class="bld-stat-meta-val" id="rp-voc">—</span>
+          </div>
+        </div>
+
+        <div class="bld-stat-ai-hero">
+          <p class="bld-stat-ai-q">무엇을 확인하고 싶으신가요?</p>
+          <p class="bld-stat-ai-sub">지도에서 건물을 선택하면 CEI·VoC·Bad CE 데이터를 AI가 분석합니다.</p>
+        </div>
+
+        <!-- AI 분석 버튼 -->
+        <div class="bld-stat-footer">
+          <button class="rp-ai-btn" id="rp-ai-btn" onclick="openPanel();runAnalysis()">
+            <i data-lucide="bot"></i>
+            <span class="rp-ai-btn-text">
+              <span class="rp-ai-btn-line1">AI 분석 실행</span>
+              <span class="rp-ai-btn-line2">5단계 수집 후 리포트 생성</span>
+            </span>
+            <i data-lucide="arrow-right" class="rp-ai-btn-chevron"></i>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- 테이블 열기 FAB (map-wrap 내부 — 지도 중앙 정렬) -->
+    <button class="master-sheet-fab" id="master-sheet-fab" onclick="openMasterSheet()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      데이터 테이블
+    </button>
+
+    </div><!-- /map-wrap -->
+
+  </div><!-- /main-grid -->
+
+  <!-- ================================================================
+       마스터 데이터 바텀시트 테이블 (Raw section 대체)
+  ================================================================ -->
+
+  <div id="master-sheet" class="master-sheet">
+    <!-- 드래그 핸들 -->
+    <div class="master-sheet-handle" id="master-sheet-handle">
+      <div class="master-sheet-handle-bar"></div>
+      <span class="master-sheet-title" id="master-sheet-title">전국 주의/Bad CE 건물 (Top50)</span>
+      <span class="master-sheet-hint" id="master-sheet-hint">▲ 올려서 더 보기</span>
+    </div>
+    <!-- 테이블 영역 -->
+    <div class="master-sheet-body" id="master-sheet-body">
+      <table class="master-tbl">
+        <thead>
+          <tr>
+            <th>건물코드</th>
+            <th>건물명</th>
+            <th>세대수</th>
+            <th>가입자수</th>
+            <th>평균CEI</th>
+            <th>Bad CEI 고객수</th>
+            <th>VoC 건수</th>
+            <th>VoC 율(%)</th>
+          </tr>
+        </thead>
+        <tbody id="master-tbl-body">
+          <tr><td colspan="9" class="master-tbl-loading">데이터 불러오는 중…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /tab-main -->
+
+
+<!-- ================================================================
+     TAB — 점검·조치 (대상 추출 → 지시서 FSM → 실적 집계)
+================================================================ -->
+<div id="tab-ops" class="tab-content">
+  <!-- 개발중 안내 (0821) — 아래 기존 콘텐츠는 CSS로 숨김 (코드 보존) -->
+  <div class="c1-wip">
+    <div class="c1-wip-card">
+      <div class="c1-wip-ic"><i data-lucide="construction"></i></div>
+      <h2>개발 중인 화면입니다</h2>
+      <p>회선 단위 Reset 개선현황은 준비 중입니다.<br>지난밤 Auto-reset(자율복구) 실적은 홈 브리핑과 장비 탭에서 확인할 수 있습니다.</p>
+      <button class="ops-btn ops-btn--primary" onclick="document.getElementById('snav-main').click()">관제 화면으로 이동</button>
+    </div>
+  </div>
+
+  <div class="ops-wrap">
+
+    <!-- 실적 스탯 타일 -->
+    <section class="ops-stats" id="ops-stats">
+      <div class="ops-stat"><div class="ops-stat-val" id="os-issued">—</div><div class="ops-stat-lbl" title="Ticket(작업지시서) 발행 후 아직 조치가 완료되지 않은 건수">발행 (진행중)</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="os-resolved">—</div><div class="ops-stat-lbl" title="현장 조치가 완료돼 결과가 등록된 지시서 수">조치 완료</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="os-lead">—</div><div class="ops-stat-lbl" title="지시서 발행부터 조치 완료까지 걸린 평균 시간">평균 리드타임</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="os-delta">—</div><div class="ops-stat-lbl" title="조치 후 재진단에서 확인된 CEI(고객 체감 품질 지수) 평균 개선폭">재진단 CEI 개선</div></div>
+    </section>
+
+    <div class="ops-grid">
+
+      <!-- 좌: 조치 대상 추출 -->
+      <section class="ops-card">
+        <div class="ops-card-hd">
+          <span class="ops-card-title">조치 대상 추출<span class="loop-tag" title="Closed-loop 단계: 대상선정 — 효과 높은 대상을 선별 Logic으로 추리는 단계">대상선정</span></span>
+          <span class="ops-card-sub" id="ops-target-meta"></span>
+        </div>
+        <div class="ops-filter">
+          <select id="ops-team" class="ops-select"><option value="">전체 팀</option></select>
+          <select id="ops-tpo" class="ops-select"><option value="">전체 국사</option></select>
+          <div class="ops-factors" id="ops-factors">
+            <button class="ops-chip" data-f="badce">Bad CE</button>
+            <button class="ops-chip" data-f="voc">VoC</button>
+            <button class="ops-chip" data-f="optic">광파워</button>
+            <button class="ops-chip" data-f="rtt">RTT</button>
+            <button class="ops-chip" data-f="loss">Loss</button>
+            <button class="ops-chip" data-f="traffic">트래픽</button>
+          </div>
+          <input id="ops-blds" class="ops-input" placeholder="건물코드 직접 지정 (쉼표/줄바꿈 구분 — 선택)" />
+          <button class="ops-btn ops-btn--primary ops-action-end" onclick="opsSearch()">추출</button>
+        </div>
+        <div class="ops-tbl-wrap">
+          <table class="ops-tbl">
+            <thead><tr>
+              <th><input type="checkbox" id="ops-check-all" onchange="opsCheckAll(this)"></th>
+              <th>건물</th><th>팀</th><th title="CEI (Customer Experience Index) — 고객 체감 품질 지수, 높을수록 양호">CEI</th>
+              <th title="C등급 고객수 (75~80점)">C등급</th>
+              <th title="D등급 고객수 (75점 이하) — 최우선">D등급</th>
+              <th title="VoC (Voice of Customer) — 고객 불만 접수 건수">VoC</th>
+              <th title="CEI를 끌어내린 열위 품질 Factor (광파워·RTT·Loss 등)">열위 factor</th>
+              <th title="C-One 대상선정 스코어 — 높을수록 조치 효과가 클 것으로 예상">점수</th>
+            </tr></thead>
+            <tbody id="ops-target-body">
+              <tr><td colspan="9" class="ops-empty">조회조건을 선택하고 [추출]을 누르세요</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ops-card-ft">
+          <span id="ops-sel-cnt" class="ops-card-sub">0건 선택</span>
+          <div style="display:flex;gap:6px">
+            <button class="ops-btn" onclick="opsDownloadTop()" title="현재 조회조건 기준 Top 50 장표"><i data-lucide="download"></i> Top 50 다운</button>
+            <button class="ops-btn ops-btn--primary" onclick="opsIssue()">지시서 발행</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 우: 진행 보드 + 결과 등록 -->
+      <section class="ops-card">
+        <div class="ops-card-hd">
+          <span class="ops-card-title" title="Ticket(작업지시서) — 발행 → 조치완료 → 검증완료 순으로 진행">지시서 진행 보드<span class="loop-tag" title="Closed-loop 단계: 조치 — Auto-reset(자율복구) 또는 Ticket(작업지시서)으로 수행하는 단계">조치</span></span>
+          <div class="ops-status-chips" id="ops-status-chips">
+            <button class="ops-chip active" data-s="">전체</button>
+            <button class="ops-chip" data-s="issued">발행</button>
+            <button class="ops-chip" data-s="resolved">조치완료</button>
+            <button class="ops-chip" data-s="verified">검증완료</button>
+            <button class="ops-chip" data-s="dropped">중단</button>
+          </div>
+        </div>
+        <div class="ops-board" id="ops-board">
+          <div class="ops-empty">지시서가 없습니다<br><span class="ops-td-sub">좌측 조치 대상에서 건물을 선택해 [지시서 발행]을 누르면 여기에 표시됩니다</span></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 조직별 실적 (세부 장표) -->
+    <section class="ops-card ops-card--stats">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">조직별 실적<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span>
+        <button class="ops-btn" onclick="location.href=`${BASE_PATH}/api/workitems/download`"><i data-lucide="download"></i> 세부 장표 다운</button>
+      </div>
+      <div class="ops-tbl-wrap" style="max-height:260px">
+        <table class="ops-tbl">
+          <thead><tr>
+            <th>운용팀</th><th>총 지시서</th><th>진행중</th><th>조치완료</th><th>검증완료</th>
+            <th>개선</th><th>평균 CEI 개선</th><th>평균 리드타임</th>
+          </tr></thead>
+          <tbody id="ops-team-stats">
+            <tr><td colspan="9" class="ops-empty">지시서 실적이 쌓이면 표시됩니다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ================================================================
+     TAB — 장비 (장비품질개선: 건물 대상 → 품질 저조 장비 → 장비단위 지시서)
+     데이터: 장비별 품질 정보 — 기준일 D 선택, D-1~D+7 창으로 추이·전후 구성
+================================================================ -->
+<div id="tab-eqp" class="tab-content">
+  <div class="ops-wrap">
+
+    <!-- 관제 진단 → BS 관리 진입 컨텍스트 배너 (goBsManage 진입 시에만 eqp.js가 렌더) -->
+    <div id="eqp-ctx-banner" class="eqp-ctx-banner" hidden></div>
+
+    <div class="ops-grid">
+
+      <!-- 좌: 조치 대상 (건물 목록) ↔ 토폴로지 진단 (드릴다운 화면 전환)
+           아코디언(행 삽입) 방식은 폐지 — 스티키 테이블 헤더와의 겹침 원천 제거 -->
+      <section class="ops-card">
+
+        <!-- 뷰 1: 대상 목록 (필터·AR 리포트·건물 테이블) -->
+        <div id="eqp-list-view" class="eqp-view">
+          <div class="ops-card-hd">
+            <span class="ops-card-title">조치 대상<span class="loop-tag" title="Closed-loop 단계: 대상선정 — 효과 높은 대상을 선별 Logic으로 추리는 단계">대상선정</span></span>
+            <span class="ops-card-sub" id="eqp-target-meta"></span>
+          </div>
+          <div class="ops-filter">
+            <select id="eqp-team" class="ops-select" onchange="eqpTeamChanged()"><option value="">전체 HNS 팀</option></select>
+            <select id="eqp-post" class="ops-select"><option value="">전체 post</option></select>
+            <input id="eqp-base-date" type="date" class="ops-select" title="기준일 (D) — D-1~D+7 창으로 추이 구성" />
+            <input id="eqp-blds" class="ops-input" placeholder="건물코드 직접 지정 (쉼표/줄바꿈 구분 — 선택)" />
+            <button class="ops-btn ops-btn--primary ops-action-end" onclick="eqpSearch()">추출</button>
+          </div>
+          <!-- 새벽 자율복구 결과 리포트 (아침 출근 시나리오) — eqp.js 가 렌더 -->
+          <div id="eqp-ar-report" class="eqp-ar-report" hidden></div>
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead><tr>
+                <th>건물코드</th><th>건물명</th>
+                <th title="CD등급 고객 — CEI(고객 체감 품질 지수) C·D등급(열위) 가입자 수">CD등급 고객수</th>
+                <th title="VoC (Voice of Customer) — 고객 불만 접수 건수">VoC수</th>
+                <th title="C-One 대상선정 스코어 — C·D 가입자·VoC·열위 factor 가중 합산 (높을수록 우선)">스코어</th>
+                <th title="기준일 포함 최근 7일 CEI 추이 (기준일 막대 강조) — 막대 색 = 해당일 CEI 등급색 (S~D)">일주일간 추이</th>
+              </tr></thead>
+              <tbody id="eqp-target-body">
+                <tr><td colspan="6" class="ops-empty">C-One이 조치 대상을 선정하는 중…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /eqp-list-view -->
+
+        <!-- 뷰 2: 토폴로지 진단 러너북 (건물 클릭 시 카드 전체 폭으로 전환)
+             헤더는 스크롤 컨테이너(#eqp-steps) 밖 — 겹침 구조적으로 불가 -->
+        <div id="eqp-detail-view" class="eqp-view" hidden>
+          <div class="eqp-dx-hd">
+            <button class="ops-btn eqp-dx-back" onclick="eqpBackToList()" title="검색 결과·필터 그대로 목록으로 복귀">&larr; 대상 목록</button>
+            <div class="eqp-dx-info">
+              <b id="eqp-dx-title">—</b>
+              <span class="ops-td-sub" id="eqp-dx-meta"></span>
+            </div>
+            <span class="eqp-dx-badge" title="Closed-loop 단계: 진단 — 망 구성(토폴로지)을 따라 원인 구간을 좁히는 단계">토폴로지 진단</span>
+          </div>
+          <!-- 단계형 러너북 (STEP 1~4) — eqp.js eqpRenderSteps()가 렌더.
+               ①진단 스캔 ②개별 회선→자율복구 이관 ③OLT-ONU 구간 점검 ④ONU 점검 -->
+          <div id="eqp-steps" class="eqp-steps"></div>
+        </div><!-- /eqp-detail-view -->
+
+      </section>
+
+      <!-- 좌우 폭 조절 스플리터 — eqp.js eqpSplitInit() (드래그 · 더블클릭=기본 비율 복원) -->
+      <div class="eqp-split" id="eqp-split" role="separator" aria-orientation="vertical"
+           aria-label="패널 폭 조절 — 드래그로 조절, 더블클릭으로 기본 비율 복원"
+           title="드래그로 폭 조절 · 더블클릭 = 기본 비율"></div>
+
+      <!-- 우: 장비별 정보 (0820 대개편) — 러너북 표에서 장비 행 클릭 시
+           equip-insight(INF 가입자 마스터 조인)를 렌더. eqp.js eqpInsightSelect() -->
+      <section class="ops-card eqp-ins" id="eqp-insight">
+        <div class="ops-card-hd">
+          <span class="ops-card-title">장비별 정보<span class="loop-tag" title="Closed-loop 단계: 진단 — 선택 장비의 가입자·품질 상세를 분석하는 단계">진단</span></span>
+          <span class="ops-card-sub" id="eqp-ins-meta"></span>
+          <button class="ops-btn eqp-ins-mail" onclick="eqpInsMail()"
+                  title="이 진단 패널을 캡쳐해 메일로 발송"><i data-lucide="mail"></i> 캡쳐 메일</button>
+        </div>
+        <div class="eqp-ins-body" id="eqp-ins-body">
+          <div class="ops-empty">러너북에서 장비를 선택하면<br>상세가 표시됩니다</div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div><!-- /tab-eqp -->
+
+<!-- ================================================================
+     TAB — 지시서 보드 (장비품질개선: 진행 보드 · 실적 — 장비탭에서 분리, 0820)
+     기존 id(eqp-board·eqp-status-chips·eqs-*·eqp-team-stats·eqp-org-chips)
+     그대로 이동 — eqp.js의 발행→보드 갱신·결과등록/재진단 흐름 무수정 동작
+================================================================ -->
+<div id="tab-board" class="tab-content">
+  <div class="ops-wrap">
+
+    <!-- 지시서 실적 타일 — 발행/조치/개선/미개선 (핵심 KPI 최상단, 0820 레이아웃 정리) -->
+    <section class="ops-stats">
+      <div class="ops-stat"><div class="ops-stat-val" id="eqs-issued">—</div><div class="ops-stat-lbl" title="Ticket(작업지시서) — FMS 연계로 현장 Post(BS 조직)에 할당되는 작업지시">지시서 발행</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="eqs-resolved">—</div><div class="ops-stat-lbl" title="현장 조치가 완료돼 결과가 등록된 지시서 수">조치 완료</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-good" id="eqs-improved">—</div><div class="ops-stat-lbl" title="조치 후 CEI 효과검증에서 개선이 확인된 건수">개선</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-bad" id="eqs-notimp">—</div><div class="ops-stat-lbl" title="조치 후에도 CEI가 개선되지 않아 재조치 검토가 필요한 건수">미개선</div></div>
+    </section>
+
+    <!-- 최근 30일 이력 요약 — GET /api/eqp/workitems 전체 응답을 프론트에서
+         issued_at 기준 집계 (백엔드 무수정). eqp.js eqpLoadHist30() 이 렌더 -->
+    <section class="ops-card eqh-card" id="eqp-hist30">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">최근 30일 이력 요약<span class="loop-tag" title="Closed-loop 단계: 효과검증 — 발행·조치 이후 개선/미개선 결과를 집계하는 단계">효과검증</span></span>
+        <span class="ops-card-sub" id="eqh-range">—</span>
+      </div>
+      <div class="eqh-body">
+        <div class="eqh-kpis" id="eqh-kpis"><span class="ops-empty ops-empty--sm">이력 집계 중…</span></div>
+        <div class="eqh-chart">
+          <div class="eqh-chart-hd">
+            <span>일별 발행 · 조치</span>
+            <span class="eqh-legend"><i class="eqh-lg eqh-lg--issued"></i>발행<i class="eqh-lg eqh-lg--resolved"></i>조치</span>
+          </div>
+          <div id="eqh-bars"></div>
+          <div class="eqh-bars-x" id="eqh-bars-x"></div>
+        </div>
+        <div class="eqh-teams" id="eqh-teams"></div>
+      </div>
+    </section>
+
+    <!-- 진행 보드 (장비단위 지시서 진행 — 세부 Factor 표기) -->
+    <section class="ops-card board-main-card">
+      <div class="ops-card-hd">
+        <span class="ops-card-title" title="Ticket(작업지시서) — 발행 → 조치완료 → 검증완료 순으로 진행">지시서 진행 보드<span class="loop-tag" title="Closed-loop 단계: 조치 — Auto-reset(자율복구) 또는 Ticket(작업지시서)으로 수행하는 단계">조치</span></span>
+        <div class="ops-status-chips" id="eqp-status-chips">
+          <button class="ops-chip active" data-s="">전체</button>
+          <button class="ops-chip" data-s="issued">발행</button>
+          <button class="ops-chip" data-s="resolved">조치완료</button>
+          <button class="ops-chip" data-s="verified">검증완료</button>
+          <button class="ops-chip" data-s="dropped">중단</button>
+        </div>
+        <!-- 보기 전환 — 누적 건이 많을 때는 리스트, 상세 확인은 카드 (0821) -->
+        <div class="eqp-board-viewtg" id="eqp-board-viewtg">
+          <button class="ops-chip" data-view="list" onclick="eqpBoardSetView('list')">리스트로 보기</button>
+          <button class="ops-chip" data-view="card" onclick="eqpBoardSetView('card')">자세히 보기</button>
+        </div>
+      </div>
+      <div class="ops-board" id="eqp-board">
+        <div class="ops-empty">지시서가 없습니다<br><span class="ops-td-sub">장비 탭 조치 대상에서 [지시서 발행]을 누르면 여기에 표시됩니다</span></div>
+      </div>
+    </section>
+
+    <!-- 조직별 실적 — SKB/HNS 토글 -->
+    <section class="ops-card ops-card--stats">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">조직별 실적<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span>
+        <div class="ops-status-chips" id="eqp-org-chips">
+          <button class="ops-chip active" data-o="skb">SKB</button>
+          <button class="ops-chip" data-o="hns">HNS</button>
+        </div>
+      </div>
+      <div class="ops-tbl-wrap" style="max-height:260px">
+        <table class="ops-tbl">
+          <thead><tr>
+            <th>팀명</th><th>지시서</th><th>조치완료</th><th>개선 건수</th><th>CEI 전후 점수</th>
+          </tr></thead>
+          <tbody id="eqp-team-stats">
+            <tr><td colspan="5" class="ops-empty">지시서 실적이 쌓이면 표시됩니다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div><!-- /tab-board -->
+
+<!-- ================================================================
+     TAB — 장비별 조치 전후 CEI 트렌드 (엑셀 업로드 → 기준일 전/후 비교)
+================================================================ -->
+<div id="tab-equip" class="tab-content">
+  <!-- 개발중 안내 (0821) — 아래 기존 콘텐츠는 CSS로 숨김 (코드 보존) -->
+  <div class="c1-wip">
+    <div class="c1-wip-card">
+      <div class="c1-wip-ic"><i data-lucide="construction"></i></div>
+      <h2>개발 중인 화면입니다</h2>
+      <p>reset 수행내역·Factor별 연관도 분석은 준비 중입니다.<br>장비별 자율복구 이력은 장비 탭의 세부이력에서 확인할 수 있습니다.</p>
+      <button class="ops-btn ops-btn--primary" onclick="document.getElementById('snav-main').click()">관제 화면으로 이동</button>
+    </div>
+  </div>
+
+  <div class="insight-layout ops-layout">
+
+    <!-- A. 좌 조회조건 패널 -->
+    <aside class="filter-panel" aria-label="장비 조회 조건">
+      <div class="fp-body">
+
+        <div class="fp-section">
+          <div class="fp-label">장비 리스트 엑셀</div>
+          <div class="fp-file">
+            <input id="eq-file" type="file" class="fp-file-input" accept=".xlsx,.xls,.csv"
+                   aria-label="장비 리스트 파일 (xlsx/csv)" />
+            <label for="eq-file" class="fp-file-btn"><i data-lucide="upload"></i>파일 선택</label>
+            <span class="fp-file-name" id="eq-file-name">선택된 파일 없음</span>
+            <button type="button" id="eq-file-clear" class="fp-file-btn" hidden
+                    aria-label="선택 파일 해제" title="선택 파일 해제 — 직접 입력으로 조회">✕</button>
+          </div>
+          <div class="fp-hint">TID/관리번호 헤더가 있으면 해당 열만 사용 · cp949/UTF-8 지원</div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-label">장비 직접 입력 (선택)</div>
+          <textarea id="eq-ids" class="ops-input fp-input" rows="4"
+                    placeholder="관리번호 또는 TID&#10;쉼표/줄바꿈 구분"></textarea>
+          <div class="fp-hint">파일 선택 시 추출된 TID가 여기 표시됨 · 파일과 함께 쓰면
+            파일이 우선 (일부만 조회하려면 파일 해제 후 목록 편집)</div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-label">기준일 (조치일)</div>
+          <input id="eq-base-date" type="date" class="ops-input fp-input" aria-label="기준일" />
+          <div class="fp-hint">미지정 시 전/후가 모두 있는 최근 날짜 · 데이터 보관 최근 30일</div>
+        </div>
+
+        <div class="fp-section">
+          <div class="fp-label">조회 결과</div>
+          <div class="fp-pill" id="eq-meta">아직 조회 전</div>
+        </div>
+
+        <div class="fp-section">
+          <button type="button" id="eq-run" class="fp-apply" onclick="equipQuery()">전후 비교 조회</button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- B. 콘텐츠 — 전/후 요약 + 트렌드 차트 + 장비별 테이블 -->
+    <div class="ops-content">
+
+      <section class="ops-stats">
+        <div class="ops-stat"><div class="ops-stat-val is-empty" id="eq-before">—</div><div class="ops-stat-lbl" id="eq-before-lbl" title="CEI (Customer Experience Index) — 고객 체감 품질 지수, 기준일(조치일) 이전 평균">조치 전 CEI 평균</div></div>
+        <div class="ops-stat"><div class="ops-stat-val is-empty" id="eq-after">—</div><div class="ops-stat-lbl" id="eq-after-lbl" title="기준일(조치일) 이후 CEI 평균">조치 후 CEI 평균</div></div>
+        <div class="ops-stat"><div class="ops-stat-val is-empty" id="eq-delta">—</div><div class="ops-stat-lbl" title="조치 후 평균 - 조치 전 평균 (양수 = 개선)">전후 변화</div></div>
+        <div class="ops-stat"><div class="ops-stat-val is-empty" id="eq-scope">—</div><div class="ops-stat-lbl" title="업로드 목록 중 품질 데이터와 매칭된 장비 수 · 그 장비의 가입자 수">매칭 장비 · 가입자</div></div>
+      </section>
+
+      <section class="ops-panel" aria-label="CEI 트렌드 차트">
+        <div class="mt-toolbar">
+          <div class="ops-tb-left"><span class="ops-panel-title">CEI 트렌드 (기준일 전후)<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span></div>
+          <div class="ops-tb-right">
+            <button type="button" class="ops-chip" id="eq-legend-reset" hidden
+                    title="숨긴 라인을 모두 다시 표시">모든 라인 표시</button>
+          </div>
+        </div>
+        <!-- 안내문은 툴바 밖 전용 캡션 라인 — 길어져도 제목과 겹치지 않고 줄바꿈 -->
+        <div class="eq-note-line" id="eq-note" hidden></div>
+        <div class="chart-wrap eq-chart-wrap">
+          <canvas id="eq-chart" role="img" aria-label="장비별 날짜별 CEI 평균 라인 차트"></canvas>
+          <div class="eq-empty" id="eq-chart-empty">
+            <i data-lucide="chart-line"></i>
+            <p>장비 리스트를 업로드하고 [전후 비교 조회]를 누르면<br>기준일 전후 트렌드가 표시됩니다</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ops-panel" aria-label="장비별 개선 전후 비교">
+        <div class="mt-toolbar eq-tbl-toolbar">
+          <div class="ops-tb-left">
+            <span class="ops-panel-title">장비별 개선 전후 비교<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span>
+            <span class="fp-hint" id="eq-count" aria-live="polite"></span>
+          </div>
+          <div class="ops-tb-right eq-tbl-tools">
+            <div class="ops-status-chips" role="group" aria-label="장비 표 빠른 필터">
+              <button type="button" class="ops-chip active" data-eq-filter="all">전체</button>
+              <button type="button" class="ops-chip" data-eq-filter="improved">개선</button>
+              <button type="button" class="ops-chip" data-eq-filter="worse">악화</button>
+              <button type="button" class="ops-chip" data-eq-filter="bad-down">Bad 감소</button>
+            </div>
+            <div class="mt-search eq-search">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="eq-search" placeholder="국소명·관리번호·TID 검색" autocomplete="off" aria-label="장비 표 검색" />
+            </div>
+            <span class="eq-export-err" id="eq-export-err" role="alert"></span>
+            <button type="button" class="ops-btn eq-export-btn" id="eq-export" disabled
+                    title="현재 조회 결과 전체를 엑셀로 다운로드 (조회 후 활성화)">
+              <i data-lucide="download"></i>xlsx
+            </button>
+          </div>
+        </div>
+        <!-- 미매칭 안내 — 사유별 요약 + [자세히] 전체 목록 펼침 -->
+        <div class="eq-unmatched-line" id="eq-unmatched" hidden>
+          <span id="eq-unmatched-sum"></span>
+          <button type="button" class="eq-unmatched-toggle" id="eq-unmatched-toggle"
+                  aria-expanded="false" aria-controls="eq-unmatched-detail" hidden>자세히</button>
+        </div>
+        <div class="eq-unmatched-detail" id="eq-unmatched-detail" hidden></div>
+        <div class="mt-body">
+          <table class="master-tbl mt-tbl" id="eq-tbl">
+            <thead><tr>
+              <th class="mt-th mt-th--left" data-sort="tpo_nm" role="button" tabindex="0">국소명<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--left" data-sort="equip_mgmt_num" role="button" tabindex="0">장비관리번호<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--left" data-sort="tid" role="button" tabindex="0">TID<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="svc_cnt" role="button" tabindex="0">가입자수<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="before" role="button" tabindex="0">개선전 CEI평균<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="after" role="button" tabindex="0">개선후 CEI평균<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="delta" role="button" tabindex="0">변화<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="bad_before" role="button" tabindex="0">개선전 Bad가입자수<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="bad_after" role="button" tabindex="0">개선후 Bad가입자수<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--num" data-sort="bad_delta" role="button" tabindex="0">Bad가입자수 변화<span class="mt-sort" aria-hidden="true"></span></th>
+              <th class="mt-th mt-th--left" data-sort="grade_chg" role="button" tabindex="0">등급변화<span class="mt-sort" aria-hidden="true"></span></th>
+            </tr></thead>
+            <tbody id="eq-tbl-body">
+              <tr><td colspan="11" class="ops-empty"><span class="eq-empty-inline"><i data-lucide="table-2"></i>장비 리스트를 업로드하고 [전후 비교 조회]를 누르면 장비별 개선 전후 비교가 표시됩니다</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Factor별 연관도 분석 — reset 수행내역과 한 화면 (준비 중 섹션) -->
+      <section class="ops-card">
+        <div class="ops-card-hd"><span class="ops-card-title" title="품질 Factor — 광파워·RTT·Loss·트래픽 등 CEI를 구성하는 세부 지표">Factor별 연관도 분석<span class="loop-tag" title="Closed-loop 단계: 학습 — 결과를 축적해 대상선정 Logic을 개선하는 단계">학습</span></span></div>
+        <div class="tab-placeholder">
+          <i data-lucide="share-2"></i>
+          <p><b>Factor별 연관도 분석</b> 준비 중입니다<br>Reset 수행 결과와 품질 Factor 간 연관도 분석이 여기에 표시될 예정입니다</p>
+        </div>
+      </section>
+
+    </div><!-- /ops-content -->
+  </div>
+</div><!-- /tab-equip -->
+
+<!-- ================================================================
+     TAB — TOP30 (장비품질개선: 업로드 건물 목록 × 라이브 품질 진단)
+     좌: 건물 리스트(상태·BAD% 추이) / 우: 선택 건물 상세(장비 상태·조치 이력)
+================================================================ -->
+<div id="tab-top30" class="tab-content">
+  <div class="ops-wrap">
+
+    <!-- 상단 KPI — 탭 최상단 (사용자 요청 0821: 전체 요약 수치가 먼저) -->
+    <section class="ops-stats t30-stats">
+      <div class="ops-stat"><div class="ops-stat-val" id="t30-total">—</div><div class="ops-stat-lbl" title="팀이 직접 선정한 평가용 관리 국소(건물) 수">대상 건물</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-bad" id="t30-critical">—</div><div class="ops-stat-lbl" title="CEI 열위 또는 BAD%(C·D등급 가입자 비율) 급등으로 즉시 확인이 필요한 건물">위험 상태</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="t30-pending">—</div><div class="ops-stat-lbl" title="Ticket(작업지시서)이 발행돼 현장 조치를 기다리는 건물">조치 대기 (지시서 진행중)</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-good" id="t30-verified">—</div><div class="ops-stat-lbl" title="조치 후 CEI 전후 비교로 개선이 확인된 건물">CEI 효과검증 완료</div></div>
+    </section>
+
+    <!-- 팀별 관리 성과 스코어보드 (Sheet3 프레임) — TOP 국소는 팀이
+         직접 선정한 실적 평가용 관리 건물, "어느 팀이 잘 관리하나"가 이 탭의 주인공.
+         필터와 무관하게 전체 목록 기준 집계 · 카드 클릭 = 팀 필터 (파트 드릴다운) -->
+    <section class="ops-card t30-teamboard" id="t30-teamboard" hidden>
+      <div class="ops-card-hd t30-tb-hd">
+        <div class="t30-tb-titles">
+          <span class="ops-card-title">TOP 국소 — 팀별 관리 성과<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span>
+          <span class="ops-card-sub">팀이 직접 선정한 평가용 관리 국소 · 구간 Activity 작업 → CEI·VoC 추이 분석 → 팀(SKB/HNS) 실적 관리</span>
+        </div>
+        <span class="ops-td-sub t30-tb-meta" id="t30-tb-meta"></span>
+      </div>
+      <div class="t30-tb-grid" id="t30-tb-grid"></div>
+      <!-- 팀 선택 시 파트별 드릴다운 줄 — top30.js가 렌더 -->
+      <div class="t30-tb-parts" id="t30-tb-parts" hidden></div>
+    </section>
+
+    <!-- 개선 성과 스트립 — Closed-loop 효과 (전국 등급 실적·졸업·C·D 감소·Goal 전망) -->
+    <section class="ops-stat t30-insight" id="t30-insight" hidden aria-label="개선 성과">
+      <!-- ① 전체 관점 실적 (5-3 우측) — 전국 S~D 등급 고객수, 전일 비·전주 비 -->
+      <div class="t30-ins-grades" id="t30-ins-grades" hidden
+           aria-label="전국 등급별 고객수 — 전일·전주 비"></div>
+      <!-- ② 추세 + 졸업 + 전주 대비 + 스토리 -->
+      <div class="t30-ins-flow">
+        <div class="t30-ins-chart">
+          <div class="ops-stat-lbl">전국 C·D 등급 비중 — 추세와 전망</div>
+          <div id="t30-ins-svg"></div>
+          <div class="t30-ins-goal ops-td-sub" id="t30-ins-goal" hidden></div>
+        </div>
+        <div class="t30-ins-tile">
+          <div class="ops-stat-lbl">TOP30 졸업 (정상 복귀)</div>
+          <div class="t30-ins-val"><b class="ops-good" id="t30-ins-grad">—</b>
+            <span class="ops-td-sub">누적 · 재진입 <b id="t30-ins-reentry">—</b>건</span></div>
+        </div>
+        <div class="t30-ins-tile">
+          <div class="ops-stat-lbl">C·D 비중 — 전주 대비</div>
+          <div class="t30-ins-val" id="t30-ins-delta">—</div>
+        </div>
+        <div class="t30-ins-story ops-td-sub">
+          수작업 개별 추적(As-Is) → Auto-reset(자율복구)·지시서(Ticket) 자동 순환(To-Be):
+          TOP30이 계속 졸업하며 전국 C·D 비중이 줄어듭니다
+        </div>
+      </div>
+      <!-- 팀별 진도(5-5)는 아래 "팀별 관리 성과 스코어보드"로 통합 -->
+    </section>
+
+    <div class="t30-grid">
+
+      <!-- 좌: 건물 리스트 -->
+      <section class="ops-card">
+        <div class="ops-card-hd">
+          <span class="ops-card-title">관리 국소 목록<span class="loop-tag" title="Closed-loop 단계: 탐지 — CEI·VoC·장비 데이터에서 이상 신호를 발견하는 단계">탐지</span></span>
+          <span class="ops-card-sub" id="t30-meta"></span>
+        </div>
+        <div class="ops-filter">
+          <span class="ops-td-sub" style="font-weight:700; white-space:nowrap;">담당조직</span>
+          <select id="t30-team" class="ops-select" title="담당조직 — 팀" onchange="t30TeamChanged(); t30Load()"><option value="">전체 팀</option></select>
+          <select id="t30-part" class="ops-select" title="담당조직 — 파트" onchange="t30Load()"><option value="">전체 파트</option></select>
+          <input id="t30-base-date" type="date" class="ops-select" title="기준일 (D) — D-1~D+7 창으로 추이 구성" onchange="t30Load()" />
+          <div class="ops-factors" id="t30-media-chips">
+            <button class="ops-chip active" data-m="TOP30">TOP30</button>
+            <button class="ops-chip" data-m="">전체</button>
+          </div>
+          <input id="t30-q" class="ops-input" placeholder="건물명/코드 검색" oninput="t30SearchDebounced()" />
+          
+          <input id="t30-file" type="file" accept=".xlsx,.xls,.csv" hidden onchange="t30Upload(this)" />
+          <button class="ops-btn ops-action-end" onclick="document.getElementById('t30-file').click()"
+                  title="TOP30 건물 목록 업로드 (관리자 — 전 사용자 공유)"><i data-lucide="upload"></i> 목록 업로드</button>
+          
+        </div>
+        <div class="ops-tbl-wrap t30-tbl-wrap">
+          <table class="ops-tbl">
+            <thead><tr>
+              <th>순위</th><th>건물</th><th>팀 / 파트</th>
+              <th title="팀 내 관리 우선순위 — 업로드 목록 기준">팀순위</th><th>상태</th>
+              <th title="CEI (Customer Experience Index) — 고객 체감 품질 지수, 높을수록 양호">CEI</th><th title="C·D등급(열위) 가입자 비율 — 낮을수록 양호">BAD%</th>
+              <th title="기준일 D-1 ~ D+7 일별 BAD% — 막대가 낮아지면 개선">추이</th>
+            </tr></thead>
+            <tbody id="t30-body">
+              <tr><td colspan="8" class="ops-empty">관리자가 TOP30 목록을 업로드하면 표시됩니다</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 우: 선택 건물 상세 -->
+      <section class="ops-card t30-detail" id="t30-detail">
+        <div class="ops-empty" id="t30-detail-empty">건물을 선택하면<br>장비 상태와 조치 이력이 표시됩니다</div>
+        <div id="t30-detail-body" hidden>
+          <div class="t30-d-head">
+            <div>
+              <div class="t30-d-name" id="t30-d-name">—</div>
+              <div class="ops-td-sub" id="t30-d-sub">—</div>
+            </div>
+            <span class="ops-status" id="t30-d-status"></span>
+          </div>
+          <div class="t30-d-stats">
+            <div class="t30-d-stat"><div class="t30-d-stat-lbl">CEI (기준일)</div><div class="t30-d-stat-val" id="t30-d-cei">—</div><div class="ops-td-sub" id="t30-d-cei-delta"></div></div>
+            <div class="t30-d-stat"><div class="t30-d-stat-lbl">가입자</div><div class="t30-d-stat-val" id="t30-d-svc">—</div></div>
+            <div class="t30-d-stat"><div class="t30-d-stat-lbl">BAD%</div><div class="t30-d-stat-val" id="t30-d-bad">—</div></div>
+            <div class="t30-d-stat"><div class="t30-d-stat-lbl">VoC (당일)</div><div class="t30-d-stat-val" id="t30-d-voc">—</div></div>
+          </div>
+          <div class="ops-td-sub" id="t30-d-trend" title="기준일 D-1 ~ D+7 일별 BAD% 추이"></div>
+          <!-- 개선 History (5-3 좌) — 최초 수준 → BS 발행·처리 → 처리 후 추이 타임라인 -->
+          <div class="t30-hist" id="t30-d-hist" hidden></div>
+          <div class="t30-d-tabs">
+            <button class="t30-d-tab active" id="t30-tab-eq" onclick="t30DetailTab('eq', this)">장비 품질</button>
+            <button class="t30-d-tab" id="t30-tab-wk" onclick="t30DetailTab('wk', this)">작업 이력</button>
+            <button class="t30-d-tab" id="t30-tab-his" onclick="t30DetailTab('his', this)">지시서</button>
+          </div>
+          <div class="t30-d-pane" id="t30-pane-eq"></div>
+          <div class="t30-d-pane" id="t30-pane-wk" hidden></div>
+          <div class="t30-d-pane" id="t30-pane-his" hidden></div>
+          <div class="t30-d-foot">
+            <div class="ops-td-sub" style="margin-bottom:6px">Auto-reset(자율복구) 불가 대상은 지시서로 현장 조치 → CEI 효과검증</div>
+            <button class="fp-apply t30-d-cta" onclick="t30GoIssue()">장비 탭에서 이 건물 지시서 발행</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div><!-- /tab-top30 -->
+
+<!-- ================================================================
+     TAB — 작업 (장비 탭과 동일 구성: 조치 대상 → 행 클릭 아코디언 →
+     장비단위 지시서(domain='work') → 진행 보드 → 조직별 실적)
+================================================================ -->
+<div id="tab-work" class="tab-content">
+  <div class="ops-wrap">
+
+    <!-- 실적 스탯 타일 — 지시서발행 / 조치완료 / 개선 / 미개선 -->
+    <section class="ops-stats">
+      <div class="ops-stat"><div class="ops-stat-val" id="wks-issued">—</div><div class="ops-stat-lbl" title="Ticket(작업지시서) — FMS 연계로 현장 Post(BS 조직)에 할당되는 작업지시">지시서 발행</div></div>
+      <div class="ops-stat"><div class="ops-stat-val" id="wks-resolved">—</div><div class="ops-stat-lbl" title="현장 조치가 완료돼 결과가 등록된 지시서 수">조치 완료</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-good" id="wks-improved">—</div><div class="ops-stat-lbl" title="조치 후 CEI 효과검증에서 개선이 확인된 건수">개선</div></div>
+      <div class="ops-stat"><div class="ops-stat-val ops-bad" id="wks-notimp">—</div><div class="ops-stat-lbl" title="조치 후에도 CEI가 개선되지 않아 재조치 검토가 필요한 건수">미개선</div></div>
+    </section>
+
+    <!-- Loop 인사이트 — 결과 축적/학습 (CEI 효과검증 결과를 대상선정 Logic 으로 환류) -->
+    <section class="ops-card li-card">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">Loop 인사이트<span class="loop-tag" title="Closed-loop 단계: 학습 — 결과를 축적해 대상선정 Logic을 개선하는 단계">학습</span>
+          <span class="ops-card-sub">결과 축적/학습 — 검증된 조치 효과를 대상선정 Logic 개선에 환류</span></span>
+      </div>
+      <div id="li-body"><div class="ops-empty">효과검증 데이터 집계 중…</div></div>
+    </section>
+
+    <div class="ops-grid">
+
+      <!-- 좌: 조치 대상 (작업) + 작업 영향 장비 -->
+      <section class="ops-card">
+        <div class="ops-card-hd">
+          <span class="ops-card-title">조치 대상 (작업)<span class="loop-tag" title="Closed-loop 단계: 대상선정 — 품질 영향이 있는 작업을 선별 Logic으로 추리는 단계">대상선정</span></span>
+          <span class="ops-card-sub" id="wk-target-meta"></span>
+        </div>
+        <div class="ops-filter">
+          <select id="wk-team" class="ops-select" onchange="wkTeamChanged()"><option value="">전체 HNS 팀</option></select>
+          <select id="wk-post" class="ops-select"><option value="">전체 post</option></select>
+          <div class="ops-factors" id="wk-lv3-chips">
+            <button class="ops-chip active" data-v="">전체</button>
+            <button class="ops-chip" data-v="가입자망장비">가입자망장비</button>
+            <button class="ops-chip" data-v="망트래픽">망트래픽</button>
+            <button class="ops-chip" data-v="일반작업">일반작업</button>
+          </div>
+          <input id="wk-base-date" type="date" class="ops-select" title="기준일 — 기준일-8 ~ 기준일 작업, 작업일 D-1~D+7 품질" />
+          <input id="wk-q" class="ops-input" placeholder="작업명/장비 검색 (선택)" />
+          <button class="ops-btn ops-btn--primary ops-action-end" onclick="wkSearch()">추출</button>
+        </div>
+        <div class="ops-tbl-wrap" style="max-height:420px">
+          <table class="ops-tbl">
+            <thead><tr>
+              <th>작업일</th><th>작업</th><th>분류</th><th>장비수</th>
+              <th title="작업 전(D-1) → 후(마지막 관측일) 그룹 평균 CEI">CEI 전→후</th>
+              <th title="작업일 D-1 ~ D+7 그룹 평균 CEI (D-day 막대 강조)">일주일간 추이</th>
+            </tr></thead>
+            <tbody id="wk-target-body">
+              <tr><td colspan="6" class="ops-empty">조회조건을 선택하고 [추출]을 누르세요</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 작업 선택 시 — 영향 장비 list (아코디언, 지시서 발행은 장비단위) -->
+        <div id="wk-equips-park" hidden>
+        <div id="wk-equips-sec" hidden>
+          <div class="ops-card-hd eqp-equips-hd">
+            <span class="ops-card-title">작업 영향 장비<span class="loop-tag" title="Closed-loop 단계: 진단 — 작업이 품질에 영향을 준 장비를 특정하는 단계">진단</span> <span class="ops-card-sub" id="wk-equips-title"></span></span>
+          </div>
+          <div class="ops-tbl-wrap" style="max-height:240px">
+            <table class="ops-tbl">
+              <thead><tr>
+                <th><input type="checkbox" id="wk-check-all" onchange="wkCheckAll(this)"></th>
+                <th>장비</th><th>중/소분류</th>
+                <th title="작업 전(D-1) → 후(마지막 관측일) CEI">CEI 전→후</th>
+                <th title="마지막 관측일 C·D등급 가입자 수">C·D</th>
+                <th>일주일간 추이</th>
+              </tr></thead>
+              <tbody id="wk-equips-body">
+                <tr><td colspan="6" class="ops-empty">작업을 선택하면 장비 목록이 표시됩니다</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ops-card-ft">
+            <span id="wk-sel-cnt" class="ops-card-sub">0대 선택</span>
+            <button class="ops-btn ops-btn--primary" onclick="wkIssue()">지시서 발행 (장비단위)</button>
+          </div>
+        </div>
+        </div><!-- /wk-equips-park -->
+      </section>
+
+      <!-- 우: 지시서 진행 보드 (작업 도메인) -->
+      <section class="ops-card">
+        <div class="ops-card-hd">
+          <span class="ops-card-title" title="Ticket(작업지시서) — 발행 → 조치완료 → 검증완료 순으로 진행">지시서 진행 보드<span class="loop-tag" title="Closed-loop 단계: 조치 — Auto-reset(자율복구) 또는 Ticket(작업지시서)으로 수행하는 단계">조치</span></span>
+          <div class="ops-status-chips" id="wk-status-chips">
+            <button class="ops-chip active" data-s="">전체</button>
+            <button class="ops-chip" data-s="issued">발행</button>
+            <button class="ops-chip" data-s="resolved">조치완료</button>
+            <button class="ops-chip" data-s="verified">검증완료</button>
+            <button class="ops-chip" data-s="dropped">중단</button>
+          </div>
+        </div>
+        <div class="ops-board" id="wk-board">
+          <div class="ops-empty">지시서가 없습니다<br><span class="ops-td-sub">좌측 작업을 선택해 영향 장비에 [지시서 발행]을 누르면 여기에 표시됩니다</span></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 조직별 실적 — SKB/HNS 토글 -->
+    <section class="ops-card ops-card--stats">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">조직별 실적<span class="loop-tag" title="Closed-loop 단계: CEI 효과검증 — 조치 전후 고객 품질을 비교하는 단계">효과검증</span></span>
+        <div class="ops-status-chips" id="wk-org-chips">
+          <button class="ops-chip active" data-o="skb">SKB</button>
+          <button class="ops-chip" data-o="hns">HNS</button>
+        </div>
+      </div>
+      <div class="ops-tbl-wrap" style="max-height:260px">
+        <table class="ops-tbl">
+          <thead><tr>
+            <th>팀명</th><th>지시서</th><th>조치완료</th><th>개선 건수</th><th>CEI 전후 점수</th>
+          </tr></thead>
+          <tbody id="wk-team-stats">
+            <tr><td colspan="5" class="ops-empty">지시서 실적이 쌓이면 표시됩니다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div><!-- /tab-work -->
+
+<!-- ===== 결과 등록 모달 (정형화 — BS매니저 입력 규격) ===== -->
+<div id="resolve-modal" class="modal-overlay" onclick="opsCloseResolve()">
+  <div class="mail-box resolve-box" onclick="event.stopPropagation()">
+    <div class="mail-header">
+      <div class="mail-header-left"><i data-lucide="clipboard-check"></i><span>조치 결과 등록</span></div>
+      <button onclick="opsCloseResolve()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="resolve-body">
+      <div class="resolve-target" id="resolve-target">—</div>
+      <label class="mail-label">원인 구분 *</label>
+      <select id="resolve-cause" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 구분 *</label>
+      <select id="resolve-action" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 상세 (선택)</label>
+      <textarea id="resolve-note" class="mail-input mail-textarea" rows="3"
+        placeholder="예: 3층 MDF 커넥터 교체 후 광레벨 -6.2dBm 확인"></textarea>
+    </div>
+    <div class="mail-footer">
+      <div id="resolve-status" class="mail-status"></div>
+      <button class="mail-cancel-btn" onclick="opsCloseResolve()">취소</button>
+      <button class="mail-send-btn" onclick="opsSubmitResolve()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 결과 등록 모달 — 장비 탭 (장비단위 지시서) ===== -->
+<div id="eqp-resolve-modal" class="modal-overlay" onclick="eqpCloseResolve()">
+  <div class="mail-box resolve-box" onclick="event.stopPropagation()">
+    <div class="mail-header">
+      <div class="mail-header-left"><i data-lucide="clipboard-check"></i><span>조치 결과 등록 (장비)</span></div>
+      <button onclick="eqpCloseResolve()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="resolve-body">
+      <div class="resolve-target" id="eqp-resolve-target">—</div>
+      <label class="mail-label">원인 구분 *</label>
+      <select id="eqp-resolve-cause" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 1차 분류 (중분류) *</label>
+      <select id="eqp-resolve-act1" class="ops-select" style="width:100%" onchange="eqpAct1Changed()"></select>
+      <label class="mail-label">조치 2차 분류 (Activity)</label>
+      <select id="eqp-resolve-act2" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 상세 (선택)</label>
+      <textarea id="eqp-resolve-note" class="mail-input mail-textarea" rows="3"
+        placeholder="예: PON 모듈 교체 후 BIP error 소거 확인"></textarea>
+    </div>
+    <div class="mail-footer">
+      <div id="eqp-resolve-status" class="mail-status"></div>
+      <button class="mail-cancel-btn" onclick="eqpCloseResolve()">취소</button>
+      <button class="mail-send-btn" onclick="eqpSubmitResolve()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 결과 등록 모달 (작업 탭 — eqp 모달과 동일 규격) ===== -->
+<div id="wk-resolve-modal" class="modal-overlay" onclick="wkCloseResolve()">
+  <div class="mail-box resolve-box" onclick="event.stopPropagation()">
+    <div class="mail-header">
+      <div class="mail-header-left"><i data-lucide="clipboard-check"></i><span>조치 결과 등록 (작업)</span></div>
+      <button onclick="wkCloseResolve()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="resolve-body">
+      <div class="resolve-target" id="wk-resolve-target">—</div>
+      <label class="mail-label">원인 구분 *</label>
+      <select id="wk-resolve-cause" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 1차 분류 (중분류) *</label>
+      <select id="wk-resolve-act1" class="ops-select" style="width:100%" onchange="wkAct1Changed()"></select>
+      <label class="mail-label">조치 2차 분류 (Activity)</label>
+      <select id="wk-resolve-act2" class="ops-select" style="width:100%"></select>
+      <label class="mail-label">조치 상세 (선택)</label>
+      <textarea id="wk-resolve-note" class="mail-input mail-textarea" rows="3"
+        placeholder="예: 작업 원복 후 CEI 회복 확인"></textarea>
+    </div>
+    <div class="mail-footer">
+      <div id="wk-resolve-status" class="mail-status"></div>
+      <button class="mail-cancel-btn" onclick="wkCloseResolve()">취소</button>
+      <button class="mail-send-btn" onclick="wkSubmitResolve()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2 — 비활성화 (사용 안 함) -->
+<div id="tab-region" class="tab-content" style="display:none!important">
+
+  <!-- 지역 탭 -->
+  <div class="region-nav">
+    
+  </div>
+
+  <!-- KPI 매트릭스 -->
+  <section class="matrix-section">
+    
+    <div class="matrix-row">
+      <div class="matrix-lbl">
+        <span class="matrix-region-name" id="matrix-name-daily">전국</span>
+        <span class="matrix-period">일  누  적</span>
+      </div>
+      <div class="circles" id="circles-daily">
+        
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="internet_voc" data-period="daily">
+          <span class="c-icon"><i data-lucide="wifi"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">인터넷
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="iptv_voc" data-period="daily">
+          <span class="c-icon"><i data-lucide="tv-2"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">IPTV
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="work_voc" data-period="daily">
+          <span class="c-icon"><i data-lucide="wrench"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망작업
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="fault_voc" data-period="daily">
+          <span class="c-icon"><i data-lucide="zap"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망장애
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="cei" data-period="daily">
+          <span class="c-icon"><i data-lucide="bar-chart-2"></i></span>
+          <span class="c-val">85</span>
+          <span class="c-lbl">CEI</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="fault_count" data-period="daily">
+          <span class="c-icon"><i data-lucide="alert-triangle"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망장애건</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="work_count" data-period="daily">
+          <span class="c-icon"><i data-lucide="clipboard-list"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망작업건</span>
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="matrix-row">
+      <div class="matrix-lbl">
+        <span class="matrix-region-name" id="matrix-name-hourly">전국</span>
+        <span class="matrix-period">최근 1시간</span>
+      </div>
+      <div class="circles" id="circles-hourly">
+        
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="internet_voc" data-period="hourly">
+          <span class="c-icon"><i data-lucide="wifi"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">인터넷
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="iptv_voc" data-period="hourly">
+          <span class="c-icon"><i data-lucide="tv-2"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">IPTV
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="work_voc" data-period="hourly">
+          <span class="c-icon"><i data-lucide="wrench"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망작업
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="fault_voc" data-period="hourly">
+          <span class="c-icon"><i data-lucide="zap"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망장애
+고객문의</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="cei" data-period="hourly">
+          <span class="c-icon"><i data-lucide="bar-chart-2"></i></span>
+          <span class="c-val">85</span>
+          <span class="c-lbl">CEI</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-good" data-key="fault_count" data-period="hourly">
+          <span class="c-icon"><i data-lucide="alert-triangle"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망장애건</span>
+        </div>
+        
+        
+          
+        
+        <div class="circle c-neutral" data-key="work_count" data-period="hourly">
+          <span class="c-icon"><i data-lucide="clipboard-list"></i></span>
+          <span class="c-val">0</span>
+          <span class="c-lbl">망작업건</span>
+        </div>
+        
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- 지표별 일별 현황 그래프 -->
+  <section class="chart-section">
+    <div class="chart-header">
+      <span class="sec-badge">지표별 일별 현황 그래프화</span>
+      <div class="chart-toggles">
+        <label><input type="checkbox" checked onchange="toggleSeries('internet_voc',this)"> 인터넷VOC</label>
+        <label><input type="checkbox" checked onchange="toggleSeries('fault_count',this)"> 고장건</label>
+        <label><input type="checkbox" checked onchange="toggleSeries('cei',this)"> CEI</label>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+  </section>
+
+  <!-- 주요 작업/장애 리스트 -->
+  <section class="raw-section" style="margin-top:0">
+    <div class="raw-header">
+      <span class="sec-badge">주요 작업 / 장애 List up</span>
+      <span class="raw-count">총 0건</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>No</th><th>지역</th><th>작업ID</th><th>유형</th><th>내용</th>
+              <th>상태</th><th>시작</th><th>종료</th><th>영향 건물</th><th>VOC증가</th><th>AI 브리핑</th></tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div><!-- /tab-region -->
+
+<!-- ⑥ AI 모델 구조도 — 콘텐츠는 models.js modelTabInit()이 렌더 -->
+<div id="tab-model" class="tab-content"></div>
+
+</div><!-- /app-main -->
+
+
+<!-- ===== 상세 Modal ===== -->
+<div id="detail-modal" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span>상세 현황</span>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- ===== AI 위험 브리핑 Modal ===== -->
+<div id="briefing-modal" class="modal-overlay briefing-overlay" onclick="closeBriefing()">
+  <div class="briefing-box" onclick="event.stopPropagation()">
+
+    <div class="bf-header">
+      <div class="bf-header-left">
+        <i data-lucide="bot" class="bf-bot-icon"></i>
+        <div>
+          <div class="bf-title">AI 작업 위험 브리핑</div>
+          <div class="bf-work-id" id="b-work-id"></div>
+        </div>
+      </div>
+      <div class="risk-gauge-wrap">
+        <svg viewBox="0 0 80 50" width="72" height="46">
+          <path d="M10,45 A35,35 0 0,1 70,45" stroke="#e8edf5" stroke-width="8" fill="none"/>
+          <path id="risk-arc" d="M10,45 A35,35 0 0,1 70,45" stroke="#e74c3c" stroke-width="8"
+                fill="none" stroke-dasharray="0 110" stroke-linecap="round"/>
+          <text x="40" y="46" text-anchor="middle" fill="#1a2540" font-size="13" font-weight="700" id="risk-score-txt">—</text>
+        </svg>
+        <div class="risk-lv" id="risk-level-txt">위험</div>
+      </div>
+      <button class="bf-close" onclick="closeBriefing()">✕</button>
+    </div>
+
+    <div class="bf-body">
+      <div class="bf-grid">
+        <div class="bf-left">
+          <div class="bf-sec">
+            <div class="bf-sec-title"><i data-lucide="layout-dashboard"></i> 영향 범위</div>
+            <div class="bf-stats">
+              <div class="bf-stat"><div class="bf-stat-val" id="b-buildings">—</div><div class="bf-stat-lbl">건물</div></div>
+              <div class="bf-stat"><div class="bf-stat-val" id="b-households">—</div><div class="bf-stat-lbl">세대</div></div>
+              <div class="bf-stat"><div class="bf-stat-val" id="b-subscribers">—</div><div class="bf-stat-lbl">활성 가입자</div></div>
+            </div>
+          </div>
+          <div class="bf-sec">
+            <div class="bf-sec-title"><i data-lucide="alert-triangle"></i> 예상 VOC</div>
+            <div class="bf-voc"><span id="b-voc-min">—</span> ~ <span id="b-voc-max">—</span>건 예상 &nbsp;·&nbsp; 유사 평균 <strong id="b-voc-avg">—</strong>건</div>
+            <div id="b-similar-cases"></div>
+          </div>
+          <div class="bf-sec">
+            <div class="bf-sec-title"><i data-lucide="check-square"></i> AI 자동 체크리스트</div>
+            <div id="b-checklist"></div>
+          </div>
+        </div>
+        <div class="bf-right">
+          <div class="bf-sec">
+            <div class="bf-sec-title"><i data-lucide="alert-circle"></i> 위험 단말</div>
+            <div id="b-risk-terminals"></div>
+          </div>
+          <div class="bf-sec bf-ai-sec">
+            <div class="bf-sec-title"><i data-lucide="brain-circuit"></i> AI 종합 판단</div>
+            <div class="bf-ai-text" id="b-ai-text"></div>
+          </div>
+          <div class="bf-actions">
+            <button class="bf-btn primary"><i data-lucide="file-text"></i> 조치 지시서 생성</button>
+            <button class="bf-btn"><i data-lucide="send"></i> 담당자 알림 발송</button>
+            <button class="bf-btn"><i data-lucide="clock"></i> 작업 시간 변경</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 배경 오버레이 ===== -->
+<div id="ai-backdrop" class="ai-backdrop" onclick="togglePanel()"></div>
+
+<!-- ===== AI 분석 패널 ===== -->
+<div id="ai-panel" class="ai-panel">
+
+  <!-- 드래그 가능한 패널 헤더 -->
+  <div class="ap-header" id="ap-drag-handle">
+    <div class="ap-header-left">
+      <div class="ap-bot-icon-wrap"><i data-lucide="bot"></i></div>
+      <div>
+        <div class="ap-title">AI 운영 분석</div>
+        <div class="ap-target" id="ap-target">건물을 선택하세요</div>
+      </div>
+    </div>
+    <div class="ap-header-right">
+      <span class="ap-drag-hint" title="드래그하여 이동">⠿</span>
+      <button class="ap-size-btn" id="ap-size-narrow" onclick="setPanelSize('narrow')" title="좁게">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/></svg>
+      </button>
+      <button class="ap-size-btn" id="ap-size-wide" onclick="setPanelSize('wide')" title="넓게">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+      </button>
+      <button class="ap-size-btn" id="ap-size-full" onclick="setPanelSize('full')" title="전체화면">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <button class="ap-close" onclick="togglePanel()">✕</button>
+    </div>
+  </div>
+
+  <!-- 통합 채팅 스레드 -->
+  <div class="ap-thread" id="ap-thread">
+    <div class="ap-placeholder">
+      <div class="ap-guide-title">
+        <i data-lucide="bot"></i> AI 운영 분석 가이드
+      </div>
+      <div class="ap-guide-steps">
+        <div class="ap-guide-step">
+          <span class="ap-step-num">1</span>
+          <div>
+            <div class="ap-step-label">건물 선택</div>
+            <div class="ap-step-desc">지도에서 건물 클릭 또는 히트맵 확대</div>
+          </div>
+        </div>
+        <div class="ap-guide-step">
+          <span class="ap-step-num">2</span>
+          <div>
+            <div class="ap-step-label">자동 분석</div>
+            <div class="ap-step-desc">CEI · 광파워 · VoC · 장애이력 자동 진단</div>
+          </div>
+        </div>
+        <div class="ap-guide-step">
+          <span class="ap-step-num">3</span>
+          <div>
+            <div class="ap-step-label">질문 & 보고서</div>
+            <div class="ap-step-desc">추가 질문 후 메일로 보고서 발송</div>
+          </div>
+        </div>
+      </div>
+      <div class="ap-guide-hint">
+        <i data-lucide="map-pin" style="width:12px;height:12px"></i>
+        지도에서 건물을 클릭하면 시작됩니다
+      </div>
+    </div>
+  </div>
+
+  <!-- BS 관리 이동 고정 바 — 분석 시작 시 노출 (리포트 스트리밍을 기다릴 필요 없음) -->
+  <div id="ap-bs-bar" class="ap-bs-bar" hidden>
+    <span class="ap-bs-bar-txt"></span>
+    <button class="ap-chip ap-chip--go" onclick="goBsManageCurrent()">BS 관리 화면으로 이동</button>
+  </div>
+
+  <!-- 입력창 -->
+  <div class="ap-input-bar">
+    <input id="ap-chat-input" class="ap-chat-input"
+           placeholder="추가로 질문하세요..."
+           onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="ap-chat-send" onclick="sendChat()"><i data-lucide="send"></i></button>
+  </div>
+</div>
+
+<!-- ===== 자율복구 수행 이력 모달 (시연 1-6) — 전후 비교·지속성 ===== -->
+<div id="eqp-ar-modal" class="modal-overlay" onclick="eqpArClose()">
+  <div class="eqp-iss-box" onclick="event.stopPropagation()">
+    <div class="eqp-iss-hd">
+      <div class="eqp-iss-hd-left"><i data-lucide="rotate-ccw"></i> <span>자율복구 수행 이력 — <span id="eqp-ar-title"></span></span></div>
+      <button class="eqp-iss-x" onclick="eqpArClose()" aria-label="닫기"><i data-lucide="x"></i></button>
+    </div>
+    <div class="eqp-iss-body" id="eqp-ar-body"></div>
+    <div class="eqp-iss-ft">
+      <span class="ops-td-sub">자율복구 Agent · 야간 배치 수행 · Closed-loop: 조치 → CEI 효과검증 → 학습</span>
+      <span class="eqp-iss-ft-btns">
+        <button class="ops-btn" onclick="eqpArClose()">닫기</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 새벽 자율복구 상세 레포트 모달 (0819 3차 R3) — 성공/실패 전수 내역 ===== -->
+<div id="ar-report-modal" class="modal-overlay" onclick="arReportClose()">
+  <div class="eqp-iss-box eqp-iss-box--wide" onclick="event.stopPropagation()">
+    <div class="eqp-iss-hd">
+      <div class="eqp-iss-hd-left"><i data-lucide="moon-star"></i> <span>새벽 자율복구 레포트 <span class="ops-td-sub" id="ar-report-meta"></span></span></div>
+      <button class="eqp-iss-x" onclick="arReportClose()" aria-label="닫기"><i data-lucide="x"></i></button>
+    </div>
+    <div class="eqp-iss-body" id="ar-report-body"></div>
+    <div class="eqp-iss-ft">
+      <span class="ops-td-sub">Auto-reset(자율복구) Agent · 야간 배치 — 미복구 장비는 오늘의 조치 대상에 자동 반영됩니다</span>
+      <span class="eqp-iss-ft-btns">
+        <button class="ops-btn" onclick="arReportClose()">닫기</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 지시서 발행 미리보기 모달 (시연 1-5) — 발행될 내용 확인 후 FMS 연계 ===== -->
+<div id="eqp-issue-modal" class="modal-overlay" onclick="eqpIssueCancel()">
+  <div class="eqp-iss-box" onclick="event.stopPropagation()">
+    <div class="eqp-iss-hd">
+      <div class="eqp-iss-hd-left"><i data-lucide="file-check-2"></i> <span>지시서(Ticket) 발행 미리보기</span></div>
+      <button class="eqp-iss-x" onclick="eqpIssueCancel()" aria-label="닫기"><i data-lucide="x"></i></button>
+    </div>
+    <div class="eqp-iss-body" id="eqp-iss-body"></div>
+    <div class="eqp-iss-ft">
+      <span class="ops-td-sub">발행 즉시 FMS 연계 · 담당 Post 자동 할당 · 조치 결과는 CEI 효과검증으로 축적</span>
+      <span class="eqp-iss-ft-btns">
+        <button class="ops-btn" onclick="eqpIssueCancel()">취소</button>
+        <button class="ops-btn ops-btn--primary" id="eqp-iss-all-btn" onclick="eqpIssueConfirm()"><i data-lucide="send"></i> 전체 발행 (FMS 연계)</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 메일 발송 모달 ===== -->
+<div id="mail-modal" class="modal-overlay" onclick="closeMailModal()">
+  <div class="mail-box" onclick="event.stopPropagation()">
+    <div class="mail-header">
+      <div class="mail-header-left">
+        <i data-lucide="mail"></i>
+        <span>메일 발송</span>
+      </div>
+      <button onclick="closeMailModal()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="mail-body">
+      <div class="mail-preview-wrap">
+        <div class="mail-preview-label">캡쳐 미리보기</div>
+        <div class="mail-preview" id="mail-preview">
+          <div class="mail-preview-placeholder"><i data-lucide="image"></i><span>캡쳐 중...</span></div>
+        </div>
+      </div>
+      <div class="mail-form">
+        <label class="mail-label">보내는 사람</label>
+        <div class="mail-from-row"><i data-lucide="user"></i><span></span></div>
+        <label class="mail-label">받는 사람</label>
+        <input id="mail-to" class="mail-input" type="email" placeholder="example@sk.com" />
+        <label class="mail-label">제목</label>
+        <input id="mail-subject" class="mail-input" type="text" value="[C-One Agent] 네트워크 현황 리포트" />
+        <label class="mail-label">메모 (선택)</label>
+        <textarea id="mail-note" class="mail-input mail-textarea" placeholder="추가 메모를 입력하세요" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="mail-footer">
+      <div id="mail-status" class="mail-status"></div>
+      <button class="mail-cancel-btn" onclick="closeMailModal()">취소</button>
+      <button class="mail-send-btn" id="mail-send-btn" onclick="sendMail()">
+        <i data-lucide="send"></i> 발송
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SMS 발송 모달 ===== -->
+<div id="sms-modal" class="modal-overlay" onclick="closeSmsModal()">
+  <div class="sms-box" onclick="event.stopPropagation()">
+    <div class="sms-header">
+      <div class="sms-header-left">
+        <span class="sms-icon"><i data-lucide="message-square"></i></span>
+        <span>SMS 발송</span>
+      </div>
+      <button class="sms-close-btn" onclick="closeSmsModal()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="sms-body">
+      <label class="sms-label">받는 번호</label>
+      <input id="sms-to" class="sms-input" type="tel" placeholder="010-0000-0000" />
+      <label class="sms-label">내용</label>
+      <textarea id="sms-content" class="sms-input sms-textarea" rows="5"
+        placeholder="발송할 메시지를 입력하세요&#10;(최대 90자)"></textarea>
+      <div class="sms-char-count"><span id="sms-char">0</span> / 90자</div>
+    </div>
+    <div class="sms-footer">
+      <div id="sms-status" class="sms-status"></div>
+      <button class="sms-cancel-btn" onclick="closeSmsModal()">취소</button>
+      <button class="sms-send-btn" id="sms-send-btn" onclick="sendSms()">
+        <i data-lucide="send"></i> 발송
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 화면 사용법 매뉴얼 모달 ===== -->
+<div id="help-modal" class="modal-overlay" onclick="closeHelpModal()">
+  <div class="modal-box help-box" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="help-hd-title"><i data-lucide="circle-help"></i> 화면 사용법</span>
+      <button onclick="closeHelpModal()">✕</button>
+    </div>
+
+    <div class="help-tabs" role="tablist" aria-label="화면별 사용법">
+      <button type="button" class="help-tab active" role="tab" aria-selected="true"
+              onclick="switchHelpTab('main', this)">관제</button>
+      <button type="button" class="help-tab" role="tab" aria-selected="false"
+              onclick="switchHelpTab('ops', this)">점검·조치</button>
+      <button type="button" class="help-tab" role="tab" aria-selected="false"
+              onclick="switchHelpTab('equip', this)">전후 트렌드</button>
+    </div>
+
+    <div class="modal-body help-body">
+
+      <!-- 관제 맵 -->
+      <div id="help-pane-main" class="help-pane active" role="tabpanel">
+        <div class="help-step">
+          <span class="help-step-num">1</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">전국 현황 파악</div>
+            <div class="help-step-desc">상단 KPI 스트립에서 CEI 평균·VoC·고객 등급 분포와 주간 추이를 확인합니다. 필터 적용 시 수치가 함께 갱신됩니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">2</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">대상 좁히기</div>
+            <div class="help-step-desc">운용팀 선택·주소 검색으로 범위를 좁힙니다. 시군구 Bad CE Top 10으로 열위 지역을 바로 이동할 수 있습니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">3</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">지도 탐색</div>
+            <div class="help-step-desc">히트맵을 확대하면 건물 마커와 구역 통계가 나타납니다. 건물을 클릭하면 해당 건물이 선택됩니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">4</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">건물 테이블·상세 확인</div>
+            <div class="help-step-desc">하단 데이터 테이블에서 건물별 CEI·Bad CE·VoC 현황을 확인합니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">5</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">AI 분석·보고</div>
+            <div class="help-step-desc">[AI 분석 실행] 또는 상단 AI Insight 버튼으로 진단 리포트를 생성하고, 추가 질문 후 메일로 발송합니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 점검·조치 -->
+      <div id="help-pane-ops" class="help-pane" role="tabpanel">
+        <div class="help-step">
+          <span class="help-step-num">1</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">추출 조건 설정</div>
+            <div class="help-step-desc">운용팀·국사와 열위 factor(Bad CE·VoC·광파워·RTT 등)를 선택하고 [추출]을 누릅니다. 건물 직접 입력도 가능합니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">2</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">조치 대상 확인</div>
+            <div class="help-step-desc">조치 대상 테이블에서 건물을 선택(체크)합니다. 현재 조건 기준 Top 50 장표를 다운로드할 수 있습니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">3</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">지시서 발행</div>
+            <div class="help-step-desc">선택한 건물로 [지시서 발행]을 누르면 담당 조직에 지시서가 생성되고 상단 통계(발행·완료·리드타임)에 반영됩니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">4</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">상태 관리·결과 등록</div>
+            <div class="help-step-desc">지시서 진행 보드를 상태 칩(발행·조치완료·검증완료·중단)으로 필터하고, 조치 결과를 등록합니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">5</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">조직별 실적 확인</div>
+            <div class="help-step-desc">하단 조직별 실적에서 팀별 처리 현황과 재진단 CEI 개선을 확인하고, 세부 장표를 다운로드합니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 전후 트렌드 -->
+      <div id="help-pane-equip" class="help-pane" role="tabpanel">
+        <div class="help-step">
+          <span class="help-step-num">1</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">장비 리스트 업로드</div>
+            <div class="help-step-desc">조치한 장비 리스트 엑셀(xlsx/csv)을 업로드합니다. 모든 셀을 훑어 장비 ID로 인식하므로 헤더가 있어도 무방합니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">2</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">직접 입력 (선택)</div>
+            <div class="help-step-desc">관리번호 또는 TID를 쉼표/줄바꿈으로 직접 입력할 수도 있습니다. 파일과 함께 쓰면 파일이 우선합니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">3</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">기준일 설정</div>
+            <div class="help-step-desc">조치일을 기준일로 지정합니다. 미지정 시 전/후 데이터가 모두 있는 최근 날짜가 자동 사용됩니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">4</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">전후 비교 조회</div>
+            <div class="help-step-desc">[전후 비교 조회]를 누르면 상단 요약(전/후 CEI 평균·변화·매칭 장비/가입자)과 기준일 전후 트렌드 차트가 표시됩니다.</div>
+          </div>
+        </div>
+        <div class="help-step">
+          <span class="help-step-num">5</span>
+          <div class="help-step-txt">
+            <div class="help-step-title">장비별 상세 확인</div>
+            <div class="help-step-desc">장비별 전후 비교 테이블에서 장비 단위 Δ(변화량)와 등급 변화를 확인해 조치 효과를 검증합니다.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== JS 데이터 ===== -->
+<script>
+const RAW_DATA       = {};
+const CHART_DATA     = {};
+const REGION_KPI     = {"\uc804\uad6d": {"daily": {"cei": 85, "fault_count": 0, "fault_voc": 0, "internet_voc": 0, "iptv_voc": 0, "work_count": 0, "work_voc": 0}, "hourly": {"cei": 85, "fault_count": 0, "fault_voc": 0, "internet_voc": 0, "iptv_voc": 0, "work_count": 0, "work_voc": 0}}};
+const MAP_MARKERS    = [];
+const WORK_BRIEFINGS = {};
+const KPI_SPARK      = {};
+// 고객 등급 임계값 — 지도 마커 색·등급 분포가 KPI 고객 등급과 동일 기준을 쓰도록 주입
+const CEI_GRADE_THRESHOLDS = {};
+const BASE_PATH = "/projects/skb-connection/legacy"
+// 로그인 사용자 (admin 시점 전환 시 그 대상) — 개인화 시작 화면에 사용
+const CURRENT_USER = {"email": "demo@example.invalid", "hq": "", "is_admin": true, "name": "\uc2dc\uc5f0 \uc0ac\uc6a9\uc790", "team": ""};
+
+async function doLogout() {
+  await fetch(`${BASE_PATH}/api/auth/logout`, { method: 'POST' }).catch(() => null);
+  location.href = "../app/login/";
+}
+async function resetViewAs() {
+  await fetch("/projects/skb-connection/legacy/api/auth/admin-view-reset", { method: 'POST' }).catch(() => null);
+  location.reload();
+}
+async function gateGo() {
+  const name = document.getElementById('gate-name').value.trim();
+  const st = document.getElementById('gate-status');
+  if (!name) { st.textContent = '이름을 입력하세요.'; return; }
+  const res = await fetch("/projects/skb-connection/legacy/api/auth/admin-view-as", {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  }).then(r => r.json()).catch(() => null);
+  if (res && res.ok) {
+    location.reload();
+  } else {
+    st.textContent = (res && res.error) || '해당 이름의 담당자를 찾을 수 없습니다.';
+  }
+}
+</script>
+<script src="static/js/models.js?v=sample"></script>
+<script src="static/js/dashboard.js?v=sample"></script>
+<script src="static/js/ops.js?v=sample"></script>
+<script src="static/js/eqp.js?v=sample"></script>
+<script src="static/js/home.js?v=sample"></script>
+<script src="static/js/top30.js?v=sample"></script>
+<script src="static/js/work.js?v=sample"></script>
+<script src="static/js/equip-trend.js?v=sample"></script>
+<script src="static/js/autodemo.js?v=sample"></script>
+<script src="static/js/c1-shell.js?v=sample"></script>
+
+<script>
+// /model 딥링크 — SPA 로드 후 AI 모델 구조도 탭으로 자동 전환
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('snav-model');
+  if (b) b.click();
+});
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) lucide.createIcons();
+  });
+</script>
+</body>
+</html>

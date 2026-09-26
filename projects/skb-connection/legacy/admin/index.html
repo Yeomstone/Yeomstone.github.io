@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><link rel="stylesheet" href="../../app/mock-ui.css"><script>window.__C_ONE_MOCK_BASE__="/projects/skb-connection/legacy";</script><script src="../../app/mock-api.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C-One — 관리자</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/style.css" />
+  <link rel="stylesheet" href="../static/css/theme.css" />
+  <style>
+    /* admin 전용 (0821) — auth-body의 100vh·overflow:hidden 상속으로 콘텐츠가
+       화면보다 길면 위아래가 잘리던 문제: 페이지 스크롤 허용 + 폭 확대 */
+    body.auth-body--top { height: auto; min-height: 100vh; overflow-y: auto; display: block; }
+    .admin-wrap { width: min(1360px, calc(100vw - 48px)); max-width: none; margin: 24px auto 48px; }
+  </style>
+</head>
+<body class="auth-body auth-body--top">
+  <div class="admin-wrap">
+    <div class="admin-hd">
+      <div class="auth-brand" style="margin:0">
+        <span class="auth-brand-mark">A</span>
+        <div>
+          <div class="auth-brand-name">관리자</div>
+          <div class="auth-brand-sub">시연 사용자 님 · 사용자 조회 / 사용 로그</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <a class="ops-btn" href="../index.html">대시보드로</a>
+        <button class="ops-btn" onclick="adLogout()">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 이름 검색 -->
+    <div class="ops-card" style="min-height:unset">
+      <div class="ops-card-hd"><span class="ops-card-title">사용자 조회</span></div>
+      <div class="ops-filter" style="padding-bottom:12px">
+        <input id="ad-name" class="ops-input" placeholder="이름 입력 (예: 홍길동)"
+               onkeydown="if(event.key==='Enter')adSearch()" />
+        <button class="ops-btn ops-btn--primary" onclick="adSearch()">조회</button>
+      </div>
+      <div id="ad-users" class="admin-users"></div>
+    </div>
+
+    <!-- 회원가입 목록 — 전체 가입자 · 로그인 횟수 · xlsx (0821) -->
+    <div class="ops-card" style="min-height:unset">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">회원가입 목록</span>
+        <span class="ops-card-sub" id="ad-users-meta">로딩 중…</span>
+        <button class="ops-btn" style="margin-left:auto"
+                onclick="location.href='../downloads/users-sample.xlsx'">xlsx 다운로드</button>
+      </div>
+      <div class="ops-tbl-wrap" style="max-height:360px">
+        <table class="ops-tbl">
+          <thead><tr><th>이름</th><th>사번</th><th>이메일</th><th>휴대폰</th><th>소속</th>
+            <th>팀</th><th>직책</th><th>가입일</th><th>최근 로그인</th><th>로그인</th><th></th></tr></thead>
+          <tbody id="ad-userlist"><tr><td colspan="11" class="ops-empty">로딩 중…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 내 비밀번호 변경 (admin 초기 비번 교체) -->
+    <div class="ops-card" style="min-height:unset">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">내 비밀번호 변경</span>
+        <span class="ops-card-sub">시연 화면에서는 비밀번호가 변경되지 않습니다</span>
+      </div>
+      <div class="ops-filter" style="padding-bottom:12px">
+        <input id="pw-old" class="ops-input" type="password" placeholder="기존 비밀번호" style="min-width:150px" />
+        <input id="pw-new" class="ops-input" type="password" placeholder="새 비밀번호 (4자 이상)" style="min-width:150px" />
+        <button class="ops-btn ops-btn--primary" onclick="adChangePw()">변경</button>
+        <span id="pw-status" class="ops-card-sub"></span>
+      </div>
+    </div>
+
+    <!-- 활동 로그 -->
+    <div class="ops-card" style="min-height:unset">
+      <div class="ops-card-hd">
+        <span class="ops-card-title">사용 로그</span>
+        <span class="ops-card-sub" id="ad-log-meta">최근 활동</span>
+      </div>
+      <div class="ops-tbl-wrap" style="max-height:420px">
+        <table class="ops-tbl">
+          <thead><tr><th>일시</th><th>사용자</th><th>활동</th><th>상세</th><th>IP</th></tr></thead>
+          <tbody id="ad-activity"><tr><td colspan="5" class="ops-empty">로딩 중…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+const ACTION_KO = {
+  login: '로그인', logout: '로그아웃', signup: '회원가입', view_as: '사용자 시점 보기',
+  gate_name: '이름 입력(게이트)', change_password: '비밀번호 변경',
+  issue: '지시서 발행', resolve: '결과 등록', verify: '재진단',
+  download_top: 'Top 장표 다운', download_items: '실적 장표 다운', analyze: 'AI 분석',
+};
+
+async function adLoadActivity(name) {
+  const url = '/projects/skb-connection/legacy/api/auth/admin-activity' + (name ? `?name=${encodeURIComponent(name)}` : '');
+  const data = await fetch(url).then(r => r.json()).catch(() => ({}));
+  const rows = data.activity || [];
+  document.getElementById('ad-log-meta').textContent =
+    (name ? `'${name}' 활동` : '전체 최근 활동') + ` · ${rows.length}건`;
+  document.getElementById('ad-activity').innerHTML = rows.length
+    ? rows.map(a => `<tr>
+        <td>${a.at}</td><td><b>${a.name || '—'}</b></td>
+        <td>${ACTION_KO[a.action] || a.action}</td>
+        <td>${a.detail || ''}</td><td class="ops-td-sub">${a.ip || ''}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" class="ops-empty">기록이 없습니다</td></tr>';
+}
+
+async function adSearch() {
+  const name = document.getElementById('ad-name').value.trim();
+  if (!name) { adLoadActivity(''); return; }
+  const data = await fetch(`/projects/skb-connection/legacy/api/auth/admin-user?name=${encodeURIComponent(name)}`)
+    .then(r => r.json()).catch(() => null);
+  const box = document.getElementById('ad-users');
+  if (!data || !data.ok || !(data.users || []).length) {
+    box.innerHTML = `<div class="ops-empty">'${name}' 사용자를 찾을 수 없습니다</div>`;
+    adLoadActivity(name);
+    return;
+  }
+  box.innerHTML = data.users.map(u => `
+    <div class="admin-user-card">
+      <div class="admin-user-main">
+        <b>${u.name} 님</b>
+        <span class="ops-td-sub">${u.hq || '—'} · ${u.team || '—'}</span>
+        ${u.is_admin ? '<span class="ops-status st-issued">관리자</span>' : ''}
+      </div>
+      <div class="admin-user-meta">
+        담당지역 ${(u.regions || []).join(', ') || '—'} · ${u.email} · ${u.phone || '—'}<br>
+        가입 ${u.created_at} · 최근 접속 ${u.last_login_at || '—'}
+      </div>
+      <button class="ops-btn ops-btn--primary" onclick="adViewAs('${u.name}')">이 사용자 시점으로 대시보드 보기</button>
+    </div>`).join('');
+  adLoadActivity(name);
+}
+
+async function adViewAs(name) {
+  const res = await fetch('/projects/skb-connection/legacy/api/auth/admin-view-as', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  }).then(r => r.json()).catch(() => null);
+  if (res && res.ok) {
+    location.href = '../index.html';
+  } else {
+    alert((res && res.error) || '전환 실패');
+  }
+}
+
+async function adChangePw() {
+  const st = document.getElementById('pw-status');
+  const res = await fetch('/projects/skb-connection/legacy/api/auth/change-password', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      old: document.getElementById('pw-old').value,
+      new: document.getElementById('pw-new').value,
+    }),
+  }).then(r => r.json()).catch(() => null);
+  st.textContent = (res && res.ok) ? '변경 완료' : ((res && res.error) || '변경 실패');
+  if (res && res.ok) { document.getElementById('pw-old').value = ''; document.getElementById('pw-new').value = ''; }
+}
+
+async function adLogout() {
+  await fetch('/projects/skb-connection/legacy/api/auth/logout', { method: 'POST' }).catch(() => null);
+  location.href = '../../app/login/';
+}
+
+// 회원가입 목록 — 전체 가입자 + 로그인 횟수 (로그인 일시는 사용 로그에 전 건 기록)
+async function adLoadUsers() {
+  const data = await fetch('/projects/skb-connection/legacy/api/auth/admin-users').then(r => r.json()).catch(() => null);
+  const users = (data && data.users) || [];
+  document.getElementById('ad-users-meta').textContent = `총 ${users.length}명`;
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  document.getElementById('ad-userlist').innerHTML = users.length
+    ? users.map(u => `<tr>
+        <td><b>${esc(u.name)}</b>${u.is_admin ? ' <span class="ops-status st-issued">관리자</span>' : ''}</td>
+        <td>${esc(u.emp_id) || '—'}</td>
+        <td class="ops-td-sub">${esc(u.email)}</td>
+        <td class="ops-td-sub">${esc(u.phone) || '—'}</td>
+        <td>${esc(u.company) || '—'}</td>
+        <td>${esc(u.team) || '—'}</td>
+        <td>${esc(u.role) || '—'}</td>
+        <td class="ops-td-sub">${esc((u.created_at || '').slice(0, 16))}</td>
+        <td class="ops-td-sub">${esc((u.last_login_at || '').slice(0, 16)) || '—'}</td>
+        <td><b>${u.login_count || 0}</b>회</td>
+        <td><button class="ops-btn" style="padding:2px 8px;font-size:11.5px"
+              onclick="adViewAs('${esc(u.name)}')">시점 보기</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="11" class="ops-empty">가입자가 없습니다</td></tr>';
+}
+
+adLoadActivity('');
+adLoadUsers();
+</script>
+</body>
+</html>

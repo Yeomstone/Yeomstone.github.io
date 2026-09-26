@@ -1,0 +1,40 @@
+/* ── Lucide icon global sizing ── */
+[data-lucide] {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* context-specific overrides */
+.ai-panel-btn [data-lucide]   { width: 15px; height: 15px; }
+.ap-bot-icon                  { width: 20px; height: 20px; stroke: var(--primary, #1B3F8F); }
+.ap-placeholder-icon          { width: 36px; height: 36px; stroke: var(--primary-disabled, #BCCEF8); display: block; margin: 0 auto 12px; }
+.bf-bot-icon                  { width: 26px; height: 26px; stroke: var(--primary, #1B3F8F); }
+.ap-mode [data-lucide]        { width: 13px; height: 13px; }
+.ap-chat-label [data-lucide]  { width: 13px; height: 13px; }
+.briefing-btn [data-lucide]   { width: 12px; height: 12px; }
+.bf-btn [data-lucide]         { width: 13px; height: 13px; }
+.bf-sec-title [data-lucide]   { width: 13px; height: 13px; stroke: var(--text-secondary, #65676B); }
+.ai-box-header [data-lucide]  { width: 14px; height: 14px; stroke: var(--primary, #1B3F8F); }
+.c-icon [data-lucide]         { width: 18px; height: 18px; stroke: currentColor; }
+.ai-pattern-icon [data-lucide]{ width: 13px; height: 13px; }
+.weather-sub [data-lucide]    { width: 13px; height: 13px; }
+.kpi-notice [data-lucide]     { width: 13px; height: 13px; stroke: var(--text-secondary, #65676B); }
+.mso-toggle-btn [data-lucide] { display: none; } /* 건물현황 버튼엔 아이콘 없음 */
+
+/* checklist priority dot */
+.bf-check-icon {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.prio-high { background: var(--status-high, #E41E3F); }
+.prio-mid  { background: var(--status-medium, #F5A623); }
+.prio-low  { background: var(--status-good, #31A24C); }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><link rel="stylesheet" href="../../app/mock-ui.css"><script>window.__C_ONE_MOCK_BASE__="/projects/skb-connection/legacy";</script><script src="../../app/mock-api.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C-One 시연 목업</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231B3F8F'/><text x='16' y='22' text-anchor='middle' font-size='18' font-family='sans-serif' fill='white' font-weight='bold'>C</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.23.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../static/css/demo.css?v=sample" />
+</head>
+<body>
+<script>
+  window.DEMO_CFG = {
+    basePath: "/projects/skb-connection/legacy",
+    api: "/projects/skb-connection/legacy/demo/api",
+    legacyHome: "../index.html",
+    staticBase: "../static/",
+    logoutUrl: "/projects/skb-connection/legacy/api/auth/logout",
+    loginUrl: "../../app/login/",
+    user: {"email": "demo@example.invalid", "hq": "", "is_admin": true, "name": "\uc2dc\uc5f0 \uc0ac\uc6a9\uc790", "team": ""},
+    rulesVersion: "sample",
+    now: "2026-09-18 09:00"
+  };
+</script>
+
+<!-- 예시 데이터 고지 — 전 화면 상단 고정 -->
+<div class="demo-notice" id="demo-notice">
+  <i data-lucide="flask-conical"></i>
+  <b>예시 데이터</b> · 실데이터 미연동 상태의 컨셉 목업입니다. 화면의 모든 수치·판정은 더미이며,
+  <span class="demo-notice-tag">연출</span> 표시가 있는 동작은 실제 실행이 아닙니다.
+  <span class="demo-notice-ver">룰 sample</span>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="side-brand">
+      <div class="side-logo"><i data-lucide="cpu"></i></div>
+      <div>
+        <div class="side-name">C-One <span class="side-tag">시연</span></div>
+        <div class="side-sub">BS 운영 Closed-loop Agent</div>
+      </div>
+    </div>
+    <nav class="side-nav">
+      <a class="nav-item" href="#/home" data-nav="home"><i data-lucide="sunrise"></i><span>초기 화면</span></a>
+      <a class="nav-item" href="#/flow" data-nav="flow"><i data-lucide="git-fork"></i><span>세 갈래 구조</span></a>
+      <div class="nav-group">트랙</div>
+      <a class="nav-item" href="#/autoreset" data-nav="autoreset"><i data-lucide="refresh-cw"></i><span>자율복구</span></a>
+      <a class="nav-item" href="#/map" data-nav="map"><i data-lucide="map"></i><span>지도 <small>(별도 트랙)</small></span></a>
+    </nav>
+    <div class="side-bottom">
+      <a class="nav-item" href="../index.html" title="기존 C-One 화면"><i data-lucide="layout-dashboard"></i><span>기존 C-One 화면</span></a>
+      <button class="nav-item" onclick="demoLogout()"><i data-lucide="log-out"></i><span>로그아웃</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb" id="crumb">초기 화면</div>
+      <div class="topbar-right">
+        <div class="orgsel" title="조직 필터 — 운용팀 > 홈앤서비스 파트">
+          <i data-lucide="building-2"></i>
+          <select id="sel-team" onchange="onOrgChange('team')"></select>
+          <span class="orgsel-sep">›</span>
+          <select id="sel-post" onchange="onOrgChange('post')"></select>
+        </div>
+        <span class="user-chip"><b>시연 사용자</b><span id="user-org-note"></span></span>
+      </div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<!-- 공용 확인 모달 -->
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal">
+    <div class="modal-hd" id="modal-title">확인</div>
+    <div class="modal-bd" id="modal-body"></div>
+    <div class="modal-ft">
+      <button class="btn" id="modal-cancel">취소</button>
+      <button class="btn btn-primary" id="modal-ok">확인</button>
+    </div>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="../static/js/demo.js?v=sample"></script>
+</body>
+</html>

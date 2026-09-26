@@ -4,12 +4,30 @@
   const overviewUrl = new URL('../index.html', scriptUrl);
   const apiBase = window.__C_ONE_MOCK_BASE__ || appUrl.pathname.replace(/\/$/, '');
   window.__C_ONE_CONFIG__ = { basePath: apiBase, mapTiles: { mode: 'osm' } };
+  const state = { batches: [], tickets: [], sequence: 1001 };
+  const seedPattern = ['issued', null, 'working', null, 'resolved', null, 'issued', null, null, 'working', null];
+  function seedTickets(fixture) {
+    const postCounts = new Map();
+    fixture.scopes['|'].actionTargets.items.forEach((item, index) => {
+      const position = postCounts.get(item.post) || 0;
+      postCounts.set(item.post, position + 1);
+      const status = seedPattern[position];
+      if (!status) return;
+      const ticketNo = `SAMPLE-T-${String(index + 1).padStart(4, '0')}`;
+      const requestedAt = `2026-09-${status === 'resolved' ? '17' : '18'} ${String(9 + position).padStart(2, '0')}:20`;
+      state.tickets.push({ target_id: item.target_id, equip_id: item.id, tid: item.tid,
+        ticket_no: ticketNo, created_at: requestedAt, requested_at: requestedAt,
+        status, status_code: status === 'resolved' ? 'COMPLETED' : status.toUpperCase() });
+    });
+  }
   const nativeFetch = window.fetch.bind(window);
   const fixturePromise = nativeFetch(new URL('fixture.json', scriptUrl)).then(response => {
     if (!response.ok) throw new Error('샘플 데이터를 불러오지 못했습니다.');
     return response.json();
+  }).then(fixture => {
+    seedTickets(fixture);
+    return fixture;
   });
-  const state = { batches: [], tickets: [], sequence: 1001 };
   const clone = value => structuredClone(value);
   const json = (value, status = 200) => new Response(JSON.stringify(value), {
     status,
@@ -23,6 +41,20 @@
   const actionRows = fixture => fixture.scopes['|'].actionTargets.items;
   const allDevices = fixture => Object.values(fixture.scopes['|'].symptoms).flatMap(group => group.devices);
   const ticketFor = id => state.tickets.find(item => item.target_id === id || item.equip_id === id || item.tid === id);
+  const ticketStatus = ticket => {
+    const status = String(ticket.status_code || ticket.status || '').toUpperCase();
+    if (status === 'COMPLETED' || status === 'RESOLVED' || status === 'VERIFIED') return { code: 'COMPLETED', label: '작업 완료', key: 'completed' };
+    if (status === 'WORKING') return { code: 'WORKING', label: '작업 중', key: 'in_progress' };
+    return { code: 'ISSUED', label: '발행', key: 'issued' };
+  };
+  const ticketCounts = items => {
+    const counts = { unissued: 0, issued: 0, in_progress: 0, completed: 0, total: items.length };
+    for (const item of items) {
+      const ticket = ticketFor(item.target_id) || ticketFor(item.id) || ticketFor(item.tid);
+      counts[ticket ? ticketStatus(ticket).key : 'unissued']++;
+    }
+    return counts;
+  };
   const sampleReport = (fixture, params) => {
     const team = params.get('hns_team') || '';
     const post = params.get('hns_post') || '';
@@ -73,14 +105,23 @@
     const scope = scopeFor(fixture, params);
     const body = options.body ? JSON.parse(options.body) : {};
     if (path === '/bootstrap') return fixture.bootstrap;
-    if (path === '/overview') return { ...clone(scope.overview), works: { base_dt: fixture.bootstrap.base_dt, shown_dt: fixture.bootstrap.base_dt, items: [], note: '시연용 샘플 데이터' } };
+    if (path === '/overview') {
+      const data = clone(scope.overview);
+      for (const [segment, stats] of Object.entries(data.topology_stats || {})) {
+        const items = scope.actionTargets.items.filter(item => segment === 'ALL' || item.segment === (segment === 'TERMINAL' ? '단말' : segment));
+        stats.tickets = ticketCounts(items);
+      }
+      data.tickets = data.topology_stats?.ALL?.tickets || ticketCounts(scope.actionTargets.items);
+      return { ...data, works: { base_dt: fixture.bootstrap.base_dt, shown_dt: fixture.bootstrap.base_dt, items: [], note: '시연용 샘플 데이터' } };
+    }
     if (path === '/action-targets') {
       const data = clone(scope.actionTargets);
       for (const item of data.items) {
         const ticket = ticketFor(item.target_id) || ticketFor(item.id) || ticketFor(item.tid);
         if (ticket) {
-          item.status = '발행 완료';
-          item.status_code = 'ISSUED';
+          const status = ticketStatus(ticket);
+          item.status = status.label;
+          item.status_code = status.code;
           item.ticket_info = { ticket_no: ticket.ticket_no, requested_at: ticket.created_at };
         }
       }
@@ -104,7 +145,7 @@
       const focus = params.get('focus');
       if (focus) data.focus = data.points.find(item => item.id === focus || item.tid === focus) || null;
       for (const point of data.points) {
-        const ticket = ticketFor(point.id);
+        const ticket = ticketFor(point.id) || ticketFor(point.tid);
         if (ticket) {
           point.requested = true;
           point.ticket_no = ticket.ticket_no;
@@ -190,12 +231,19 @@
       for (const target of targets) {
         const id = target.equip_id || target.tid;
         if (ticketFor(id)) { duplicated++; continue; }
-        state.tickets.push({ id: state.sequence, equip_id: id, tid: target.tid || id, target_id: id, ticket_no: `SAMPLE-${state.sequence++}`, created_at: '시연 화면', status: 'ISSUED', status_code: 'ISSUED' });
+        state.tickets.push({ id: state.sequence, equip_id: id, tid: target.tid || id, target_id: id, ticket_no: `SAMPLE-${state.sequence++}`, created_at: '시연 화면', requested_at: '시연 화면', status: 'issued', status_code: 'ISSUED' });
         issued++;
       }
       return { ok: true, issued, duplicated, items: clone(state.tickets) };
     }
-    if (path === '/eqp/workitems') return { ok: true, items: clone(state.tickets) };
+    if (path === '/eqp/workitems') {
+      // 조치 화면의 기존 상태 병합이 '발행 완료'를 작업 완료로 읽지 않도록 한다.
+      const items = clone(state.tickets);
+      if (window.location.hash.startsWith('#/action')) {
+        for (const item of items) if (item.status === 'issued') item.status = 'pending';
+      }
+      return { ok: true, items };
+    }
     if (path.startsWith('/workitems/')) return { ok: true, items: clone(state.tickets), events: [] };
     if (path === '/top30/list') {
       const devices = allDevices(fixture).slice(0, 30);

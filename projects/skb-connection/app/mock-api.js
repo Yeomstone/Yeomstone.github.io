@@ -4,15 +4,6 @@
   const overviewUrl = new URL('../index.html', scriptUrl);
   const apiBase = window.__C_ONE_MOCK_BASE__ || appUrl.pathname.replace(/\/$/, '');
   window.__C_ONE_CONFIG__ = { basePath: apiBase, mapTiles: { mode: 'osm' } };
-  const entry = new URL(location.href).searchParams;
-  if (entry.get('design') === 'classic' || entry.get('design') === 'workflow') {
-    localStorage.setItem('c-one-design', entry.get('design'));
-  }
-  const workflowScreens = { home: 0, diagnosis: 1, action: 2, report: 3, recovery: 4, map: 5, top30: 6, cell: 7 };
-  if (entry.has('screen') && entry.get('screen') in workflowScreens) {
-    sessionStorage.setItem('c-one-review-v1:menu', JSON.stringify(workflowScreens[entry.get('screen')]));
-  }
-
   const nativeFetch = window.fetch.bind(window);
   const fixturePromise = nativeFetch(new URL('fixture.json', scriptUrl)).then(response => {
     if (!response.ok) throw new Error('샘플 데이터를 불러오지 못했습니다.');

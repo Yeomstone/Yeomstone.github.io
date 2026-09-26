@@ -407,6 +407,10 @@ img {
   word-break: keep-all;
 }
 
+.hero-role-line {
+  display: block;
+}
+
 .hero-cta-btn {
   padding: 13px 24px;
 }

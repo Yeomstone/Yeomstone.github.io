@@ -1265,8 +1265,3 @@ img {
   height: clamp(100px, 13vw, 175px);
   object-fit: contain;
 }
-#service-item-3 .service-card-img {
-  object-fit: contain;
-  padding: 38px;
-  background: #f7faf8;
-}

@@ -1,0 +1,130 @@
+@charset "utf-8";
+/* Desktop First */
+.conbox { border-radius:10px; border:1px solid #e0dde9; margin-bottom:20px; background:#fff;}
+.conbox h4 { font-size:18px; font-weight:600; color:#333;}
+.div_l{ width:calc(60% - 10px); float:left;}
+.div_r{ width:calc(40% - 10px); float:right;}
+#stepWrap { padding:25px; height:471px; }
+h4.step_tit {color:#fff; border-radius:20px 20px 0 0; padding:8px 20px 4px 20px; display:inline-block;}
+h4.step_tit strong{ color:#ffc73c;}
+.stepbox{ border-radius:0 20px 20px 20px; padding:0 20px 20px 20px; }
+.bgcolor01{ background:#3e3a74;}
+.bgcolor02{background:#713494;}
+.step_first { margin-bottom:30px;}
+.step_first .stepbox > ul { float:left; width:calc( 100% - 125px )}
+.step_first .stepbox > p { position:relative; float:right; width:70px; background:#414099; color:#fff; text-align:center;height:200px; line-height:200px; margin-top:20px; border-radius:20px; border:5px solid rgba(255,255,255,0.2)}
+.step_first .stepbox > p:before { content:""; position:absolute; display:inline-block;  background:url("../images/step_first_arrow.png") no-repeat left center; left:-50px; top:70px; width:40px; height:43px;}
+.step_first .wbox { background:#fff; border-radius:50px; height:92px;  padding-top:17px; margin-top:20px;}
+.step_first .wbox dt { float:left; width:130px; padding-top:45px; font-weight:bold; color:#333; font-size:15px;}
+.step_first .wbox dd { float:left; width:calc(100% - 130px)}
+.step_user{ text-align:center;}
+.step_master { text-align:center;}
+.step_user dt { background:url("../images/step_icon01.png") no-repeat center 0px;}
+.step_master dt { background:url("../images/step_icon02.png") no-repeat center 0px;}
+.step_user li, .step_master li { background:#807c97; float:left; width:30%; border-radius:50px;padding: 10px; word-break:keep-all; font-size:15px; color:#fff; line-height:1.3; height:58px; vertical-align:middle;} 
+.step_user li:first-child { background:#2368dd;}
+.step_user li:nth-child(2) { position:relative;}
+.step_user li:nth-child(2):after{ content:""; display:inline-block; width:11px; height:55px; position:absolute; left:calc( 50% - 5px ); bottom:-55px; z-index:1;background:url("../images/step_ar.png") no-repeat center 0px;}
+.step_master li:first-child { margin-left:30%;}
+.step_join p { color:#fff; padding-top:20px;}
+
+#cslinkWrap #cs { float:left; width:calc(50% - 10px); padding:25px; background:#fff url("../images/cs_bg.png") no-repeat right bottom; height:230px;}
+#cslinkWrap #cs p { font-size:14px; color:#777; line-height:1.5;}
+.cs_tel { display:inline-block; position:relative; font-weight:bold; font-size:40px; color:#414099; letter-spacing:-4px; border-bottom:1px solid #414099;}
+.cs_email { color:#333; font-weight:500; }
+#cslinkWrap { height:234px;}
+#cslinkWrap #link { float:right; width:calc(50% - 10px);}
+#cslinkWrap #link a { display:inline-block; width:100%;  padding:5px; border-radius:10px;  }
+#cslinkWrap #link dt { font-size:18px;}
+#cslinkWrap #link dd { font-size:13px; opacity:0.7; letter-spacing:-1px;}
+#cslinkWrap .link01 { background:#eff1f5;border:1px solid #e0dde9; margin-bottom:20px;}
+#cslinkWrap .link01:hover dl { border:1px solid #414099;}
+#cslinkWrap .link01 dl { border-radius:5px; padding:21px 20px; background:#fff url("../images/link01_bg.png") no-repeat right center; border:1px solid #ddd;}
+#cslinkWrap .link01 dt { color:#333;}
+#cslinkWrap .link02 { background:url("../images/link02_bg.png") no-repeat center; background-size:cover; border:1px solid #e0dde9;  }
+#cslinkWrap .link02:hover dl { border:1px solid #ffc73c;}
+#cslinkWrap .link02 dl { background:url("../images/link02_icon.png") no-repeat 20px center; border-radius:5px; padding:21px 20px 21px 80px; border:1px solid rgba(255,255,255,0.2); color:#fff;}
+#cslinkWrap .link02 dt { color:#fff;}
+
+/* #graph01, #graph02, #graph03, #graph04 { height:350px;} */
+.graph_tit{ padding:13px 25px; background:#f1eff6; border-bottom:1px solid  #e0dde9; border-radius:10px 10px 0 0; text-align:left; }
+.graph_tit strong { color:#414099;}
+.icon_more { display:inline-block; width:30px; height:30px; background:#fff url("../images/icon_more.png") no-repeat center; text-indent:-999em; border:1px solid #ddd; border-radius:20px; float:right;}
+.chart_box { padding: 25px;}
+.chart_info { margin-bottom:25px;}
+.total_num { display:inline-block; font-size:25px; color:#333; position:relative; background:url("../images/point_bg.png") repeat-x left bottom;}
+.total_num strong { font-weight:600;}
+#graph01 .list_color { float:right; margin-top:10px;}
+#graph01 .list_color li { float:left; margin-right:10px; font-size:15px;}
+#graph01 .list_color li:last-child { margin-right:0;}
+#graph01 .ic01 { display:inline-block; background:#b2b8cb;  width:15px; height:8px; border-radius:10px; margin-right:5px;}
+#graph01 .ic02 { display:inline-block; background:#4464dc; width:15px; height:8px; border-radius:10px; margin-right:5px;}
+.bar_chart ul li { font-size:13px; font-weight:500; color:#333;}
+.bar_chart ul li div { position:relative; color:#fff; font-size:13px; background:#ecf1f5; width:20px; margin:0 auto; height:160px;}
+.bar_chart ul li div strong { position:absolute; bottom:0; left:0; display:inline-block; width:100%; text-align:center; border-radius:20px 20px 0 0; padding-top:2px;}
+.bar_color01{ background:#b2b8cb; }
+.bar_color02{ background:#4464dc;}
+.bar_chart ul { display:flex; flex-wrap: nowrap;justify-content: space-between;}
+#graph02 .list_color { width:calc(100% - 230px); float:left;}
+#graph02 .list_color li { font-size:15px; border-bottom:1px solid #eee; padding:5px 0;}
+#graph02 .ic01 { display:inline-block; background:#398dff; width:10px; height:10px; border-radius:10px; margin-right:5px;}
+#graph02 .ic02 { display:inline-block; background:#8858eb; width:10px; height:10px; border-radius:10px; margin-right:5px;}
+#graph02 .ic03 { display:inline-block; background:#ff8942; width:10px; height:10px; border-radius:10px; margin-right:5px;}
+#graph02 .ic04 { display:inline-block; background:#00d8ff; width:10px; height:10px; border-radius:10px; margin-right:5px;}
+#graph02 .ic05 { display:inline-block; background:#ffe23f; width:10px; height:10px; border-radius:10px; margin-right:5px;}
+.pie_chart { width:203px; float:right; margin-top:-20px;}
+.pie_chart img { width:100%;}
+
+
+@media screen and (max-width:1500px){
+	.div_l { clear:both; float:none;width:100%; }
+	.div_l:after { content:""; display:block; clear:both;}
+	.div_r { clear:both; float:none;width:100%; margin-bottom:20px; }
+	.div_r:after { content:""; display:block; clear:both;}
+	#cslinkWrap { clear:both; float:none; margin-bottom:20px; height:auto;}
+	#cslinkWrap:after { content:""; display:block; clear:both;}
+
+}
+/* Tablet */
+@media screen and (max-width:1024px){
+	.step_first .wbox { height:auto; padding:10px;}
+	.step_user li, .step_master li { height:auto;}
+	#stepWrap { height:auto;}
+	#cslinkWrap { margin-bottom:20px;}
+	#cslinkWrap #cs, #cslinkWrap #link { width:100%; float:none; height:auto; clear:both;}
+	#cslinkWrap #link { clear:both; float:none; }
+	#cslinkWrap #link:after { content:""; display:block; clear:both;}
+	#cslinkWrap #link a { float:left; width:calc( 50% - 5px)}
+	#graph01, #graph02{ height:auto;}
+	#cslinkWrap .link02 { margin-left:10px;}
+	.chart_box{ clear:both; float:none;width:100%; }
+	.chart_box:after { content:""; display:block; clear:both;}
+}
+/* Moblie */
+@media screen and (max-width:767px){
+	#cslinkWrap #link a { float:none; width:100%;}
+	#cslinkWrap .link02 { margin-left:0px;}
+	.step_first .stepbox > ul { width:100%;}
+	.step_first .stepbox > p { width:100%; height:auto; line-height:1; padding:10px 0;}
+	.step_user li, .step_master li{ width:33%;}
+	.step_master li:first-child { margin-left:33%;}
+	.step_first .wbox { border-radius:10px;}
+	.step_first .wbox dt { width:80px;}
+	.step_first .wbox dd { width:calc( 100% - 80px);}
+}
+@media screen and (max-width:600px){
+	#stepWrap { padding:15px;}
+	h4.step_tit { border-radius:10px 10px 0 0; padding: 8px 15px 0 15px;}
+	.stepbox { border-radius:0 10px 10px 10px; padding:0 15px 15px 15px}
+	.step_join p { padding-top:15px;}
+	.step_first .wbox dt { width:100%;}
+	.step_first .wbox dd { width:100%}
+	.step_user li, .step_master li { float:none; width:100%; border-radius:5px; padding:5px 0; margin-bottom:5px;}
+	.step_user li br, .step_master li br { display:none;}
+	.step_master li:first-child { margin-left:0;}
+	.step_user li:nth-child(2):after { display:none;}
+	.step_first .stepbox > p:before { display:none;}
+	#cslinkWrap #cs p br { display:none;}
+	.graph_tit { padding:10px 15px;}
+	.chart_box { padding:15px;}
+}

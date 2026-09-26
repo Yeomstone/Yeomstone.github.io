@@ -1,0 +1,414 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<title>비산배출시설 정기점검 관리시스템 - 결과확인 목록</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="keywords" content="한국환경공단 ">
+	<meta name="description" content="한국환경공단">
+
+	<!--[if lte IE 9]>
+	<script type="text/javascript" src="./js/respond.min.js"></script>
+	<script type="text/javascript" src="./js/html5.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="./js/jquery.min.js"></script>
+
+	<script src="js/common.js"></script>
+	<script type="text/javascript" src="./js/bxslider/jquery.bxslider.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./js/bxslider/jquery.bxslider.css">
+	<link rel="stylesheet" type="text/css" href="./css/common.css">
+	<link rel="stylesheet" type="text/css" href="./css/layout.css">
+	<link rel="stylesheet" type="text/css" href="./css/board.css">
+	
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+ 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+ 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script type="text/javaScript" language="javascript" defer="defer">
+/*********************************************************
+ * 초기화
+ ******************************************************** */
+function fn_init(){
+	// 첫 입력란에 포커스..
+	document.qnaForm.searchCnd.focus();
+}
+
+
+function fn_search(pageNo) {
+	$("#pageIndex").val("1");
+	$("#inspectionVO").submit();
+}
+
+$(function(){
+	$("#searchWrd").bind("keyup", function(e) {
+		if(e.keyCode == 13) {
+			fn_search('1');
+		}
+	})
+	
+	
+	if($("#isSorting").val() === "ture"){
+		$("#flg").css("color","crimson");
+	}else{
+		$("#flg").css("color","#333");
+		$("#isSorting").val("false");
+	}
+	
+	$("#flg").bind("click", function(e) {
+		let val = $("#isSorting").val();
+		
+		if(val === "false"){
+			$("#flg").css("color","crimson");
+			$("#isSorting").val("ture");
+		}else{
+			$("#flg").css("color","#333");
+			$("#isSorting").val("false");
+		}
+		$("#pageIndex").val("1");
+		$("#inspectionVO").submit();
+	})
+});
+
+function fn_search_page(page) {
+	$("#pageIndex").val(page);
+	$("#inspectionVO").submit();
+}
+
+var message = "";
+if(message != null && message != ""){
+	alert(message);
+}
+
+function fn_excel(){
+	$("#inspectionVO").attr("action","./applyFormResultReportExcel.do").submit();
+	$("#inspectionVO").attr("action", "");
+}
+		
+ function fn_detail(rcptNo){
+	location.href = "./applyFormResultDetail.html?rcptNo="
+		+ encodeURIComponent(rcptNo)
+		+ "&pageIndex="
+		+ encodeURIComponent($("#pageIndex").val() || "1");
+}
+ 
+ const onInputHandler = (el) => {
+	 	let id = $(el).attr("id");
+	    let val = $("#"+id).val().replace(/\D/g, "");
+	    let leng = val.length;
+	    let result = '';
+
+	    if(leng < 6) result = val;
+	    else if(leng < 8){
+	        result += val.substring(0,4);
+	        result += "-";
+	        result += val.substring(4);
+	    } else{
+	        result += val.substring(0,4);
+	        result += "-";
+	        result += val.substring(4,6);
+	        result += "-";
+	        result += val.substring(6);
+
+	        if(!checkValidDate(result)){
+	            alert("YYYYMMDD 형식으로 입력해주세요");
+	            $("#"+id).val("");
+	            return false;
+	        } 
+	    }
+	    $("#"+id).val(result);
+	}
+
+	const checkValidDate = (value) => {
+	    let result = true;
+	    try {
+	        let date = value.split("-");
+	        let y = parseInt(date[0], 10),
+	            m = parseInt(date[1], 10),
+	            d = parseInt(date[2], 10);
+
+	        let dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
+	        result = dateRegex.test(d+'-'+m+'-'+y);
+	    } catch (err) {
+	        result = false;
+	    }
+	    return result;
+	}
+ 
+ $(document).ready(function(){
+	 var dateOption = {
+		        dateFormat: 'yy-mm-dd' //달력 날짜 형태
+			        ,showOtherMonths: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+			        ,showMonthAfterYear:true // 월- 년 순서가아닌 년도 - 월 순서
+			        ,changeYear: true //option값 년 선택 가능
+			        ,changeMonth: true //option값  월 선택 가능                
+			        ,showOn: "button" //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
+			        ,buttonImage: gbn_getContextPath() + "/images/icon_cal.png" //버튼 이미지 경로
+			        ,buttonImageOnly: true //버튼 이미지만 깔끔하게 보이게함
+			        ,buttonText: "선택" //버튼 호버 텍스트              
+			        ,yearSuffix: "년" //달력의 년도 부분 뒤 텍스트
+			        ,monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 텍스트
+			        ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip
+			        ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 텍스트
+			        ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 Tooltip
+			        ,minDate: "-5Y" //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+			        ,maxDate: "+5y" //최대 선택일자(+1D:하루후, -1M:한달후, -1Y:일년후)  
+			    }
+	 $('.datePicker').datepicker(dateOption); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후) 
+ });
+</script>
+<style>
+#boardWrap .schBox input {
+    display: inline-block;
+    width: calc(100% - 355px);
+    height: 50px;
+    line-height: 48px;
+}
+</style>
+</head>
+<body>
+	<div class="skip">
+		<strong class="hide">반복영역 건너뛰기</strong>
+		<a href="#gnb">주메뉴 바로가기</a>
+		<a href="#contents">본문 바로가기</a>
+	</div>
+	<div id="wrap">
+        <header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>수수료 조회/납부 상세</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+		<div id="contents">
+			<div id="boardWrap" class="container">
+				<div id="subCont" class="board_notice">
+					<h3 id="subTitle">결과 확인</h3>
+					<!--검색 폼 -->
+					<form name="inspectionVO" id="inspectionVO" action="./applyFormResultList.html" method="post">
+						<input type="hidden" name="rcptNo" id="rcptNo"/>
+						<input type="hidden" name="isSorting" id="isSorting" value=""/>
+						<input type="hidden" name="pageIndex" id="pageIndex" value="1">
+						<input type="hidden" id="emplyrId" name="emplyrId" value=""/>
+						
+						<div class="schBox clear">
+							<fieldset>
+								<ul style="width: 100%;">
+								<li>
+								<legend>게시물 검색</legend>
+								<label for="searchCnd" class="hd-element">검색 목록</label>
+								<select id="searchCnd" name="searchCnd" class="ip_wd20" title="검색 목록" >							
+	                                <option value="">전체</option>
+	                                						
+								</select>
+								<label for="pageUnit" class="hd-element">페이지 리스트 개수</label>
+								<select name="pageUnit" id="pageUnit" title="검색조건-페이지  리스트 개수" style="width: 145px;">
+									<option value="1000000" selected="selected" >전체 출력</option>
+									<option value="10"  >10개씩 보기</option>
+									<option value="20"  >20개씩 보기</option>
+									<option value="30"  >30개씩 보기</option>
+									<option value="40"  >40개씩 보기</option>
+									<option value="50"  >50개씩 보기</option>
+								</select>
+								<label for="searchWrd" class="hd-element">검색 입력란</label>
+								<input class="ip_wd40" type="text" id="searchWrd" name="searchWrd" placeholder="사업장 명을 입력하세요." value="" title="검색 입력란" style="width: 625px;">
+								<button class="btn_search ip_wd10" onclick="fn_search('1')" style="cursor: pointer;height: 50px" value="검색" readonly>검색</button>
+								
+								</li>
+								<li>
+									
+									<span>수수료 입금일</span>
+									<label for="feeDepYmdS" class="hd-element">수수료 시작일</label>
+									<input name="feeDepYmdS" id="feeDepYmdS" title="수수료 시작일" size="20" maxlength="50" oninput="onInputHandler(this);" class="datePicker" style="width: 120px;" value=''/>
+									<label for="feeDepYmdE" class="hd-element">수수료 종료일</label>
+									<input name="feeDepYmdE" id="feeDepYmdE" title="수수료 종료일" size="20" maxlength="50" oninput="onInputHandler(this);" class="datePicker" style="width: 120px;" value=''/>
+									<span>현장점검일</span>
+									<label for="prdinInspFromYmd" class="hd-element">현장점검 시작일</label>
+									<input name="prdinInspFromYmd" id="prdinInspFromYmd" title="현장점검 시작일" size="20" maxlength="50" oninput="onInputHandler(this);" class="datePicker" style="width: 120px;" value=''/>
+									<label for="prdinInspToYmd" class="hd-element">현장점검 종료일</label>
+									<input name="prdinInspToYmd" id="prdinInspToYmd" title="현장점검 종료일" size="20" maxlength="50" oninput="onInputHandler(this);" class="datePicker" style="width: 120px;" value=''/>
+								</li>
+								</ul>
+							</fieldset>				
+						</div>
+					
+<!-- 					// 검색 폼 -->
+					<p class="countText">총 <span class="count"></span>건이 등록되었습니다.</p>
+					<table class="tBoard">
+						<caption style="display:block;">정기점검 결과 확인 리스트</caption>
+						<thead>
+							<tr>
+								<th scope="col" width="10%">접수번호</th>
+								<th scope="col" width="20%">사업장명</th>
+								<th scope="col" width="10%">대표자</th>
+								<th scope="col" width="10%">현장점검시작일</th>
+								<th scope="col" width="10%">현장점검종료일</th>
+								<th scope="col" width="10%">수수료 입금일</th>
+								<th scope="col" width="10%"><a href="javascript:void(0);" id="flg">결과보고서 제출 기한</a></th>
+								<th scope="col" width="5%">상태</th>
+								
+								
+								
+							</tr>
+						</thead>
+						<tbody>
+							
+								  <tr>
+									<td nowrap="nowrap">2026-04-0012-01</td>
+									<td nowrap="nowrap" >
+										<a href="javascript:void(0)" onclick="fn_detail('2026-04-0012-01')">샘플 사업장</a>
+									</td>
+									<td nowrap="nowrap">홍길동</td>
+									<td nowrap="nowrap"></td>
+									<td nowrap="nowrap"></td>
+									<td nowrap="nowrap">2026-05-02</td>
+									
+									
+									<td nowrap="nowrap"></td>
+									
+									
+									
+								  </tr>
+								 
+								  <tr>
+									<td nowrap="nowrap">2026-04-0013-01</td>
+									<td nowrap="nowrap" >
+										<a href="javascript:void(0)" onclick="fn_detail('2026-04-0013-01')">예시 화학 사업장</a>
+									</td>
+									<td nowrap="nowrap">홍길동</td>
+									<td nowrap="nowrap"></td>
+									<td nowrap="nowrap"></td>
+									<td nowrap="nowrap">2026-05-02</td>
+									
+									
+									<td nowrap="nowrap"></td>
+									
+									
+									
+								  </tr>
+								 	
+						</tbody>
+					</table>
+<!-- 					페이지 -->
+					<div class="pagination mt50">
+						<ul class="clear">
+							<div class="pagination"><a href="javascript:void(0)" onclick="fn_search && fn_search(1)">1</a></div>
+						</ul>
+					</div>
+<!-- 					// 페이지 -->
+					</form>
+				</div>
+				<!-- // #subCont -->
+			</div>
+			<!-- // .container -->
+		</div>
+		<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>	
+	</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

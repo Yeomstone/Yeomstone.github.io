@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<title>비산배출시설 정기점검 관리시스템 - 제출서류 안내</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<script type="text/javascript" src="./js/jquery.min.js"></script>
+	<script src="./js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/common.css">
+	<link rel="stylesheet" type="text/css" href="./css/layout.css">
+	<link rel="stylesheet" type="text/css" href="./css/sub.css">
+	<link rel="stylesheet" type="text/css" href="./css/board.css">
+	<style>
+		#contents .document_guide_container { max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+		#contents .document_guide_container #subTitle { margin-to  p: 50px; margin-bottom: 35px; text-align: center; }
+		#documentGuide .guide_notice { margin-bottom: 20px; }
+		#documentGuide .guide_workplace { margin-bottom: 15px; padding: 14px 18px; border: 1px solid #ddd; background: #fff; color: #333; }
+		#documentGuide .guide_workplace strong { margin-left: 15px; color: #016241; }
+		#documentGuide .guide_notice li { color: #333; line-height: 1.6; }
+		#documentGuide .guide_state { margin-bottom: 25px; border-top: 1px solid #eee; }
+		#documentGuide .guide_state > li { padding: 18px 20px; border-bottom: 1px solid #eee; background: #f8f8f8; color: #333; line-height: 1.6; }
+		#documentGuide .guide_state .state_role { color: #016241; font-weight: 500; }
+		#documentGuide .guide_state em { color: #016241; font-style: normal; font-weight: 700; }
+		#documentGuide .guide_state .tlist2 { margin-top: 6px; }
+		#documentGuide .form_con input[readonly] { background: #f7f7f7; color: #333; }
+		#documentGuide .guide_check_list { margin: 0; padding: 0; border: 1px solid #ddd; background: #fff; list-style: none; }
+		#documentGuide .guide_check_item { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 10px 14px; border-bottom: 1px solid #eee; }
+		#documentGuide .guide_check_item:last-child { border-bottom: 0; }
+		#documentGuide .guide_check_content { display: flex; align-items: flex-start; flex: 1; margin-right: 15px; color: #222; line-height: 1.6; cursor: pointer; }
+		#documentGuide .guide_check_type { flex: 0 0 auto; min-width: 45px; margin: 0 10px 0 0; font-size: 14px; font-weight: 700; }
+		#documentGuide .guide_check_type.required { color: #b00020; }
+		#documentGuide .guide_check_type.conditional { color: #444; }
+		#documentGuide .guide_check_type.recommended { color: #347218; }
+		#documentGuide .guide_check_type.optional { color: #555; }
+		#documentGuide .guide_title_condition { margin-left: 8px; color: #666; font-size: 14px; font-weight: 400; }
+		#documentGuide .guide_check_control { flex: 0 0 32px; margin-top: 2px; text-align: right; white-space: nowrap; }
+		#documentGuide .guide_check_control.checkbox { margin-bottom: 0; }
+		#documentGuide .guide_check_control.checkbox input[type="checkbox"] + label { padding-left: 23px; }
+		#documentGuide .guide_draft_status { display: block; clear: both; width: 100%; margin: 12px 0 0; color: #555; text-align: center; }
+		#documentGuide .empty_data { padding: 28px 0; border-bottom: 1px solid #ddd; color: #666; text-align: center; }
+		#documentGuide .guide_doc_group { margin-top: 20px; }
+		#documentGuide .guide_doc_group .form_tit { margin-bottom: 10px; }
+		@media all and (max-width: 767px) {
+			#contents .document_guide_container { padding: 0 12px 45px; }
+			#contents .document_guide_container #subTitle { margin-top: 30px; margin-bottom: 25px; }
+			#documentGuide .guide_check_item { align-items: flex-start; }
+			#documentGuide .guide_check_content { margin-right: 8px; }
+			#documentGuide .guide_check_control { flex-basis: 32px; }
+		}
+	</style>
+</head>
+<body>
+	<div class="skip">
+		<strong class="hide">건너뛰기 링크</strong>
+		<a href="#contents">본문 바로가기</a>
+	</div>
+	<div id="wrap">
+		
+<header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>제출서류 안내</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+
+		<div id="contents">
+			<div class="document_guide_container">
+				<h3 id="subTitle">사업장 시설 특성 기반 맞춤형 서류 안내</h3>
+
+				<div id="documentGuide" data-storage-key="keco.documentGuide.2023-04-0012">
+					<div class="formbox mb40">
+						<div class="guide_workplace">
+							사업장 <strong>(주)삼성테이프</strong>
+						</div>
+						<ul class="colorbox01 tlist2 guide_notice">
+							<li>가장 최근 수수료 납부 건의 시설수를 기준으로 필요한 제출서류를 안내합니다.</li>
+							<li>임시저장한 체크 내용은 현재 브라우저에만 보관됩니다.</li>
+						</ul>
+						
+									<div class="guide_doc_group">
+										<h5 class="form_tit">배수장치<span class="guide_title_condition">(개방식 냉각탑 또는 비산배출 배수장치 보유)</span></h5>
+										<ul class="guide_check_list">
+											<li class="guide_check_item">
+												<label for="guideCheck_drain_1" class="guide_check_content">
+													<strong class="guide_check_type required">필수</strong>
+													<span>배수장치 관리대장 (일일 점검 및 누출 확인 기록부)</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_drain_1" class="guide_check_input" data-check-key="drain_1">
+													<label for="guideCheck_drain_1" aria-label="체크"></label>
+												</span>
+											</li>
+											<li class="guide_check_item">
+												<label for="guideCheck_drain_2" class="guide_check_content">
+													<strong class="guide_check_type conditional">조건부</strong>
+													<span>밀폐형 배수설비 도면 및 유수분리시설 운영일지</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_drain_2" class="guide_check_input" data-check-key="drain_2">
+													<label for="guideCheck_drain_2" aria-label="체크"></label>
+												</span>
+											</li>
+										</ul>
+									</div>
+									<div class="guide_doc_group">
+										<h5 class="form_tit">냉각탑<span class="guide_title_condition">(열교환 순환수 냉각공정)</span></h5>
+										<ul class="guide_check_list">
+											<li class="guide_check_item">
+												<label for="guideCheck_cooling_1" class="guide_check_content">
+													<strong class="guide_check_type required">필수</strong>
+													<span>냉각수 순환수 수질검사 성적서 (VOCs 농도 측정 결과)</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_cooling_1" class="guide_check_input" data-check-key="cooling_1">
+													<label for="guideCheck_cooling_1" aria-label="체크"></label>
+												</span>
+											</li>
+											<li class="guide_check_item">
+												<label for="guideCheck_cooling_2" class="guide_check_content">
+													<strong class="guide_check_type recommended">권장</strong>
+													<span>열교환기 누출 탐지 및 일상점검 기록부</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_cooling_2" class="guide_check_input" data-check-key="cooling_2">
+													<label for="guideCheck_cooling_2" aria-label="체크"></label>
+												</span>
+											</li>
+										</ul>
+									</div>
+									<div class="guide_doc_group">
+										<h5 class="form_tit">저장시설<span class="guide_title_condition">(고정지붕식 및 내부부상지붕식 저장탱크)</span></h5>
+										<ul class="guide_check_list">
+											<li class="guide_check_item">
+												<label for="guideCheck_tank_1" class="guide_check_content">
+													<strong class="guide_check_type required">필수</strong>
+													<span>저장물질 성상표 및 연간 입·출고 실적 대장</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_tank_1" class="guide_check_input" data-check-key="tank_1">
+													<label for="guideCheck_tank_1" aria-label="체크"></label>
+												</span>
+											</li>
+											<li class="guide_check_item">
+												<label for="guideCheck_tank_2" class="guide_check_content">
+													<strong class="guide_check_type conditional">조건부</strong>
+													<span>통기관 통기밸브(Breather Valve) 작동시험 및 보수 성적서</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_tank_2" class="guide_check_input" data-check-key="tank_2">
+													<label for="guideCheck_tank_2" aria-label="체크"></label>
+												</span>
+											</li>
+										</ul>
+									</div>
+									<div class="guide_doc_group">
+										<h5 class="form_tit">폐수관로<span class="guide_title_condition">(폐수 집수정 및 집수관로)</span></h5>
+										<ul class="guide_check_list">
+											<li class="guide_check_item">
+												<label for="guideCheck_pipe_1" class="guide_check_content">
+													<strong class="guide_check_type required">필수</strong>
+													<span>폐수 이송관로 밀폐 덮개 상태 및 수봉 점검 기록부</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_pipe_1" class="guide_check_input" data-check-key="pipe_1">
+													<label for="guideCheck_pipe_1" aria-label="체크"></label>
+												</span>
+											</li>
+										</ul>
+									</div>
+									<div class="guide_doc_group">
+										<h5 class="form_tit">압축기<span class="guide_title_condition">(원심식/왕복동식 압축기 밀봉계통)</span></h5>
+										<ul class="guide_check_list">
+											<li class="guide_check_item">
+												<label for="guideCheck_comp_1" class="guide_check_content">
+													<strong class="guide_check_type required">필수</strong>
+													<span>축봉장치(Mechanical Seal) 가스누출 센서 점검일지</span>
+												</label>
+												<span class="guide_check_control checkbox">
+													<input type="checkbox" id="guideCheck_comp_1" class="guide_check_input" data-check-key="comp_1">
+													<label for="guideCheck_comp_1" aria-label="체크"></label>
+												</span>
+											</li>
+										</ul>
+									</div>
+    
+						
+							<div class="btn_wrap mt50 mb50">
+								<a href="javascript:void(0)" id="saveDocumentGuideDraft" class="btn btn_bg color">임시저장</a>
+								<a href="DocoumentGuideList.html" class="btn btn_bg gray">목록</a>
+								
+							</div>
+    
+								
+									
+									<a href="DocoumentGuideList.html" class="btn btn_bg gray">목록</a>
+								
+								<span id="documentGuideDraftStatus" class="guide_draft_status" aria-live="polite"></span>
+							</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		
+<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+	</div>
+	<script type="text/javascript">
+	(function() {
+		var container = document.getElementById("documentGuide");
+		var saveButton = document.getElementById("saveDocumentGuideDraft");
+		if (!container || !saveButton || !window.localStorage) {
+			return;
+		}
+
+		var storageKey = container.getAttribute("data-storage-key");
+		var status = document.getElementById("documentGuideDraftStatus");
+		var checkboxes = container.querySelectorAll(".guide_check_input");
+
+		function showSavedAt(savedAt) {
+			if (status && savedAt) {
+				status.textContent = "마지막 임시저장: " + new Date(savedAt).toLocaleString();
+			}
+		}
+
+		try {
+			var savedValue = localStorage.getItem(storageKey);
+			if (savedValue) {
+				var savedData = JSON.parse(savedValue);
+				var checkedKeys = savedData.checkedKeys || [];
+				for (var index = 0; index < checkboxes.length; index++) {
+					checkboxes[index].checked = checkedKeys.indexOf(checkboxes[index].getAttribute("data-check-key")) >= 0;
+				}
+				showSavedAt(savedData.savedAt);
+			}
+		} catch (restoreError) {
+			if (status) {
+				status.textContent = "임시저장 내용을 불러오지 못했습니다.";
+			}
+		}
+
+
+		saveButton.onclick = function() {
+			var checkedKeys = [];
+			for (var index = 0; index < checkboxes.length; index++) {
+				if (checkboxes[index].checked) {
+					checkedKeys.push(checkboxes[index].getAttribute("data-check-key"));
+				}
+			}
+
+			try {
+				var savedAt = new Date().toISOString();
+				localStorage.setItem(storageKey, JSON.stringify({
+					checkedKeys: checkedKeys,
+					savedAt: savedAt
+				}));
+				showSavedAt(savedAt);
+				alert("임시저장되었습니다.");
+			} catch (saveError) {
+				alert("임시저장에 실패했습니다. 브라우저 저장공간 설정을 확인해주세요.");
+			}
+		};
+	})();
+	</script>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,1459 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>비산배출시설 정기점검 관리시스템 - 정기점검 신청</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="keywords" content="한국환경공단 ">
+    <meta name="description" content="한국환경공단">
+
+    <!--[if lte IE 9]>
+	<script type="text/javascript" src="js/respond.min.js"></script>
+	<script type="text/javascript" src="js/html5.js"></script>
+	<![endif]-->
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
+    
+    <script src="./js/common.js"></script>
+    <script src="./js/jquery.sumoselect.min.js"></script>    
+    
+    
+    
+    <link rel="stylesheet" type="text/css" href="./js/bxslider/jquery.bxslider.css">
+    <link rel="stylesheet" type="text/css" href="./css/common.css">
+    <link rel="stylesheet" type="text/css" href="./css/layout.css">
+    <link rel="stylesheet" type="text/css" href="./css/sumoselect.min.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/sub.css">
+    <script type="text/javascript" src="./js/CalPopup.js" ></script>
+</head>
+
+<body>
+<script>
+	$(document).ready(function () {
+		if("" != ""){
+			alert("");
+		}
+		var opt = {placeholder: '관리대상물질'}
+		
+		$('.sumoselect_multiple').SumoSelect(gbn_fn_getSumoSelectOption(opt));
+		
+		$('.sumoselect_multiple_2').SumoSelect(gbn_fn_getSumoSelectOption());
+		fn_setApplyFormAccessibilityLabels();
+		
+	    var lastPrdinInspYr = $('#lastPrdinInspYr').val().substr(0, 4);
+	    $('#lastPrdinInspYr').val(lastPrdinInspYr);	
+	    
+	    $(".keyCheck").on("click",function(){
+			if(this.tagName == "A"){
+				$("#wrap").attr("f8",true);
+				$("#fil8").show();
+			}
+		}).on("keydown",function(){
+			$("#wrap").attr("f8",true);
+			$("#fil8").show();
+		});
+	    
+	    /* fn_calDeadline(); */
+	    
+	    let offtlnum = "";
+	    /* let mbtlnum = ""; */
+	    offtlnum = offtlnum.replaceAll('-', '');
+	    /* mbtlnum = mbtlnum.replaceAll('-', ''); */
+	    
+	    if($("#intgrLcnsYn").val() === "Y")$("#intgrLcns").prop("checked", true);
+	    
+	    offtlnum = offtlnum.replace(/[^0-9]/, '').replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+	    /* mbtlnum = mbtlnum.replace(/[^0-9]/, '').replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`); */
+	    
+	    $("#offtl").val(offtlnum);
+	    /* $("#mbtl").val(mbtlnum); */
+	    
+		const uploadLabels = document.querySelectorAll('label.upload-btn[for^="file"]');
+		
+		uploadLabels.forEach(label => {
+			label.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					const targetId = label.getAttribute('for');
+					document.getElementById(targetId).click();
+				}
+			});
+			
+			const input = document.getElementById(label.getAttribute('for'));
+			const nameInput = label.parentElement.querySelector('.upload-name');
+			
+			// 파일 이름 표시 (선택 시)
+			input.addEventListener('change', function() {
+				const fileName = this.files.length ? this.files[0].name : '';
+				nameInput.value = fileName;
+			});
+		});
+	    
+	    
+	});
+	
+	function autoHyphen(target) {
+		target = target
+			.replace(/[^0-9]/, '')
+			.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+	}
+
+	function fn_hasApplyFormLabel(controlId) {
+		if (!controlId) {
+			return false;
+		}
+		
+		return $('label').filter(function() {
+			return $(this).attr('for') === controlId;
+		}).length > 0;
+	}
+	
+	function fn_getApplyFormLabelText($control, fallbackLabel) {
+		var controlId = $control.attr('id') || '';
+		var labelMap = {
+			bsnsNm: '상호(사업장명칭)',
+			brNo: '사업자등록번호',
+			rprsvNm: '성명(대표자)',
+			crNo: '법인등록번호',
+			ofcAddr: '주소',
+			ofcDetailAddr: '상세 주소',
+			ofcTelNo: '전화번호',
+			intgrLcns: '통합환경허가 여부',
+			bsnsLoc: '소재지',
+			bsnsDetailLoc: '상세 주소',
+			bsnsTelNo: '전화번호',
+			bsnsCatNm: '업종명(코드)',
+			mngTrgtSbstn: '관리대상물질',
+			bsnsClsCd: '대기오염물질 발생량에 따른 사업장 분류',
+			mnPrdct: '주생산품',
+			tech_cate01: '전체 제외시설',
+			tech_cate02: '6개월 이상 전체 가동중지',
+			prdinExcldFcltsFrom: '제외시설 시작일',
+			prdinExcldFcltsTo: '제외시설 종료일',
+			prdinDwntmFrom: '가동중지 시작일',
+			prdinDwntmTo: '가동중지 종료일',
+			lastPrdinInspYr: '직전 점검 연도',
+			prdinInsp: '정기점검 희망일',
+			prdinInspFrom: '정기점검 기간 시작일',
+			prdinInspTo: '정기점검 기간 종료일',
+			offtl: '사무실 전화번호',
+			mbtl: '휴대전화',
+			emailId: '이메일',
+			mberNm: '담당자'
+		};
+		
+		if (labelMap[controlId]) {
+			return labelMap[controlId];
+		}
+		
+		if (/^bsnsCatNm\d+$/.test(controlId)) {
+			return '업종명(코드)';
+		}
+		
+		if (/^bsnsCat\d+$/.test(controlId)) {
+			return '업종 분류';
+		}
+		
+		if (/^uploadFileName/.test(controlId)) {
+			return $control.attr('title') || '첨부파일명';
+		}
+		
+		var labelText = fallbackLabel
+			|| $control.attr('title')
+			|| $control.attr('aria-label')
+			|| $control.attr('placeholder')
+			|| '';
+		
+		if (!labelText) {
+			var $nearLabel = $control.closest('.ipbox').find('label').filter(function() {
+				return $.trim($(this).text()).length > 0;
+			}).first();
+			
+			if ($nearLabel.length > 0) {
+				labelText = $nearLabel.text();
+			}
+		}
+		
+		return $.trim(labelText).replace(/\s+/g, ' ') || '입력 항목';
+	}
+	
+	function fn_ensureApplyFormControlLabel($control, fallbackLabel) {
+		if (!$control || $control.length === 0) {
+			return;
+		}
+		
+		var controlId = $control.attr('id');
+		if (!controlId) {
+			controlId = ($control.attr('name') || 'applyFormControl') + 'A11y' + $('.applyFormA11yLabel').length;
+			controlId = controlId.replace(/[^A-Za-z0-9_\-]/g, '');
+			$control.attr('id', controlId);
+		}
+		
+		var labelText = fn_getApplyFormLabelText($control, fallbackLabel);
+		
+		if (!$control.attr('title')) {
+			$control.attr('title', labelText);
+		}
+		
+		if (!$control.attr('aria-label')) {
+			$control.attr('aria-label', labelText);
+		}
+		
+		if (!fn_hasApplyFormLabel(controlId)) {
+			$('<label/>', {
+				'for': controlId,
+				'class': 'sr-only applyFormA11yLabel',
+				'text': labelText
+			}).insertBefore($control);
+		}
+	}
+	
+	function fn_setApplyFormAccessibilityLabels() {
+		$('.SumoSelect').each(function(index) {
+			var $sumo = $(this);
+			var $select = $sumo.find('select').first();
+			var controlName = $select.attr('aria-label') || $select.attr('title') || $select.attr('name') || '선택 항목';
+			var $searchInput = $sumo.find('input.search-txt');
+			var searchInputId = $searchInput.attr('id') || (($select.attr('id') || 'sumoSearch') + 'Search' + index);
+			
+			fn_ensureApplyFormControlLabel($select, controlName);
+
+			if ($searchInput.length > 0) {
+				$searchInput.attr({
+					'id': searchInputId,
+					'title': controlName + ' 검색',
+					'aria-label': controlName + ' 검색'
+				});
+				
+				fn_ensureApplyFormControlLabel($searchInput, controlName + ' 검색');
+			}
+		});
+
+		$('.filebox .upload-name').each(function(index) {
+			var $input = $(this);
+			var $file = $input.siblings('input[type="file"]').first();
+			var inputId = $input.attr('id') || (($file.attr('id') || ('file' + index)) + 'Name');
+			var labelText = $input.attr('title') || '첨부 파일명';
+
+			$input.attr({
+				'id': inputId,
+				'type': 'text',
+				'aria-label': labelText
+			});
+			
+			fn_ensureApplyFormControlLabel($input, labelText);
+		});
+		
+		$('#applyFormSubmit, #resultReport').find('input, select, textarea').each(function() {
+			var $control = $(this);
+			var type = ($control.attr('type') || '').toLowerCase();
+			
+			if (type === 'hidden' || type === 'button' || type === 'submit' || type === 'reset') {
+				return;
+			}
+			
+			fn_ensureApplyFormControlLabel($control);
+		});
+	}
+	
+	function fn_addButton(){
+		var i = $('#ipbox > .ipbox').length;
+		var idx;
+		if(i === 5){
+			alert("더 이상 추가할 수 없습니다.");
+		} else {
+			idx = i+1;
+
+			var copyObj = $('#temp_selector').clone().attr("id", '');
+			
+			copyObj.find('.selector_sub').prop('disabled', false).removeAttr('disabled aria-hidden tabindex').attr({
+				'id': 'bsnsCatNm' + idx,
+				'tabindex': 0
+			});
+			copyObj.find('.selector_main').prop('disabled', false).removeAttr('disabled aria-hidden tabindex').attr({
+				'id': 'bsnsCat' + idx,
+				'name': 'bsnsCat' + idx,
+				'tabindex': 0
+			});
+			copyObj.find('label[for="tempBsnsCatNm"]').attr('for', 'bsnsCatNm' + idx);
+			copyObj.find('label[for="tempBsnsCat"]').attr('for', 'bsnsCat' + idx);
+			$("#ipbox").append(copyObj);
+			
+			copyObj.children(".selector_sub").SumoSelect(gbn_fn_getSumoSelectOption());
+			fn_setApplyFormAccessibilityLabels();
+		} 
+	}
+	
+	function fn_extractBsnsCatCd(value) {
+		if(!value) {
+			return "";
+		}
+		
+		return value.toString().replace(", ", "").replace(/[^0-9,]/g,'').replaceAll(",,", ",");
+	}
+	
+	function fn_codeExtraction(idx) {
+		var extraction = fn_extractBsnsCatCd($('#bsnsCatNm'+idx).val());
+   		$('#bsnsCatCd'+idx).val(extraction);       		
+   		
+   		var bsnsCatNmValCheck = [];
+		for(var i = 0; i < 5; i++) {
+			var bsnsCatNmVal = $('#bsnsCatNm'+i).val();
+			if(bsnsCatNmVal)bsnsCatNmValCheck.push(bsnsCatNmVal);
+		}
+		if(bsnsCatNmValCheck.length === 0){
+			$('#bsnsCatCd'+idx).val('');
+			$('#bsnsCatNm'+idx).val('');
+		}
+	}
+	
+	function fn_syncBsnsCatCd() {
+		for(var i = 0; i < 5; i++) {
+			var $bsnsCatNm = $('#bsnsCatNm' + i);
+			var $bsnsCatCd = $('#bsnsCatCd' + i);
+			
+			if($bsnsCatNm.length === 0 || $bsnsCatCd.length === 0) {
+				continue;
+			}
+			
+			if($bsnsCatNm.val()) {
+				var extraction = fn_extractBsnsCatCd($bsnsCatNm.val());
+				$bsnsCatCd.val(extraction);
+				
+				if(extraction === '') {
+					alert("업종명(코드)을 다시 선택해 주세요.");
+					$bsnsCatNm.focus();
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	function fn_selectUpjong(obj){
+		
+		var $this = $(obj);
+		var value = obj.value;
+		var nObj = $this[0];
+		var sector = $this.parent().parent().children("select");
+		var subSelect = sector[0];
+		
+		var cateStartIdx = value.lastIndexOf(', ');
+		
+		let bsnsCat = value.substr(cateStartIdx+2)
+		let bsnsCatNm = value.substr(0,cateStartIdx)
+		
+		var sumo = nObj.sumo;
+		
+		let newSelectMain = [];
+		
+		seclectrMain.forEach(function(obj){
+			let value = obj.split(", ");
+			newSelectMain.push(value[1]);
+		})
+		
+		var bsnscat =  newSelectMain.indexOf(bsnsCat);
+		var subOptions = sectorJson.filter(function(obj){
+			return obj.bsnscat === bsnsCat
+		});
+		
+		var duplFlag = false;
+		
+		$(".selector_main").map(function(i,e) {
+			if(e !== obj){
+				let eValue = $(e).val().split(", ")
+				if(bsnsCat && eValue[1] === bsnsCat){
+					duplFlag = true;
+				}  
+			}
+		});
+
+		if(duplFlag){
+			alert('중복된 업종은 선택하실 수 없습니다.')
+			obj.value = '';
+			sumo.reload();
+			fn_setApplyFormAccessibilityLabels();
+			return false;
+		}
+		
+		$this.empty();
+		
+		subOptions.forEach(function(option){
+			var oVal = option.bsnscatnm+"("+option.bsnscatcd+")";			
+			if(option.bsnscatnm == bsnsCatNm){
+				$this.append("<option selected value='"+oVal+"'>"+oVal+"</option>");
+			}else{
+				$this.append("<option value='"+oVal+"'>"+oVal+"</option>");
+			}
+		})
+		sumo.reload();
+		
+		let optionList = optionJson.filter(function(obj){
+			return obj.codeid === "COM114";
+		});
+		
+		let sectorOptin = optionList.filter(function(obj){
+			return obj.code === bsnsCat;
+		});
+		$(sector).empty().attr("name", "bsnsCat"+bsnscat).attr("id", "bsnsCat"+bsnscat);
+		$(sector).append("<option value='" + sectorOptin[0].codenm + ", " +sectorOptin[0].code + "'>"+sectorOptin[0].codenm+"</option>");
+		
+		$($this)
+			.attr("name", "bsnsCatNm"+bsnscat)
+			.attr("id", "bsnsCatNm"+bsnscat)
+			.removeAttr("onchange").on("change", function(){fn_codeExtraction(bsnscat)});
+		fn_codeExtraction(bsnscat)
+		fn_setApplyFormAccessibilityLabels();
+	}
+	
+	function fn_delButton(obj) {		
+		var i = $('#ipbox > .ipbox').length;
+		if(i === 1){
+			alert("최소 1개 이상의 업종과 업종명(코드)을 입력해 주세요.");
+		} else{
+			$(obj).parent().remove();
+		}
+	}
+	
+	function fn_setDatepickerCaption() {
+		var $calendar = $('.ui-datepicker-calendar');
+		if ($calendar.length > 0 && $calendar.children('caption').length === 0) {
+			$calendar.prepend('<caption class="sr-only">날짜 선택 달력</caption>');
+		}
+	}
+	
+	$(function (){
+	    //input을 datepicker로 선언
+	    $("#prdinDwntmFrom, #prdinDwntmTo, #prdinExcldFcltsFrom, #prdinExcldFcltsTo").datepicker({
+//	 	$.datepicker.setDefaults({
+	        dateFormat: 'yy-mm-dd' //달력 날짜 형태
+	        ,showOtherMonths: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+	        ,showMonthAfterYear:true // 월- 년 순서가아닌 년도 - 월 순서
+	        ,changeYear: true //option값 년 선택 가능
+	        ,changeMonth: true //option값  월 선택 가능                
+	        ,showOn: "button" //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
+	        ,buttonImage: gbn_getContextPath() + "/images/icon_cal.png" //버튼 이미지 경로
+	        ,buttonImageOnly: true //버튼 이미지만 깔끔하게 보이게함
+	        ,buttonText: "선택" //버튼 호버 텍스트              
+	        ,yearSuffix: "년" //달력의 년도 부분 뒤 텍스트
+	        ,monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 텍스트
+	        ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip
+	        ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 텍스트
+	        ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 Tooltip
+	        ,minDate: "-10Y" //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+	        ,maxDate: "+5y" //최대 선택일자(+1D:하루후, -1M:한달후, -1Y:일년후)  
+	        ,beforeShow: function() {
+	        	setTimeout(fn_setDatepickerCaption, 0);
+	        }
+	        ,onChangeMonthYear: function() {
+	        	setTimeout(fn_setDatepickerCaption, 0);
+	        }
+	    });                    
+
+//	     $("#rprtRpYmd").datepicker();  
+	    //초기값을 오늘 날짜로 설정해줘야 합니다.
+	    /* $('#prdinDwntmFromYmd').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+	    $('#prdinDwntmToYmd').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+	    $('#prdinExcldFcltsFromYmd').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+	    $('#prdinExcldFcltsToYmd').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후) */
+	    $('.ui-datepicker ').css({ "margin-left" : "195px", "margin-top": "-10px"})
+	    $('.ui-datepicker-trigger ').attr("style","position: absolute; right: 10px; top: 10px; display: inline-block; width: 24px; height: 56%; text-indent: -999em;");
+	    $(".ui-datepicker-trigger").attr("src",gbn_getContextPath() + "/images/icon_cal.png");
+	    fn_setDatepickerCaption();
+	});
+	    
+	function fnSearchId() {
+	 	// 기존 휴대폰 본인인증 보존
+	 	// gfn_authenticationPopup();
+	 	gfn_integratedAuthenticationPopup();
+	}
+
+	function fn_applyFormAuthenticationCallback(c, d, e, f, g) {
+		$("#applyFormCi").val(d);
+	}
+	
+	function fn_calDeadline(){
+	
+		/* if(!$("#tech_cate01").is(":checked")){
+			$("input[name=prdinExcldFcltsFrom]").val("");
+			$("input[name=prdinExcldFcltsTo]").val("");
+		}
+		
+		if(!$("#tech_cate02").is(":checked")){
+			$("input[name=prdinDwntmFrom]").val("");
+			$("input[name=prdinDwntmTo]").val("");
+		} */
+		
+		var prdinExcldFcltsFrom = $("input[name=prdinExcldFcltsFrom]").val();
+		var prdinExcldFcltsTo = $("input[name=prdinExcldFcltsTo]").val();
+		var prdinDwntmFrom = $("input[name=prdinDwntmFrom]").val();
+		var prdinDwntmTo = $("input[name=prdinDwntmTo]").val();
+		var baseDate;
+		
+		if($('#lastInspYmd').val() === '' || $('#lastInspYmd').val() === null){
+			baseDate = $('#rprtRpYmd').val();
+		} else {
+			baseDate = $('#lastInspYmd').val();
+		}
+		deadline = new Date(baseDate);
+		deadline.setFullYear(deadline.getFullYear() + 3);
+		deadline.setDate(deadline.getDate() - 1);
+		
+		var prdinExcldFclts = 0;
+		var prdinDwntm = 0;
+		
+		if($("#tech_cate01").is(":checked") && prdinExcldFcltsFrom !== '' && prdinExcldFcltsTo !== ''){
+			var start = new Date(prdinExcldFcltsFrom);
+			var end = new Date(prdinExcldFcltsTo);
+
+			var btMs = end.getTime() - start.getTime();
+			prdinExcldFclts = btMs / (1000*60*60*24) + 1;
+			
+		}
+		
+		if($("#tech_cate02").is(":checked") && prdinDwntmFrom !== '' && prdinDwntmTo !== ''){
+			
+			var start = new Date(prdinDwntmFrom);
+			var end = new Date(prdinDwntmTo);
+			var btMs = end.getTime() - start.getTime();
+			prdinDwntm = btMs / (1000*60*60*24) + 1;
+			
+		}
+		
+		if(prdinDwntm < 180){
+			deadline.setDate(deadline.getDate() + prdinExcldFclts);
+		} else {
+			deadline.setDate(deadline.getDate() + prdinExcldFclts + prdinDwntm);
+		}
+		
+		if($('#lastInspYmd').val() !== '' && $('#lastInspYmd').val() !== null){
+			deadline = deadline.getFullYear() + "-12-31";
+		}
+		
+		deadline = gfn_formatDate(deadline);
+		
+		$("#ddln").text(deadline); 
+		$("#baseDate").text(baseDate); 
+		$("#prdinExcld").text(prdinExcldFclts); 
+		$("#prdinDwntm").text(prdinDwntm); 
+		
+	}
+	
+	function mngTrgtSbstnDisplay(){
+		let mngTrgtSbstn = $("#mngTrgtSbstn").val();
+		if(mngTrgtSbstn){
+			let str = "";
+			mngTrgtSbstn.forEach((element) => {
+			const separator = ",   ";
+			  if (str.length == 0) {
+			    str = str + element;
+			  } else {
+			    str = str + separator + element;
+			  }
+			})
+			
+			$("#mngTrgtSbstnDisplay").text(str);
+		} else {
+			$("#mngTrgtSbstnDisplay").text('');
+		}
+	}
+	
+	const onInputHandler = (el) => {
+	 	let id = $(el).attr("id");
+	 	
+	 	if(!$("#tech_cate01").is(":checked") && (id == 'prdinExcldFcltsFrom' || id == 'prdinExcldFcltsTo')){
+			$("#prdinExcldFcltsFrom").val("");	 		
+			$("#prdinExcldFcltsTo").val("");	 		
+	 		alert("전체 제외시설을 체크해 주세요.");
+	 		return false;
+	 	}
+	 	
+	 	if(!$("#tech_cate02").is(":checked") && (id == 'prdinDwntmFrom' || id == 'prdinDwntmTo')){
+	 		$("#prdinDwntmFrom").val("");	 		
+			$("#prdinDwntmTo").val("");
+	 		alert("6개월 이상 전체 가동중지를 체크해 주세요.");
+	 		return false;
+	 	}
+	 	
+	    let val = $("#"+id).val().replace(/\D/g, "");
+	    let leng = val.length;
+	    let result = '';
+
+	    if(leng < 6) result = val;
+	    else if(leng < 8){
+	        result += val.substring(0,4);
+	        result += "-";
+	        result += val.substring(4);
+	    } else{
+	        result += val.substring(0,4);
+	        result += "-";
+	        result += val.substring(4,6);
+	        result += "-";
+	        result += val.substring(6);
+
+	        if(!checkValidDate(result)){
+	            alert("YYYYMMDD 형식으로 입력해주세요.");
+	            $("#"+id).val("");
+	            return false;
+	        }
+	    }
+	    $("#"+id).val(result);
+	}
+
+	const checkValidDate = (value) => {
+	    let result = true;
+	    try {
+	        let date = value.split("-");
+	        let y = parseInt(date[0], 10),
+	            m = parseInt(date[1], 10),
+	            d = parseInt(date[2], 10);
+
+	        let dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
+	        result = dateRegex.test(d+'-'+m+'-'+y);
+	    } catch (err) {
+	        result = false;
+	    }
+	    return result;
+	}
+	
+</script>
+<style>
+	.disabled {
+		background:#eee;
+	}
+	
+	.sr-only {
+	  position: absolute !important;
+	  width: 1px !important;
+	  height: 1px !important;
+	  padding: 0 !important;
+	  margin: -1px !important;
+	  overflow: hidden !important;
+	  clip: rect(0, 0, 0, 0) !important;
+	  white-space: nowrap !important;
+	  border: 0 !important;
+	}    
+</style>
+    <div class="skip">
+        <strong class="hide">반복영역 건너뛰기</strong>
+        <a href="#gnb">주메뉴 바로가기</a>
+        <a href="#contents">본문 바로가기</a>
+    </div>
+    <div id="wrap">
+        <header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>수수료 조회/납부 상세</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+        
+        <div id="contents">
+            <h3 id="subTitle">정기점검 신청</h3>
+            <div id="applayForm" class="container">
+            	<form id="resultReport" name="resultReport" action ="./ /applyFormResultDetail.do" method="POST" enctype="multipart/form-data" onsubmit="return false">
+            		<input type="hidden" name="rcptNo" id="rcptNo" value="2026-04-0012-01" title="접수번호"/>
+            		<input type="hidden" name="isSorting" id="isSorting" value="N" title="정렬 여부"/>
+            		<input type="hidden" name="pageIndex" id="pageIndex" value="1" title="현재 페이지"/>
+            		<input type="hidden" name="searchCnd" id="searchCnd" value="" title="검색 조건"/>
+            		<input type="hidden" name="searchWrd" id="searchWrd" value="" title="검색어"/>
+            	</form>
+	            <form id="applyFormSubmit" name="applyFormSubmit" action ="./applyFormSubmit.do" method="POST" enctype="multipart/form-data" onsubmit="return false">
+	           		<input type="hidden" name="prdinInspFromYmd" value="" id="prdinInspFromYmd" title="정기점검 시작일">
+					<input type="hidden" name="prdinInspToYmd" value="" id="prdinInspToYmd" title="정기점검 종료일">
+					<input type="hidden" name="bsnsCatCd0" value="" id="bsnsCatCd0" title="업종 코드 1">
+					<input type="hidden" name="bsnsCatCd1" value="" id="bsnsCatCd1" title="업종 코드 2">
+					<input type="hidden" name="bsnsCatCd2" value="" id="bsnsCatCd2" title="업종 코드 3">
+					<input type="hidden" name="bsnsCatCd3" value="" id="bsnsCatCd3" title="업종 코드 4">
+					<input type="hidden" name="bsnsCatCd4" value="" id="bsnsCatCd4" title="업종 코드 5">
+					<input type="hidden" name="bsnsCat" value="" id="bsnsCat" title="업종 분류">					
+					<input type="hidden" name="prdinDdlnYmd" value="" id="prdinDdlnYmd" title="정기점검 기한">
+					<input type="hidden" name="prdinInspYmd" value="" id="prdinInspYmd" title="정기점검 희망일">
+					<input type="hidden" name="prdinExcldFcltsFromYmd" value="" id="prdinExcldFcltsFromYmd" title="제외시설 시작일">
+					<input type="hidden" name="prdinExcldFcltsToYmd" value="" id="prdinExcldFcltsToYmd" title="제외시설 종료일">
+					<input type="hidden" name="prdinDwntmFromYmd" value="" id="prdinDwntmFromYmd" title="가동중지 시작일">
+					<input type="hidden" name="prdinDwntmToYmd" value="" id="prdinDwntmToYmd" title="가동중지 종료일">
+					<input type="hidden" name="mngNo" id="mngNo" value="MOCK-2026-001" title="관리번호"/>
+					<input type="hidden" name="ci" id="applyFormCi" value="" title="본인인증 CI"/>
+					<input type="hidden" name="offtlnum" value="" id="offtlnum" title="사무실 전화번호">
+					<!-- <input type="hidden" name="mbtlnum" value="" id="mbtlnum"> -->
+					<input type="hidden" name="intgrLcnsYn" value="" id="intgrLcnsYn" title="통합환경허가 여부">
+					<input type="hidden" name="deadline" id="deadline" value="" title="신청 기한"/>
+					<input type="hidden" name="fcltyScale" id="fcltyScale" value="" title="사업장 규모"/>
+					<input type="hidden" name="rprtRpYmd" id="rprtRpYmd" value="" title="신고수리일"/>
+					<input type="hidden" name="lastInspYmd" id="lastInspYmd" value="" title="마지막 정기점검일"/>
+					<input type="hidden" name="status" id="status" value="" title="신청 상태"/>
+					
+	                <h4 class="sub_title1 tcen">비산배출의 저감을 위한 시설관리기준 정기점검 신청</h4>
+	                <div class="formbox mb40">
+	                    <h5 class="form_tit">신청인</h5>
+	                    <ul class="form_con clear">
+	                        <li class="wd_quart">
+	                            <div class="ipbox">
+	                                <label for="bsnsNm"><span class="essential">*</span>상호(사업장명칭)</label><input type="text" name="bsnsNm" value="샘플 사업장" id="bsnsNm" class="disabled" readonly title="상호(사업장명칭)"/>
+	                            </div>
+	                        </li>
+	                        <li class="wd_quart">
+	                            <div class="ipbox">
+	                                <label for="brNo"><span class="essential">*</span>사업자등록번호</label><input type="text" name="brNo" value="" id="brNo" class="disabled" readonly title="사업자등록번호"/>
+	                            </div>
+	                        </li>
+	                        <li class="wd_quart">
+	                            <div class="ipbox">
+	                                <label for="rprsvNm"><span class="essential">*</span>성명(대표자)</label><input type="text" name="rprsvNm" value="홍길동" id="rprsvNm" class="disabled" readonly title="성명(대표자)"/>
+	                            </div>
+	                        </li>
+	                        <li class="wd_quart">
+	                            <div class="ipbox">
+	                                <label for="crNo">법인등록번호</label><input type="text" name="crNo" value="" id="crNo" class="disabled" readonly title="법인등록번호"/>
+	                            </div>
+	                        </li>
+	                        <li class="wd_full">
+	                            <div class="ipbox addrbox">
+	                                <label for="ofcAddr"><span class="essential">*</span>주소</label>
+	                                <input type="text" id="ofcAddr" name="ofcAddr" class="wdaddr2 disabled" juso="A" value="인천광역시 서구 환경로 42" title="주소" readonly/>
+	                                <label for="ofcDetailAddr">상세 주소</label>
+	                                <input type="text" id="ofcDetailAddr" name="ofcDetailAddr" class="wdaddr2 disabled" juso="A" value="" readonly title="상세 주소">
+	                            </div>
+	                        </li>
+	                        <li class="wd_full">
+	                            <div class="ipbox">
+	                                <label for="ofcTelNo"><span class="essential">*</span>전화번호</label><input type="text" name="ofcTelNo" value="" id="ofcTelNo" maxlength='13' class="disabled" readonly title="전화번호"/>
+	                            </div>
+	                        </li>
+	                    </ul>
+	                </div>
+	                <div class="formbox mb40">
+	                    <h5 class="form_tit">사업장</h5>
+	                    <ul class="form_con clear">
+	                    	<li class="mo_wdfull">
+	                            <div class="ipbox">
+	                                <span class="checkbox fl">
+										<input type="checkbox" id="intgrLcns" name="intgrLcns" title="통합환경허가 여부" style="width:1px;" disabled >
+	                                    <label for="intgrLcns">통합환경허가 여부(통합환경관리제도 대상 사업장만 체크하세요)</label>
+	                                </span>
+	                            </div>
+	                        </li>
+	                    	<li class="wd_full">
+	                            <div class="ipbox addrbox">
+	                                <label for="bsnsLoc"><span class="essential">*</span>소재지(비산배출시설 설치운영 신고증명서 상의 소재지를 입력하세요)</label>
+	                                <input type="text" id="bsnsLoc" name="bsnsLoc" class="wdaddr1" juso="B" value="인천광역시 서구 환경로 42" title="소재지" readonly >
+	                                <a href="javascript:void(0)" class="form_schbtn" onClick="gfn_jusoPopup('B');" title="새 창 알림">우편번호 찾기</a>
+	                                <label for="bsnsDetailLoc">상세 주소</label>
+	                                <input type="text" id="bsnsDetailLoc" name="bsnsDetailLoc" class="wdaddr2" juso="B" value="" title="상세 주소">
+	                            </div>
+	                        </li>
+	                        <li class="wd_full">
+	                            <div class="ipbox">
+	                                <label for="bsnsTelNo">전화번호</label><input type="text" name="bsnsTelNo" value="" id="bsnsTelNo" class="telNumCheck" title="전화번호">
+	                            </div>
+	                        </li>
+	                       	                        
+	                        <li class="wd_full">
+	                            <div id="ipbox" class="ipbox">
+	                            	<a class="btn_add" title="추가" href="javascript:void(0)" onclick="fn_addButton()"><span>추가</span></a>
+                                	<label for="bsnsCatNm"><span class="essential">*</span>업종(표준산업분류 세세분류 코드) </label>
+                                	<div class="ipbox cat_selector">
+                                		<select id="bsnsCatNm" multiple="multiple" name="bsnsCatNm" class="sumoselect_multiple_2 selector_sub" title="업종명(코드)" aria-label="업종명(코드)" onchange="fn_selectUpjong(this)">
+	                                		
+		                                </select> 
+										<select id="bsnsCat1" class="wd_half mo_mb10 selector_main" name="bsnsCat1" title="업종 분류" aria-label="업종 분류" style="margin-top:-17px; width: calc(50% - 28px);">
+											<option value="">업종 분류 선택</option>											
+		                                </select>
+										<label for="bsnsCat1" class="sr-only">업종 분류</label>
+		                            	<a class="btn_addbox_del" title="삭제" href="javascript:void(0)" onclick="fn_delButton(this)"><span style="display: table;">삭제</span></a>
+	                                </div>
+	                            </div>
+	                        </li>
+	                        <li class="wd_full">
+		                        <div class="ipbox">
+			                        <label for="mngTrgtSbstn"><span class="essential">*</span>관리대상물질</label><pre id="mngTrgtSbstnDisplay"></pre>
+		                            <select id="mngTrgtSbstn" name="mngTrgtSbstn" multiple="multiple" onchange="mngTrgtSbstnDisplay();" class="sumoselect_multiple" title="관리대상물질" aria-label="관리대상물질" style="width: 100%;">
+										
+	                               </select>
+								</div>
+                            </li>
+	                        <li class="wd_full">
+	                            <div class="ipbox">
+	                                <label for="bsnsClsCd">대기오염물질 발생량에 따른 사업장 분류 </label>
+	                                <select id="bsnsClsCd" name="bsnsClsCd" title="대기오염물질 발생량에 따른 사업장 분류" aria-label="대기오염물질 발생량에 따른 사업장 분류">
+	                                    
+	                                </select>
+	                            </div>
+	                        </li>
+	                        <li class="wd_full">
+	                            <div class="ipbox">
+	                                <label for="mnPrdct"><span class="essential">*</span>주생산품</label><input type="text" name="mnPrdct" value="" id="mnPrdct" title="주생산품">
+	                            </div>
+	                        </li>
+	                    </ul>
+	                </div>
+	                <div class="formbox mb40">
+	                    <h5 class="form_tit">전체 제외 시설 및 6개월 이상 가동중지 이력 (해당 이력이 있는 경우에만 체크하시기 바랍니다)</h5>
+	                    <ul class="form_con">
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox">
+	                                <span class="checkbox fl">
+										<input type="checkbox" id="tech_cate01" name="tech_cate01" title="전체 제외시설" onchange="fn_calDeadline()">
+	                                    <label for="tech_cate01">전체 제외시설</label>
+	                                </span>
+									<div class="cal_wrap fr" style="width: 100%;">
+											<span class="calselbox">
+												<label for="prdinExcldFcltsFrom" class="sr-only">제외시설 시작일</label>
+												<input type="text" id="prdinExcldFcltsFrom" name="prdinExcldFcltsFrom" value="" title="제외시설 시작일" onchange="fn_checkDate(this)" oninput="onInputHandler(this);">
+											</span>
+											 ~ 
+											<span class="calselbox">
+												<label for="prdinExcldFcltsTo" class="sr-only">제외시설 종료일</label>
+												<input type="text" id="prdinExcldFcltsTo" name="prdinExcldFcltsTo" value="" title="제외시설 종료일" onchange="fn_checkDate(this)" oninput="onInputHandler(this);">
+											</span>
+									</div>
+	                            </div>
+	                        </li>
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox">
+	                                <span class="checkbox fl">
+										<input type="checkbox" id="tech_cate02" title="6개월 이상 전체 가동중지" onchange="fn_calDeadline()">
+										<label for="tech_cate02">6개월 이상  전체 가동중지</label>
+	                                </span>
+									<div class="cal_wrap fr" style="width: 100%;">
+											<span class="calselbox">
+												<label for="prdinDwntmFrom" class="sr-only">가동중지 시작일</label>
+												<input type="text" value="" id="prdinDwntmFrom" name="prdinDwntmFrom" title="가동중지 시작일" onchange="fn_checkDate(this)" oninput="onInputHandler(this);">
+											</span>
+											 ~ 
+											<span class="calselbox">
+												<label for="prdinDwntmTo" class="sr-only">가동중지 종료일</label>
+												<input type="text" value="" id="prdinDwntmTo" name="prdinDwntmTo" title="가동중지 종료일" onchange="fn_checkDate(this)" oninput="onInputHandler(this);">												
+											</span>
+									</div>
+	                            </div>
+	                        </li>
+	                    </ul>
+	                    <ul class="colorbox01 tlist2">
+							<li><strong class="tcolor1">정기점검기한 </strong><span id="ddln" class="tcolor2"></span>[직전정기점검일(<span id="baseDate"></span>)+ 전체 제외시설(<span id="prdinExcld"></span>) + 6개월이상 가동중지(<span id="prdinDwntm"></span>) + 3년 -1일 (n차 점검은 계산된 해의 12월 31일)]</li>						
+						</ul>                    
+	                </div>
+	                <div class="formbox mb40">
+	                    <h5 class="form_tit">정기점검 현황</h5>
+	                    <ul class="form_con">
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox align_inline">
+	                                <label for="lastPrdinInspYr">직전 점검 연도</label>
+	                                <input type="text" name="lastPrdinInspYr" value="" id="lastPrdinInspYr" title="직전 점검 연도" readonly />
+	                            </div>
+	                        </li>
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox calselbox align_inline">
+	                                <label for="prdinInsp">
+	                                <!-- <span class="essential">*</span> -->
+	                                점검 희망일</label>
+	                                <input type="text" value="" id="prdinInsp" name="prdinInsp" title="점검 희망일" oninput="onInputHandler(this);">
+	                                <button class="calsel" type="button" onclick="fn_validatingDate()" title="새 창 알림">희망일 선택</button>
+	                            </div>
+	                            <span>※현장점검일자는 향후 변경될수 있습니다</span>
+	                        </li>
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox">
+	                                <label style="display:contents;">정기점검 기간</label>
+	                                <label for="prdinInspFrom" class="sr-only">정기점검 기간 시작일</label>
+									<input type="text" id="prdinInspFrom" name="prdinInspFrom" value="" title="정기점검 기간 시작일" onchange="fn_checkDate(this)" style="margin-left: 25px; width: 230px;" readonly>
+									 ~
+									 <label for="prdinInspTo" class="sr-only">정기점검 기간 종료일</label> 
+									<input type="text" id="prdinInspTo" name="prdinInspTo" value="" title="정기점검 기간 종료일" style="width: 230px;" readonly>
+	                            </div>
+	                        </li>
+	                    </ul>
+	                </div>
+	                
+					<div class="file_wrap">
+	                    <h5 class="form_tit">첨부서류 (첨부서류 파일이 다수일 경우 압축파일 1개로 첨부)</h5>
+						<ul class="filebox">
+							<li class="drop_zone">
+								<strong class="file_tit">1) 대기배출시설설치 허가증 또는 신고증명서</strong>
+								<input class="upload-name" value="" readonly title="대기배출시설설치 허가증 또는 신고증명서 파일명">
+								<label for="file01" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 1 대기배출시설설치 허가증 또는 신고증명서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId1" id="file01" title="첨부 1 대기배출시설설치 허가증 또는 신고증명서 업로드" tabindex="-1">
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">2) 비산배출시설 설치·운영 신고증명서<span class="essential">*</span></strong>
+								<input class="upload-name" value="" readonly title="비산배출시설 설치·운영 신고증명서 파일명">
+								<label for="file02" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 2 비산배출시설 설치·운영 신고증명서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId2" id="file02" title="첨부 2 비산배출시설 설치·운영 신고증명서 업로드" tabindex="-1">
+								<input type="hidden" id="file02RequiredName" value="2) 비산배출시설 설치·운영 신고증명서" title="첨부 2 필수 파일명">
+						    </li>
+							<li class="drop_zone">
+								<strong class="file_tit">3) 직전 3년간 연간점검 보고서<span class="essential">*</span></strong>
+								<input class="upload-name" value="" readonly title="직전 3년간 연간점검 보고서 파일명">
+								<label for="file03" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 3 직전 3년간 연간점검 보고서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId3" id="file03" title="첨부 3 직전 3년간 연간점검 보고서 업로드" tabindex="-1">
+								<input type="hidden" id="file03RequiredName" value="3) 직전 3년간 연간점검 보고서" title="첨부 3 필수 파일명">
+						    </li>
+							<li class="drop_zone">
+								<strong class="file_tit">4) 직전 정기점검 결과서 및 결과보고서</strong>
+								<input class="upload-name" value="" readonly title="직전 정기점검 결과서 및 결과보고서 파일명">
+								<label for="file04" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 4 직전 정기점검 결과서 및 결과보고서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId4" id="file04" title="첨부 4 직전 정기점검 결과서 및 결과보고서 업로드" tabindex="-1">
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">5) 직전 3년간 화학물질 배출량 보고서</strong>
+								<input class="upload-name" value="" readonly title="직전 3년간 화학물질 배출량 보고서 파일명">
+								<label for="file05" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 5 직전 3년간 화학물질 배출량 보고서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId5" id="file05" title="첨부 5 직전 3년간 화학물질 배출량 보고서 업로드" tabindex="-1">
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">6) 비산배출시설 설치명세서</strong>								
+								<input class="upload-name" value="" readonly title="비산배출시설 설치명세서 파일명">
+								<label for="file06" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 6 비산배출시설 설치명세서</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId6" id="file06" title="첨부 6 비산배출시설 설치명세서 업로드" tabindex="-1">
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">7) 기타(운영기록부, 측정자료, 관리담당자 지정서류, 공정도 등 압축파일로 첨부)</strong>								
+								<input class="upload-name" value="" readonly title="기타(운영기록부, 측정자료, 관리담당자 지정서류, 공정도 등 압축파일로 첨부) 파일명">
+								<label for="file07" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 7 기타(운영기록부, 측정자료, 관리담당자 지정서류, 공정도 등 압축파일로 첨부)</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId7" id="file07" title="첨부 7 기타 서류 업로드" tabindex="-1">
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">8) 통합환경관리제도 관련 서류(해당사업장만 업로드)</strong>								
+								<input class="upload-name" value="" readonly title="통합환경관리제도 관련 서류(해당사업장만 업로드) 파일명">
+								<label for="file08" class="upload-btn" tabindex="0" role="button"><span class="sr-only">첨부 8 통합환경관리제도 관련 서류(해당사업장만 업로드)</span>업로드</label>
+								<input type="file" class="upload-hidden" name="fAtchFileId8" id="file08" title="첨부 8 통합환경관리제도 관련 서류 업로드" tabindex="-1">
+							</li>
+							
+						</ul>							
+	                </div>
+	                <div class="formbox mb40" style="margin-top: 25px;">
+	                    <h5 class="form_tit">사업장 담당자 연락처</h5>
+	                    <ul class="form_con">
+	                        <li class="mo_wdfull">
+	                            <div class="ipbox align_inline">
+	                                <label for="offtl"><span class="essential">*</span>사무실 전화번호</label>
+	                                <input type="text" value="" name="offtl" id="offtl" class="telNumCheck" title="사무실 전화번호"/>
+	                            </div>
+	                        </li>
+	                                                
+						</ul>
+					</div>
+					<div class="agree_certi_box">
+                        <div class="agree_ckbox">
+                            <span class="fwb">「대기환경보전법 시행규칙」 제51조의3 및 별표 10의 3에 따라 비산배출의 저감을 위한 시설관리기준 정기점검을 신청합니다.</span>
+                        </div>
+                        <div class="certification">
+                            <a href="javascript:void(0)" id="searchCi" onclick="fnSearchId()" title="새 창 알림">NICE 통합인증</a>
+                        </div>
+                    </div>
+					<div class="btn_wrap mt50 mb50">
+						<a href="./main.do" class="btn btn_bg darkgray">뒤로</a>
+						<a href="javascript:void(0)" onclick="fn_formSubmit(1)" class="btn btn_bg color">임시저장</a>
+						
+						<a href="javascript:void(0)" onclick="fn_formSubmit(2)" class="btn btn_bg color">신청서 제출</a>
+						
+						
+	                </div>
+				</form>
+            </div><!-- // #applayForm -->
+        </div>
+        
+        <form id="authenticationForm">
+        
+	                
+        </form>
+        <!-- // #contents -->
+        <footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+    </div>
+    <!--// #wrap -->
+    <script>
+    
+	    function fn_checkDate(e) {
+			const $sDate = $(e);
+			const $eDate = $sDate.parent().parent().find("input").last();
+			const sDate = $sDate.val(); 
+			$eDate.datepicker( "option", "minDate", new Date(sDate));
+			$eDate.siblings().attr("src",gbn_getContextPath() + "/images/icon_cal.png");
+			$eDate.siblings().attr("style","position: absolute; right: 10px; top: 10px; display: inline-block; width: 24px; height: 56%; text-indent: -999em;");
+			
+			fn_calDeadline();
+		}
+    	
+    	function fn_validatingDate() {
+    		var deadline = $('#deadline').val();
+    		var baseDate;
+    		
+    		if($('#lastInspYmd').val() === '' || $('#lastInspYmd').val() === null){
+    			baseDate = $('#rprtRpYmd').val();
+    		} else {
+    			baseDate = $('#lastInspYmd').val();
+    		}
+    		
+   			var prdinExcldFcltsFromYmd = $('#prdinExcldFcltsFrom').val();
+   			var prdinExcldFcltsToYmd = $('#prdinExcldFcltsTo').val();
+   			var prdinDwntmFromYmd = $('#prdinDwntmFrom').val();
+   			var prdinDwntmToYmd = $('#prdinDwntmTo').val();
+   			var period = $('#fcltyScale').val();
+   			
+   			var prdinExcldFclts = 0;
+   			var prdinDwntm = 0;
+   			
+   			if($("#tech_cate01").is(":checked")){
+   				if(baseDate > prdinExcldFcltsFromYmd) {
+   					alert("제외 시설 시작일은 신고수리일/마지막 정기점검일("+baseDate+")보다 빠를 수 없습니다.");
+   					return;
+   				} else if($("#prdinExcldFcltsFrom").val() === '' || $("#prdinExcldFcltsTo").val() === '') {
+   					alert("제외시설 시작일과 종료일 모두 입력해 주세요.");
+   					return;
+   				}else {
+   					var prdinExcldFcltsFromYmd = $('#prdinExcldFcltsFrom').val();
+   					var prdinExcldFcltsToYmd = $('#prdinExcldFcltsTo').val();
+
+   					var start = new Date(prdinExcldFcltsFromYmd);
+   					var end = new Date(prdinExcldFcltsToYmd);
+
+   					var btMs = end.getTime() - start.getTime();
+   					prdinExcldFclts = btMs / (1000*60*60*24) + 1;
+   				}
+   			}
+   			
+   			if($("#tech_cate02").is(":checked")){
+   				if(baseDate > prdinDwntmFromYmd) {
+   					alert("가동중지 시작일은 신고수리일/마지막 정기점검일("+baseDate+") 보다 빠를 수 없습니다.");
+   					return;
+   				} else if($("#prdinDwntmFrom").val() === '' || $("#prdinDwntmTo").val() === '') {
+   					alert("가동중지 시작일과 종료일 모두 입력해 주세요.");
+   					return;
+   				} else {
+   					var prdinDwntmFromYmd = $('#prdinDwntmFrom').val();
+   					var prdinDwntmToYmd = $('#prdinDwntmTo').val();
+
+   					var start = new Date(prdinDwntmFromYmd);
+   					var end = new Date(prdinDwntmToYmd);
+
+   					var btMs = end.getTime() - start.getTime();
+   					prdinDwntm = btMs / (1000*60*60*24) + 1;
+   					if(prdinDwntm < 180) {
+   						alert("가동중지 기간은 최소 6개월(180일) 미만은 적용되지 않습니다.");
+   						return;
+   					}
+   				}
+   			}
+   			
+   			
+   			var result = new Date(baseDate);
+   			
+   			result.setFullYear(result.getFullYear() + 3);
+   			result.setDate(result.getDate() - 1);
+   			result.setDate(result.getDate() + prdinExcldFclts + prdinDwntm);
+   			
+   			if($('#lastInspYmd').val() !== '' && $('#lastInspYmd').val() !== null) {
+   				var rYear = result.getFullYear();
+   				var rMonth = result.getMonth()+1;
+   	   			if(rMonth < 10){
+   	   				rMonth = "0"+rMonth;
+   	   			}
+   	   			var rDay = result.getDate();
+   	   			if(rDay < 10){
+   	   				rDay = "0"+rDay;
+   	   			}
+   	   			deadline = rYear.toString()+'-12-31';
+	   			deadline = new Date(deadline);
+	   			deadline.setDate(deadline.getDate() + 1);
+	   			deadline = gfn_formatDate(deadline);
+   			} else {
+   				var rYear = result.getFullYear();
+   	   			var rMonth = result.getMonth()+1;
+   	   			if(rMonth < 10){
+   	   				rMonth = "0"+rMonth;
+   	   			}
+   	   			var rDay = result.getDate();
+   	   			if(rDay < 10){
+   	   				rDay = "0"+rDay;
+   	   			}
+   	   			deadline = rYear.toString()+'-'+ rMonth.toString() + '-' + rDay.toString();
+   	   			deadline = gfn_formatDate(deadline);
+   			}
+   			
+   			let prdinDdlnYmd = new Date(deadline);
+   			prdinDdlnYmd.setDate(prdinDdlnYmd.getDate() - 1);
+   			$('#prdinDdlnYmd').val(gfn_formatDate(prdinDdlnYmd));
+   			
+   			if(period === "소")period = 0;
+   			if(period === "중")period = 2;
+   			if(period === "대")period = 6;
+   			
+			let addDay = 20;
+			let newDtHoliday = new Date();
+			
+			if(newDtHoliday === 0) newDtHoliday.setDate(newDtHoliday.getDate() + 1);
+			
+			for(var i =0; i <= addDay; i ++){
+				var chkDay = new Date();				
+				chkDay.setDate(chkDay.getDate() + i);
+				chkDay.setSeconds(chkDay.getSeconds() - 1);
+				var gtDay = chkDay.getDay();
+				if(gtDay == 0 || gtDay == 6){ // 0 일요일 6 토요일 
+					addDay ++;
+				}
+			}		
+			
+			newDtHoliday.setDate(newDtHoliday.getDate() + addDay);
+			
+			let holiday = newDtHoliday.getDay();
+			if(holiday == 0){
+				newDtHoliday.setDate(newDtHoliday.getDate() + 2)
+			} else if(holiday == 6) {
+				newDtHoliday.setDate(newDtHoliday.getDate() + 2)
+			}
+			
+			var end =  new Date(newDtHoliday);
+			end = gfn_formatDate(newDtHoliday);
+			
+   			var pop = window.open(gbn_getContextPath()+"/portalCalenderPopup.do?deadline="+deadline+"&bsnsNm="+$("#bsnsNm").val()+"&period="+period+"&addDay="+addDay,"content","width=667,height=551");
+    	}
+    	
+    	function fn_setPrdinInspYmd(start, end) {
+    		$('#prdinInsp').val(start);
+    		$('#prdinInspFromYmd').val(start);
+    		$('#prdinInspToYmd').val(end);
+    		$('#prdinInspFrom').val(start);
+    		$('#prdinInspTo').val(end);
+   		}
+    	
+    	function fn_formSubmit(arg) {
+    		$("#status").val(arg);
+    		
+    		if(!fn_syncBsnsCatCd()) {
+    			return;
+    		}
+    		
+    		var prdinExcldFcltsFromYmd = $('#prdinExcldFcltsFrom').val().replace(/[^0-9]/g,'');
+    		var prdinExcldFcltsToYmd = $('#prdinExcldFcltsTo').val().replace(/[^0-9]/g,'');
+    		var prdinDwntmFromYmd = $('#prdinDwntmFrom').val().replace(/[^0-9]/g,'');
+    		var prdinDwntmToYmd = $('#prdinDwntmTo').val().replace(/[^0-9]/g,'');
+    		var prdinInspYmd = $('#prdinInsp').val().replace(/[^0-9]/g,'');
+    		var prdinDdlnYmd = $('#prdinDdlnYmd').val().replace(/[^0-9]/g,'');
+    		var prdinInspFromYmd = $('#prdinInspFromYmd ').val().replace(/[^0-9]/g,'');
+    		var prdinInspToYmd = $('#prdinInspToYmd ').val().replace(/[^0-9]/g,'');
+    		var offtlnum = $('#offtl').val().replace(/[^0-9]/g,'') || '';
+    		/* var mbtlnum = $('#mbtl').val().replace(/[^0-9]/g,'') || ''; */
+    		
+    		$('#prdinExcldFcltsFromYmd').val(prdinExcldFcltsFromYmd);
+    		$('#prdinExcldFcltsToYmd').val(prdinExcldFcltsToYmd);
+    		$('#prdinDwntmFromYmd').val(prdinDwntmFromYmd);
+    		$('#prdinDwntmToYmd').val(prdinDwntmToYmd);
+    		$('#prdinInspYmd').val(prdinInspYmd);
+    		$('#prdinInspFromYmd').val(prdinInspFromYmd);
+    		$('#prdinInspToYmd ').val(prdinInspToYmd)
+    		$('#prdinDdlnYmd').val(prdinDdlnYmd);
+    		$('#offtlnum').val(offtlnum);
+    		/* $('#mbtlnum').val(mbtlnum); */
+
+			if(arg === 1){
+// 				if($("#wrap").attr("f8") && document.applyFormSubmit.fAtchFileId9.value == ""){
+// 					alert("신청인 정보가 변경 되었습니다. 변경신고서를 첨부 해주세요.");
+// 					$("#file09").focus();
+// 					return;
+// 				} else {
+					
+					/* if($('#prdinInsp').val() === '' || $("#prdinInsp").val().length < 10) {
+		    			alert("점검 희망일을 확인해 주세요.");
+		    			setTimeout(function(){
+		    			$('#prdinInsp').focus();
+		    			}, 0)    			
+		    			return;
+		    		} else */ if($("#tech_cate01").is(":checked") && ( ($('#prdinExcldFcltsFrom').val() === '' || $("#prdinExcldFcltsFrom").val().length > 10) || ($('#prdinExcldFcltsTo').val() === '' || $("#prdinExcldFcltsTo").val().length > 10) )){
+		   				alert("전체 제외시설을 확인해주세요.");
+		   				setTimeout(function(){
+		   					$("#prdinExcldFcltsFrom").focus();
+		   	    			}, 0) 
+		   		 		return false;
+		    		} else if($("#tech_cate02").is(":checked") && ( ($('#prdinDwntmFrom').val() === '' || $("#prdinDwntmFrom").val().length > 10) || ($('#prdinDwntmTo').val() === '' || $("#prdinDwntmTo").val().length > 10) )){
+		   				alert("6개월 이상 전체 가동중지 확인해주세요.");
+		   				setTimeout(function(){
+		   					$("#prdinDwntmFrom").focus();
+		   	    			}, 0) 
+		   		 		return false;
+		    		}
+					
+				
+					alert("요청이 정상적으로 처리되었습니다.");					
+					document.getElementById('applyFormSubmit').submit();
+					return;
+// 				}
+			}
+			
+			var bsnsCatNmValCheck = [];
+    		var bsnsCatValCheck = [];
+    		for(var i = 0; i < 5; i++) {
+    			var bsnsCatVal = $('#bsnsCat'+i).val();
+    			var bsnsCatNmVal = $('#bsnsCatNm'+i).val();
+    			
+    			if(bsnsCatVal)bsnsCatValCheck.push(bsnsCatVal);
+    			if(bsnsCatNmVal)bsnsCatNmValCheck.push(bsnsCatNmVal);
+    		}
+    		
+    		if(bsnsCatValCheck.length === 0 || bsnsCatNmValCheck.length === 0){
+    			alert("최소 1개 이상의 업종과 업종명(코드)을 선택해 주세요.");
+    			return;
+    		}
+    		
+    		if($('#bsnsNm').val() === '' ){
+    			alert("상호(사업장명칭)를 입력해 주세요.");
+    			setTimeout(function(){$('#bsnsNm').focus()}, 0);
+    			return;
+    		} else if($('#brNo').val() === '' ) {
+    			alert("사업자등록번호를 입력해 주세요.");
+    			setTimeout(function(){$('#brNo').focus()}, 0);
+    			return;
+    		} else if($('#rprsvNm').val() === '' ) {
+    			alert("대표자 성명을 입력해 주세요.");
+    			setTimeout(function(){$('#rprsvNm').focus()}, 0);
+    			return;
+    		} else if($('#ofcAddr').val() === '' ) {
+    			alert("신청인 주소를 입력해 주세요.");
+    			setTimeout(function(){$('#ofcAddr').focus()}, 0);
+    			return;
+    		} else if($('#ofcTelNo').val() === '' ) {
+    			alert("신청인 전화번호를 입력해 주세요.");
+    			setTimeout(function(){$('#ofcTelNo').focus()}, 0);
+    			return;
+    		} else if($('#bsnsLoc').val() === '' ) {
+    			alert("사업장 소재지를 입력해 주세요.");
+    			setTimeout(function(){$('#bsnsLoc').focus()}, 0);
+    			return;
+    		} else if($('#bsnsTelNo').val() === '' ) {
+    			alert("사업장 전화번호를 입력해 주세요.");
+    			setTimeout(function(){$('#bsnsTelNo').focus()}, 0);
+    			return;
+    		} else if($('#mngTrgtSbstn').val() === '') {
+    			alert("최소 1개 이상의 관리대상 물질을  입력해 주세요.");
+    			setTimeout(function(){
+    				$('#mnPrdct').focus();
+    			}, 0) 
+    			return;
+   			} else if($('#mnPrdct').val() === '') {
+       			alert("주생산품을  입력해 주세요.");
+       			setTimeout(function(){
+       				$('#mnPrdct').focus();
+       			}, 0)
+       			return;
+    		}
+    		/* else if($('#prdinInsp').val() === '' || $("#prdinInsp").val().length < 10) {
+    			alert("점검 희망일을 입력해 주세요.");
+    			setTimeout(function(){
+    			$('#prdinInsp').focus();
+    			}, 0)    			
+    			return;
+   			} */
+   			else if($("#tech_cate01").is(":checked") && ( ($('#prdinExcldFcltsFrom').val() === '' || $("#prdinExcldFcltsFrom").val().length > 10) || ($('#prdinExcldFcltsTo').val() === '' || $("#prdinExcldFcltsTo").val().length > 10) )){
+   				alert("전체 제외시설을 확인해주세요.");
+   				setTimeout(function(){
+   					$("#prdinExcldFcltsFrom").focus();
+   	    			}, 0) 
+   		 		return false;
+    		} else if($("#tech_cate02").is(":checked") && ( ($('#prdinDwntmFrom').val() === '' || $("#prdinDwntmFrom").val().length > 10) || ($('#prdinDwntmTo').val() === '' || $("#prdinDwntmTo").val().length > 10) )){
+   				alert("6개월 이상 전체 가동중지 확인해주세요.");
+   				setTimeout(function(){
+   					$("#prdinDwntmFrom").focus();
+   	    			}, 0) 
+   		 		return false;
+    		} else if($('#applyFormCi').val() === '') {
+    			alert("본인인증을 해주세요.");
+    			setTimeout(function(){
+    				$('#searchCi').focus();
+    				fnSearchId();
+    			}, 0) 
+    			return;
+//    			} else if($("#wrap").attr("f8") && document.applyFormSubmit.fAtchFileId9.value == ""){
+// 				alert("신청인 정보가 변경 되었습니다. 변경신고서를 첨부 해주세요.");
+// 				setTimeout(function(){
+//     				$('#file09').focus();
+//     			}, 0)				
+// 				return;
+			} else if($("#offtl").val() === ''){
+				alert("담당자 내선번호를 입력해 주세요.");
+				setTimeout(function(){
+					$("#offtl").focus();
+    			}, 0)	
+				return;
+			/* } else if($("#mbtl").val() === ''){
+				alert("담당자 휴대전화 번호를 입력해 주세요.");
+				setTimeout(function(){
+					$("#mbtl").focus();
+    			}, 0)	
+				return; */
+			} else {
+   				
+   				if($("#tech_cate01").is(":checked") === false){
+					$("#prdinExcldFcltsFromYmd").val('');
+					$("#prdinExcldFcltsToYmd").val('');
+				}
+				
+				if($("#tech_cate02").is(":checked") === false){
+					$("#prdinDwntmFromYmd").val('');
+					$("#prdinDwntmToYmd").val('');
+				}    			
+				 document.getElementById('applyFormSubmit').submit(); 
+    		}
+    	}
+    	
+    	function fn_ResultReport(){
+    		let pram = window.location.search.substr(8, 16);
+    		$("#rcptNo").val(pram);
+    		document.getElementById('resultReport').submit();
+    	}
+    	
+			function gfn_jusoCallBack(roadAddrPart1,addrDetail, gubun){
+				$('input[juso="' + gubun + '"]').eq(0).val(roadAddrPart1); 
+				$('input[juso="' + gubun + '"]').eq(1).val(addrDetail);
+				fn_setSession();
+			}
+			function fn_setSession(){
+				$.ajax({
+				    url: "/setSessionTime.do",
+				    type: "POST",
+				    dataType: "json",
+				    success : function(result){
+				    	console.log(result)
+					}
+				});
+			}
+    </script>
+      
+    
+    
+       
+    <div style="display:none;">
+		<div id="temp_selector" class="ipbox">
+			<label for="tempBsnsCatNm" class="sr-only">업종명(코드)</label>
+			<select id="tempBsnsCatNm" multiple="multiple" name="bsnsCatNm" class="selector_sub" title="업종명(코드)" aria-label="업종명(코드)" onchange="fn_selectUpjong(this)" disabled="disabled" aria-hidden="true" tabindex="-1">
+           		
+            </select> 
+			<label for="tempBsnsCat" class="sr-only">업종 분류</label>
+			<select id="tempBsnsCat" class="wd_half mo_mb10 selector_main" name="bsnsCat01" title="업종 분류" aria-label="업종 분류" style="margin-top:-17px;width: calc(50% - 28px);" disabled="disabled" aria-hidden="true" tabindex="-1">
+				<option value="">업종 분류 선택</option>											
+			</select>
+			<a class="btn_addbox_del" title="삭제" href="javascript:void(0)" onclick="fn_delButton(this)"><span style="display: table;">삭제</span></a>
+		</div>
+	</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+<script>
+		var optionJson = ;
+		var sectorJson = ;
+		var seclectrMain = [
+		
+		]
+
+</script>
+
+</html>

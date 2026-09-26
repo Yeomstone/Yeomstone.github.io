@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>비산배출시설 정기점검 관리시스템 - 수수료 조회/납부 상세</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="keywords" content="한국환경공단 ">
+    <meta name="description" content="한국환경공단">
+
+    <!--[if lte IE 9]>
+	<script type="text/javascript" src="js/respond.min.js"></script>
+	<script type="text/javascript" src="js/html5.js"></script>
+	<![endif]-->
+    	<script type="text/javascript" src="./js/jquery.min.js"></script>
+	<script src="./js/common.js"></script>
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/vue.min.js"></script>
+	<script src="./js/axios.min.js"></script>
+
+    <script src="./js/lodash.min.js"></script>
+    <script type="text/javascript" src="./js/bxslider/jquery.bxslider.min.js"></script>
+    <link rel="stylesheet" href="./css/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="./js/bxslider/jquery.bxslider.css">
+	<link rel="stylesheet" type="text/css" href="./css/common.css">
+	<link rel="stylesheet" type="text/css" href="./css/layout.css">
+    <link rel="stylesheet" type="text/css" href="./css/sub.css">
+		
+    <script>
+	    /* $(document).ready(function(){
+	    	let input = $('.tb_basic').find('input');
+
+	    	input.each(function(){    
+	    	    $(this).keydown(function() { test($(this)) });
+	    	})
+	    })
+    
+	    function test(e){
+    	    let length = $(e).val().length;
+    	    if(length == 6){        
+    	        alert("최대 6자리까지 입력가능합니다.");
+    	        $(e).val("");
+    	    }
+    	} */
+    	$(document).ready(function(){
+    		if(typeof app !== 'undefined' && app.status === '5'){
+    			$("#payMethod").hide();
+    		}
+    	})
+    	
+    	function agreeChk(){
+    		if($('#agreeChk').is(':checked')){
+    			$('#gubun').show();
+    		}else{
+    			$('#gubun').hide();
+    			$("#agree").css("display","none");
+    			$("#cardPayment").css("display","none");
+    			$("#tax").hide();
+    		}
+    	}
+    	
+    	function payMethod(val){
+    		if(val === '0'){
+    			$("#cardPayment").css("display","contents");	
+    		}else{
+    			$("#agree").css("display","contents");
+    			$("#tax").show();
+			// 공개 목업에는 실제 계좌 정보가 포함된 통장사본을 제공하지 않는다.
+			alert('통장사본은 공개 목업에서 제공되지 않습니다. 실제 입금·처리는 진행되지 않습니다.');
+    		}
+    		$("#gubun").hide();
+    	}
+    	
+    	function fn_list(div){
+    		if(div == '0'){
+    			document.listForm.target = "_self";
+    			document.listForm.action = gbn_getContextPath()+"/feesCalBoard.do";
+    			document.listForm.submit();
+    			//location.href = gbn_getContextPath()+"/feesCalBoard.do";
+    		}else{
+    			location.href = gbn_getContextPath() + "/feesCalHistBoard.html?rcptNo=" + rcptNo
+    		}
+    	}
+    	//241021 김예은 주임 요청 -- 잠시 주석처리
+    	//20250115 김예은 주임 요청 -- 주석 제거
+    	function fn_pay(){
+			//INIStdPay.pay('SendPayForm_id');
+    		$("#tp").val($("#totalGrandTotal").html());
+    		var pop_title = "pay" ;
+    		window.open("", pop_title, 'width=823, height=500, top=100, left=100, fullscreen=no, menubar=no, status=no, toolbar=no, titlebar=no, location=no, scrollbar=no');
+    		$("#listForm").attr("target",pop_title).attr("action","calPay.do").submit();
+    
+    	}
+    	
+		function paybtn() {
+		    INIStdPay.pay('SendPayForm_id');
+		}
+		
+    </script>
+    
+    <style>
+        #applayCharge .tabmenu li { display: flex; }
+        #applayCharge .tabmenu li a { display: flex; flex: 1; align-items: center; justify-content: center; box-sizing: border-box; min-height: 68px; line-height: 1.4; word-break: keep-all; }
+        #applayCharge .tabmenu li.on { background: #016241; }
+		.sr-only {
+		  position: absolute;
+		  width: 1px;
+		  height: 1px;
+		  padding: 0;
+		  margin: -1px;
+		  overflow: hidden;
+		  clip: rect(0, 0, 0, 0);
+		  border: 0;
+		  white-space: nowrap; /* 줄바꿈 방지 */
+		}
+		#documentGuideNotice { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1200; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, 0.45); }
+		#documentGuideNotice .notice_dialog { width: 100%; max-width: 420px; overflow: hidden; background: #fff; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
+		#documentGuideNotice .notice_header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 0; background: #016241; }
+		#documentGuideNotice .notice_header h2 { color: #fff; font-size: 20px; font-weight: 700; }
+		#documentGuideNotice .notice_close { width: 32px; height: 32px; border: 0; background: transparent; color: #fff; font-size: 25px; line-height: 30px; cursor: pointer; }
+		#documentGuideNotice .notice_content { padding: 25px 22px 22px; color: #333; font-size: 16px; line-height: 1.65; text-align: center; word-break: keep-all; }
+		#documentGuideNotice .notice_option { padding: 13px 20px; border-top: 1px solid #eee; background: #f7f7f7; color: #555; font-size: 14px; }
+		#documentGuideNotice .notice_option .checkbox { margin: 0; }
+		#documentGuideNotice .notice_actions { padding: 18px 20px 20px; text-align: center; }
+		#documentGuideNotice .notice_actions .btn { min-width: 120px; line-height: 42px; font-size: 15px; }
+		@media all and (max-width: 480px) {
+			#documentGuideNotice .notice_actions .btn { min-width: 105px; }
+		}
+    </style>
+    
+
+    <script>
+    (function() {
+        if (!window.axios) return;
+
+        var originalPost = window.axios.post;
+        var originalGet = window.axios.get;
+        var sectors = [
+            { value: "1-가", text: "Ⅰ업종_석유화학계등" },
+            { value: "1-나", text: "Ⅰ업종_원유정제처리업등" },
+            { value: "2-가", text: "Ⅱ업종" },
+            { value: "3-가", text: "Ⅲ업종" },
+            { value: "4-가", text: "Ⅳ업종" }
+        ];
+
+        function sampleRows() {
+            return (typeof All_DATA === "undefined" ? [] : All_DATA)
+                .filter(function(row) { return row["2-가"] === "2-가"; })
+                .map(function(row) {
+                    return {
+                        bsnsclsl: row.업무대,
+                        bsnsclsm: row.업무중,
+                        fcltyclsl: row.시설구분대,
+                        fcltyclsm: row.시설구분중,
+                        fcltyclss: row.시설구분소,
+                        feecalc: row.공량,
+                        fcltyitem: row.시설의수,
+                        fcltyitemnum: row.SEQ === "0001" ? "2" : row.SEQ === "0050" ? "3" : "0",
+                        seq: row.SEQ,
+                        bsnscat: "2-가",
+                        bsnscatcd: "2-가",
+                        unitwages: "268500",
+                        status: "5"
+                    };
+                });
+        }
+
+        window.axios.get = function(url) {
+            if (url.indexOf("sectorsName.do") > -1) {
+                return Promise.resolve({ data: sectors });
+            }
+            return originalGet.apply(this, arguments);
+        };
+        window.axios.post = function(url) {
+            if (url.indexOf("feeInquiryDetail.do") > -1 || url.indexOf("feeInquiryHistDetail.do") > -1) {
+                return Promise.resolve({ data: sampleRows() });
+            }
+            if (url.indexOf("tableData.do") > -1) {
+                var basisRows = typeof All_DATA === "undefined" ? [] : All_DATA;
+                var allSectorRows = [];
+                basisRows.forEach(function(row) {
+                    sectors.forEach(function(sector) {
+                        if (row[sector.value] !== sector.value) return;
+                        allSectorRows.push({
+                            bsnsclsl: row.업무대,
+                            bsnsclsm: row.업무중,
+                            fcltyclsl: row.시설구분대,
+                            fcltyclsm: row.시설구분중,
+                            fcltyclss: row.시설구분소,
+                            feecalc: row.공량,
+                            fcltyitem: row.시설의수,
+                            seq: row.SEQ,
+                            bsnscatcd: sector.value
+                        });
+                    });
+                });
+                return Promise.resolve({ data: allSectorRows });
+            }
+            return originalPost.apply(this, arguments);
+        };
+    })();
+    </script>
+    
+</head>
+<body>
+    <div class="skip">
+        <strong class="hide">반복영역 건너뛰기</strong>
+        <a href="#gnb">주메뉴 바로가기</a>
+        <a href="#contents">본문 바로가기</a>
+    </div>
+    <div id="wrap">
+        
+<header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>수수료 조회/납부 상세</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+
+        <div id="contents">
+            <h3 id="subTitle">정기점검 신청</h3>
+            <div id="applayCharge" class="container">
+            	<input type="hidden" id="newCrf" v-bind:value="newCrf" />
+            	<form id="listForm" name="listForm" action="feesCalBoard.do" method="post">
+            		<input type="hidden" name="pageIndex"     value="">
+            		<input type="hidden" name="searchKeyword" value="">
+            		<input type="hidden" name="searchStatus"  value="">
+            		<input type="hidden" name="tp"    id="tp" value="">
+            		<input type="hidden" name="rcptNo"        value="2023-04-0012-01"/>
+            	</form>
+                <h4 class="sub_title1">정기점검 수수료 산정</h4>
+				<dl class="ckbox_wrap mb20">
+					<dt>※해당되는 업종을 선택하세요(중복선택 가능)</dt>
+					<dd>
+                        <span class="checkbox" v-for="(tab, idx) in sectors">
+                            <input type="checkbox" v-model="appSectors" v-bind:value="tab.value" v-bind:id="'appSectors_'+idx" v-bind:title="tab.text" v-bind:aria-label="tab.text" v-on:change="tCalVlaue(tab.value)" v-bind:disabled="disabled">
+                            <label v-bind:for="'appSectors_'+idx">{{tab.text}}</label>
+                        </span>
+					</dd>
+				</dl>                
+				<div id="totalCharge" class="mb40">
+					<a class="btn_ttcharge"><strong>전체 수수료 산정내역</strong> <!-- <span>(Ⅰ업종_원유 정제처리업 등 +Ⅰ업종_석유화학계 등 + Ⅱ업종 + Ⅲ업종 + Ⅳ업종)</span> --></a>		
+					<div class="tb_wrap">	
+                        <table class="tb_basic">
+                            <caption class="sub_title2" style="display:block;">전체수수료 산정내역</caption>
+							<colgroup>											
+								<col width="20%">
+								<col width="20%">
+								<col width="20%">
+								<col width="20%">
+								<col width="20%">
+							</colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">직접인건비</th>
+                                    <th scope="col">직접경비</th>
+                                    <th scope="col">제경비</th>
+                                    <th scope="col">기술료</th>
+                                    <th scope="col">합 계</th>
+                                </tr>
+                            </thead>
+							<tbody v-if="totalCalcValue">
+                            <tr>
+                                <td>총공량 x 노임단가 </td>
+                                <td>직접인건비 x 0.2</td>
+                                <td>직접인건비 x 1.1</td>
+                                <td>(직접인건비+제경비) x 0.2</td>
+                                <td>보정계수 0.65 적용</td>
+                            </tr>
+                            <tr>
+                                <td id="totalLaborCosts">{{numRound(totalCalcValue.laborCosts)}} 원</td>
+                                <td id="totalExpenses">{{numRound(totalCalcValue.expenses)}} 원</td>
+                                <td id="totalOtherCost">{{numRound(totalCalcValue.otherCost)}} 원</td>
+                                <td id="totalFee">{{numRound(totalCalcValue.fee)}} 원</td>
+                                <td id="totalCostTotal">{{numRound(totalCalcValue.costTotal)}} 원</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">부 가 세</td>
+                                <td id="totalVat">{{numRound(totalCalcValue.vat)}} 원</td>
+                            </tr>
+                            
+                            </tbody> 
+                            <tfoot v-if="totalCalcValue">
+                                <tr>
+                                    <td colspan="4" class="tcolor5">정기점검 수수료(부가세 포함)</td>
+                                    <td class="tbg1">{{numFormat(totalGrandTotalWithTaxInvoiceAddFee)}} 원</td>
+                                </tr>                                
+                            </tfoot>                            
+                        </table>
+                    </div>
+				</div>
+                <ul class="tabmenu mb10">
+                    <li v-for="tab in tabs" v-bind:class="{ on: tab === selected }" v-on:click="selected = tab"><a>{{tab.text}}</a></li>
+                </ul>
+				<!-- // #totalCharge -->
+                <div class="tabBox on">
+                    <p v-if="selected.subTitle" class="colorbox01 mb50">{{selected.subTitle}}</p>
+                    <h5 class="sub_title2">수수료 산정내역[내부용]</h5>
+                    <div class="tb_wrap">
+                        <table class="tb_basic mb20">
+                            <caption class="sub_title2" style="display:block;">수수료 산정내역[내부용]</caption>
+							<colgroup>
+								<col width="100">							
+								<col width="100">				
+								<col width="15%">
+								<col width="15%">
+								<col width="15%">
+								<col>
+								<col>
+							</colgroup>
+                            <thead>
+                                <tr>
+                                    <th colspan="2" scope="col">업무</th>
+                                    <th colspan="3" scope="col">시설구분</th>
+                                    <th colspan="5" scope="col">공량<span class="descrip">※</span></th>
+                                    <th scope="col" width="100">산정공량</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, idx) in tableData">
+                                    <td v-for="col in row" v-bind:colspan="col.colspan" v-bind:rowspan="col.rowspan" class="tbg">{{col.value}}</td>
+                                    <td colspan="5"> 
+                                        <span v-if="calcData[idx]? calcData[idx].input : ''">
+                                            {{calcData[idx].prefix}}
+                                                <input v-if="calcData[idx].placeholder === '측정대상시설의수'" v-model.number="calcData[idx].inputValue" v-on:change="autoCal(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value" v-bind:disabled="disabled"/>
+                                                <input v-else if="calcData[idx].placeholder === '보고서'" v-model.number="calcData[idx].inputValue" v-on:change="totalVariable(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value" v-bind:disabled="disabled"/>
+                                                <input v-else v-model.number="calcData[idx].inputValue" v-on:change="autoCal(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value" v-bind:disabled="disabled"/>
+                                                <label v-bind:for="calcData[idx].bsnscatcd+idx" ><span class="sr-only">{{row[row.length - 1].value}}</span></label>
+                                            {{calcData[idx].suffix}}
+                                        </span>
+                                        <span v-else-if="calcData[idx]? calcData[idx].checkBox : ''" class="checkbox">
+                                            <input type="checkbox" v-model.number="calcData[idx].inputValue" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value" true-value="1" false-value="0" v-on:change="changeTotalValue" v-bind:disabled="disabled">
+                                            <label v-bind:for="calcData[idx].bsnscatcd+idx" ><span class="sr-only">{{row[row.length - 1].value}}</span></label>
+                                        </span>
+                                        <span v-else>{{calcData[idx]? calcData[idx].value : '' }}</span>
+                                    </td>
+                                    <td v-if="idx === calcData.length-1">{{numFormat(totalData)}}</td>
+                                    <td v-else>{{calcData[idx]? numFormat(calcData[idx].valueFn(calcData[idx].inputValue)) : ''}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="8">총 공 량</td>
+                                    <td colspan="3" class="tbg2">{{numFormat(calcValue.totalCost)}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">「엔지니어링산업 진흥법」 제31조제2항에 따른 엔지니어링사업대가의 기준 중 <br />
+                                        환경부문의 중급기술자 노임단가(<span class="tcolor2" style="color:#00DCFF;">{{codeDc}}년 기준</span>)</td>
+                                    <td colspan="3" class="tbg1">
+									<label for="wagesInput" class="sr-only">환경부문 중급기술자 노임단가</label>
+									<vue-input-format id="wagesInput" name="wagesInput" v-model.number="wages" type="text" style="color: black;" title="환경부문 중급기술자 노임단가" aria-label="환경부문 중급기술자 노임단가" v-bind:disabled="disabled"></vue-input-format>원</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">직접인건비</td>
+                                    <td colspan="1">직접경비</td>
+                                    <td colspan="2">제경비</td>
+                                    <td colspan="3">기술료</td>
+                                    <td colspan="3">합 계</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">총공량 x 노임단가 </td>
+                                    <td colspan="1">직접인건비 x 0.2</td>
+                                    <td colspan="2">직접인건비 x 1.1</td>
+                                    <td colspan="3">(직접인건비+제경비) x 0.2</td>
+                                    <td colspan="3">보정계수 0.65 적용</td>
+                                </tr>
+                                <tr>
+                                	<form id="reportFrm" name="reportFrm" method="post">
+                                		<input name="rcptNo" id="rcptNo" type="hidden" value="2023-04-0012-01"/>
+                                		<input name="wages" v-bind:value="wages" type="hidden" id="wages"/>
+                                	</form>
+                                    <td colspan="2" class="tbg3" id="laborCosts">{{numRound(calcValue.laborCosts)}} 원</td>
+                                    <td colspan="1" class="tbg3">{{numRound(calcValue.expenses)}} 원</td>
+                                    <td colspan="2" class="tbg3">{{numRound(calcValue.otherCost)}} 원</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.fee)}} 원</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.costTotal)}} 원</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">부 가 세</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.vat)}} 원</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="8">정기점검 수수료(부가세 포함)</td>
+                                    <td id="totalGrandTotal" colspan="3" class="tbg1">{{numFormat(totalGrandTotalWithTaxInvoiceAddFee)}} 원</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="descripBox mb50" style="margin-bottom: 15px;"><span class="descrip">※</span> 엔지니어링사업대가의 중급기술자가 해당업무를 수행하는데 소요되는 일수</p>        
+                </div>
+    
+                <div id="gubun" class="btn_wrap mt50 mb50" style="display: none;">
+    
+	                <a href="javascript:void(0)"  onclick="payMethod('0')" class="btn btn_bg color" title="새 창 열림">카드 결제</a>
+	                <a href="javascript:void(0)"  onclick="payMethod('1')" class="btn btn_bg color">수수료 입금</a>
+                </div>
+    
+                
+                <div v-if="status === '6' || status === '7' || status === '10'" class="file_wrap">
+                	<div v-if="atchFileId9 || email" class="file_wrap">
+	                    <h5 class="form_tit">전자세금계산서 발급</h5>
+	                    <ul class="filebox">
+	                        <li class="drop_zone">
+	                            <span class="drop_span" style="width:79%" v-on:click="fn_downFile" >
+	                                <label for="atchFileId9Nm" class="sr-only">사업장등록증과 통장사본 파일명</label>
+	                                <input id="atchFileId9Nm" name="atchFileId9Nm" class="upload-name" v-model="atchFileId9Nm" readonly placeholder="사업장등록증첨부(종사업장포함)" title="사업장등록증과 통장사본 파일명" aria-label="사업장등록증과 통장사본 파일명" style="width:98% !important"/>
+	                            </span>
+	                            <label for="file09" class="sr-only">사업장등록증과 통장사본 업로드</label>
+	                            <input type="file" class="upload-hidden" name="fAtchFileId9" id="file09" placeholder="사업장등록증첨부(종사업장포함)" title="사업장등록증과 통장사본 업로드" aria-label="사업장등록증과 통장사본 업로드" :data-file="atchFileId9" >
+	                        </li>
+	                        <li class="drop_zone">
+	                            <label for="email" class="sr-only">이메일주소</label>
+	                            <input type="text" name="email" v-model="email" id="email" placeholder="이메일주소" title="이메일주소" aria-label="이메일주소" style="width: 100%;" disabled>
+	                        </li>
+	                    </ul>
+	                </div>
+	                <div v-if="cancelReason" class="file_wrap">
+	                    <h5 class="form_tit">재산정(취소) 사유</h5>
+	                    <label for="cancelReasonView" class="sr-only">재산정(취소) 사유</label>
+	                    <textarea name="cancelReason" v-model="cancelReason" id="cancelReasonView" placeholder="재산정(취소) 이유" title="재산정(취소) 사유" aria-label="재산정(취소) 사유" style="width: 100%;" disabled></textarea>
+					</div>
+                </div>
+                <!-- 2025-01-03_김현광 수수료 할인율 추가 -->
+                <fieldset v-if="isShow && ((status === '5' || status === '4') && seq == '')" class="radiogroup">
+  					<legend>수수료 할인 선택</legend>
+	                <span class="radiobox"><input type="radio" id="0" name="discount" value="0" title="해당 없음" aria-label="해당 없음"/> <label for="0">해당 없음</label></span>
+	                <span class="radiobox"><input type="radio" id="50" name="discount" value="50" title="수수료 50% 할인" aria-label="수수료 50% 할인"/> <label for="50">수수료 50% 할인</label></span>
+	                <span class="radiobox"><input type="radio" id="100" name="discount" value="100" title="수수료 면제" aria-label="수수료 면제"/> <label for="100">수수료 면제</label></span>
+                </fieldset>
+                
+                <div class="btn_wrap mt50 mb50">
+					
+						<a href="documentGuide.html" id="submitDocGuideOpen" title="제출서류 사전안내로 이동"><span>제출서류<br>사전안내</span></a>
+
+					<a href="javascript:void(0)" v-if="seq == ''" onclick="fn_list(0)" class="btn btn_bg darkgray">목록</a>
+					<a href="javascript:void(0)" v-if="seq != ''" onclick="fn_list(1)" class="btn btn_bg darkgray">목록</a>
+					
+					
+						<div id="agree" style="display:none;">
+                        	<a href="javascript:void(0)" v-if="status === '5' && seq == ''" v-on:click="submit('6')" class="btn btn_bg color">제출</a>
+                        </div>
+						<div id="cardPayment" style="display:none;">
+                        	<a href="javascript:void(0)" v-if="status === '5' && seq == ''" v-on:click="fn_pay()" class="btn btn_bg color" title="새 창 열림">카드결제</a>
+                        </div>
+    
+                        </div>
+					
+					
+					<div id="modal1" class="modal">
+				        <div class="modal_body">
+				            <div class="title" style="padding: 10px;">
+				                <h2>취소사유 입력</h2>
+				            </div>
+				            
+				            <div class="content">
+				                <label for="cancelReason" class="sr-only">재산정(취소) 사유</label>
+				                <textarea id="cancelReason" name="cancelReason" title="재산정(취소) 사유" aria-label="재산정(취소) 사유" style="resize: none; width: 100%; height: 200px;"></textarea>
+				            </div>
+				            <div class="button-area" style="float: inline-end;">
+				                <a href="javascript:void(0)" v-on:click="fn_recalculation('4')" style="padding-right: 10px">재산정</a>
+				                <a href="javascript:void(0)" v-on:click="fn_modal('1')" style="padding-right: 10px">닫기</a>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+			</div>
+			<!-- // #applayCharge -->
+		</div>
+
+		
+			<div id="documentGuideNotice" role="dialog" aria-modal="true" aria-labelledby="documentGuideNoticeTitle" aria-describedby="documentGuideNoticeDesc" onclick="fn_documentGuideNoticeOverlay(event)">
+				<div class="notice_dialog" tabindex="-1">
+					<div class="notice_header">
+						<h2 id="documentGuideNoticeTitle">제출서류 사전안내</h2>
+						<button type="button" class="notice_close" aria-label="팝업 닫기" onclick="fn_closeDocumentGuideNotice()">&times;</button>
+					</div>
+					<div class="notice_content">
+						<p id="documentGuideNoticeDesc">점검 전 필요한 제출서류를 미리 확인할 수 있습니다.</p>
+					</div>
+					<div class="notice_option">
+						<span class="checkbox">
+							<input type="checkbox" id="documentGuideNoticeToday">
+							<label for="documentGuideNoticeToday">오늘 하루 보지 않기</label>
+						</span>
+					</div>
+					<div class="notice_actions">
+						<button type="button" class="btn btn_bg gray" onclick="fn_closeDocumentGuideNotice()">닫기</button>
+						<button type="button" class="btn btn_bg color" onclick="fn_goDocumentGuide()">확인하기</button>
+					</div>
+				</div>
+			</div>
+    
+		
+		<div class="modal">
+	        <div class="modal_body">Modal
+	
+	        </div>
+	    </div>
+	    
+        <!-- // #contents -->
+        
+<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+    </div>
+    <!--// #wrap -->
+    <script>
+		
+		var mngNo = false;
+		var num = '0';
+		var documentGuideNoticeCookie = 'applyChargeDocumentGuideNotice';
+		var documentGuideNoticePreviousFocus = null;
+
+		function fn_hasDocumentGuideNoticeCookie() {
+			var cookiePrefix = documentGuideNoticeCookie + '=';
+			var cookies = document.cookie ? document.cookie.split(';') : [];
+			for(var i = 0; i < cookies.length; i++) {
+				if(cookies[i].trim().indexOf(cookiePrefix) === 0) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function fn_saveDocumentGuideNoticeCookie() {
+			if(!document.getElementById('documentGuideNoticeToday') || !document.getElementById('documentGuideNoticeToday').checked) {
+				return;
+			}
+			var expires = new Date();
+			expires.setHours(23, 59, 59, 999);
+			document.cookie = documentGuideNoticeCookie + '=Y; expires=' + expires.toUTCString()
+					+ '; path=/; SameSite=Lax';
+		}
+
+		function fn_openDocumentGuideNotice() {
+			var popup = document.getElementById('documentGuideNotice');
+			if(!popup || fn_hasDocumentGuideNoticeCookie()) {
+				return;
+			}
+			documentGuideNoticePreviousFocus = document.activeElement;
+			popup.style.display = 'flex';
+			popup.querySelector('.notice_close').focus();
+		}
+
+		function fn_closeDocumentGuideNotice() {
+			var popup = document.getElementById('documentGuideNotice');
+			fn_saveDocumentGuideNoticeCookie();
+			if(popup) {
+				popup.style.display = 'none';
+			}
+			if(documentGuideNoticePreviousFocus) {
+				documentGuideNoticePreviousFocus.focus();
+			}
+		}
+
+		function fn_documentGuideNoticeOverlay(event) {
+			if(event.target.id === 'documentGuideNotice') {
+				fn_closeDocumentGuideNotice();
+			}
+		}
+
+		function fn_goDocumentGuide() {
+			fn_saveDocumentGuideNoticeCookie();
+			location.href = 'documentGuide.html';
+		}
+
+		$(document).ready(function() {
+			fn_openDocumentGuideNotice();
+			$(document).on('keydown.documentGuideNotice', function(event) {
+				if(event.keyCode === 27 && $('#documentGuideNotice').is(':visible')) {
+					fn_closeDocumentGuideNotice();
+				}
+			});
+		});
+    
+    </script> 
+    <script src="./js/data.js"></script>
+    <script src="./js/vueComp/vue-inputFormat.js"></script>
+    <script src="./js/vueComp/vue-fileInput.js"></script>		
+    <script src="./js/main.js?v=20260623_tax_invoice"></script>
+    
+    <div id="payImg" style="display:none;position: absolute;top: 0;left: 500px;width: 610px;height: 591px;border: 1px solid black;"><img src="./img/pay.png" alt="결재이미지" onclick="$('#payImg').hide()"/></div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+
+
+</html>

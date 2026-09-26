@@ -1,0 +1,29 @@
+@charset "utf-8";
+/* Desktop First */
+.stitle { color:#333; font-weight:bold; font-size:20px; background:#0f4c81; border-bottom:1px solid #333; color:#fff; padding:20px 20px 10px 20px;}
+.container { padding:20px;}
+#menuCreatSelect .codebox{ position:relative; display:flex; flex-wrap:wrap; justify-content:space-between; border:5px solid #eee; padding: 20px; margin-bottom:20px;}
+#menuCreatSelect .codebox label {  display:inline-block; width: 70px; line-height:40px; font-weight:500; color:#333; }
+#menuCreatSelect .codebox input { width:calc(100% - 70px); height:40px; padding:0 10px;}
+#menuCreatSelect .menu_cs_list { position:relative; }
+#menuCreatSelect .menu_cs_btn { position:absolute; right:0px; top:20px; background:#0090ff  url("../images/icon_menu_creat.png") no-repeat 10px center; color:#fff; border-radius:5px; padding:10px 10px 10px 35px; }
+#menuCreatSelect .menu_cs_list ul { position:relative;padding-left:10px;}
+#menuCreatSelect .menu_cs_list li {position:relative; margin-left:10px;}
+#menuCreatSelect .menu_cs_list ul ul{ font-size:14px; margin:0 0 10px 0px;}
+#menuCreatSelect .menu_cs_list ul ul li a{ position:relative;}
+#menuCreatSelect .menu_cs_list ul ul li a:before{position:absolute; content:""; width:24px; height:25px; display:inline-block;background:url("../images/icon_folder_list.png") no-repeat 5px top;left:-25px; top:2px; }
+#menuCreatSelect .menu_cs_list li.folder > ul { display:none;}
+#menuCreatSelect .menu_cs_list li.folder > a:before{ z-index:1; background:url("../images/icon_folder_open.png") no-repeat left top; left:-25px; top:0; }
+#menuCreatSelect .menu_cs_list li.folder.active > ul { display:block;}
+#menuCreatSelect .menu_cs_list li.folder.active > a:before{background:url("../images/icon_folder_close.png") no-repeat left top;}
+/* Tablet */
+@media all and (max-width:1023px) {	
+
+}
+/* Moblie */
+@media all and (max-width:767px) {
+
+}
+@media all and (max-width:479px) {
+
+}

@@ -1,0 +1,324 @@
+﻿/* Portfolio Navigation & Case Study Overlay */
+.pf-top-bar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #111827;
+    color: #f9fafb;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans KR, sans-serif;
+    border-bottom: 1px solid #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.pf-top-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.pf-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.pf-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: #1f2937;
+    transition: all 0.2s;
+}
+.pf-back-link:hover {
+    color: #fff;
+    background: #374151;
+}
+.pf-proj-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f3f4f6;
+    letter-spacing: -0.3px;
+}
+.pf-role-badge {
+    background: #016241;
+    color: #d1fae5;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.pf-tab-nav {
+    display: flex;
+    gap: 6px;
+    background: #1f2937;
+    padding: 4px;
+    border-radius: 8px;
+}
+.pf-tab-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.pf-tab-btn:hover {
+    color: #fff;
+}
+.pf-tab-btn.active {
+    background: #016241;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(1, 98, 65, 0.4);
+}
+.pf-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pf-tech-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #047857;
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.pf-tech-toggle-btn:hover {
+    background: #059669;
+}
+.pf-tech-toggle-btn.active {
+    background: #d97706;
+}
+
+/* Tech Explanation Panel */
+.pf-tech-drawer {
+    background: #0f172a;
+    border-bottom: 2px solid #016241;
+    color: #e2e8f0;
+    padding: 24px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans KR, sans-serif;
+    display: none;
+}
+.pf-tech-drawer.show {
+    display: block;
+    animation: pfSlideDown 0.3s ease;
+}
+@keyframes pfSlideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.pf-tech-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.pf-tech-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+}
+.pf-tech-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 20px;
+}
+.pf-tech-card h4 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pf-tech-card p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+.pf-tech-points {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 14px;
+}
+.pf-tech-points li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    padding-left: 18px;
+    position: relative;
+}
+.pf-tech-points li::before {
+    content: •;
+    position: absolute;
+    left: 4px;
+    color: #10b981;
+    font-weight: bold;
+    font-size: 16px;
+}
+.pf-tech-tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.pf-tech-tag {
+    background: #334155;
+    color: #94a3b8;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+.pf-code-block {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+    color: #a5f3fc;
+    overflow-x: auto;
+    line-height: 1.5;
+}
+
+/* Feature View Container */
+.demo-feature-section {
+    display: none;
+}
+.demo-feature-section.active {
+    display: block;
+}
+
+/* Scope Selector in Feature 4 */
+.scope-switch-banner {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.scope-switch-info {
+    font-size: 13px;
+    color: #166534;
+}
+.scope-switch-info strong {
+    color: #016241;
+}
+.scope-btn-group {
+    display: flex;
+    gap: 8px;
+}
+.scope-btn {
+    border: 1px solid #016241;
+    background: #fff;
+    color: #016241;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.scope-btn.active {
+    background: #016241;
+    color: #fff;
+}
+
+/* Toast Message */
+.pf-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #111827;
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    font-size: 14px;
+    z-index: 100000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+.pf-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* PPT 과업 설명 패널 스타일 추가 */
+.pf-ppt-banner {
+    background: #1e293b;
+    border: 1px solid #38bdf8;
+    border-left: 5px solid #38bdf8;
+    border-radius: 8px;
+    padding: 20px 24px;
+    color: #e2e8f0;
+}
+.pf-ppt-badge {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+.pf-ppt-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin: 0 0 14px;
+    line-height: 1.4;
+}
+.pf-ppt-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.pf-ppt-list li {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    padding-left: 22px;
+    position: relative;
+}
+.pf-ppt-list li::before {
+    content: 📌;
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+}
+.pf-ppt-list strong {
+    color: #f1f5f9;
+}

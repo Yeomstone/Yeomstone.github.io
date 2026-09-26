@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<title>비산배출시설 정기점검 관리시스템 - 제출서류 사전안내 사업장 목록</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<script type="text/javascript" src="./js/jquery.min.js"></script>
+	<script src="./js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/common.css">
+	<link rel="stylesheet" type="text/css" href="./css/layout.css">
+	<link rel="stylesheet" type="text/css" href="./css/sub.css">
+	<link rel="stylesheet" type="text/css" href="./css/board.css">
+	<style>
+		#documentGuideList .schBox { margin-bottom: 30px; }
+		#documentGuideList .schBox fieldset { display: flex; align-items: center; gap: 4px; }
+		#documentGuideList .schBox input[type="text"] { flex: 1 1 auto; width: auto !important; }
+		#documentGuideList .schBox .btn_search { flex: 0 0 70px; min-width: 70px; }
+		#documentGuideList .pagination.mt50 { margin-top: 25px !important; }
+		@media all and (max-width: 767px) {
+			#documentGuideList .schBox fieldset { flex-wrap: wrap; }
+			#documentGuideList .schBox select,
+			#documentGuideList .schBox input,
+			#documentGuideList .schBox .btn_search { width: 100% !important; margin-top: 6px; }
+		}
+	</style>
+	<script>
+		function fn_search(pageNo) {
+			$("#pageIndex").val(pageNo);
+			$("#inspectionVO").attr("action", "DocoumentGuideList.html").submit();
+		}
+
+		function fn_documentGuide(mngNo) {
+			$("#mngNo").val(mngNo);
+			$("#inspectionVO").attr("action", "documentGuide.html").submit();
+		}
+
+		$(document).ready(function() {
+			$("#print").remove();
+			$("#searchKeyword").on("keyup", function(e) {
+				if(e.keyCode === 13) {
+					fn_search("1");
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="skip">
+		<strong class="hide">반복영역 건너뛰기</strong>
+		<a href="#contents">본문 바로가기</a>
+	</div>
+	<div id="wrap">
+		
+<header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>제출서류 사전안내 사업장 목록</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+
+		<div id="contents">
+			<h3 id="subTitle">제출서류 사전안내</h3>
+			<div id="documentGuideList" class="container">
+				<div id="boardWrap">
+					<form name="inspectionVO" id="inspectionVO" action="DocoumentGuideList.html" method="post">
+						<input type="hidden" name="mngNo" id="mngNo" value="">
+						<input type="hidden" name="pageIndex" id="pageIndex" value="1">
+
+						<div class="schBox clear">
+							<fieldset>
+								<legend>사업장 검색</legend>
+								<label for="year" class="hd-element">수수료 입금연도</label>
+								<select id="year" name="year" title="수수료 입금연도" style="width:120px;">
+									
+									<option value="2026">2026년</option>
+									<option value="2025">2025년</option>
+									<option value="2024">2024년</option>
+									<option value="2023" >2023년</option>
+    
+								</select>
+								
+								<label for="authCode" class="hd-element">환경본부</label>
+								<select id="authCode" name="authCode" title="환경본부" style="width:190px;">
+									<option value="" >환경본부 전체</option>
+									<option value="ROLE_KECO_GRP01_USER">수도권동부환경본부</option>
+									<option value="ROLE_KECO_GRP02_USER">부산울산경남환경본부</option>
+									<option value="ROLE_KECO_GRP03_USER">광주전남제주환경본부</option>
+								</select>
+    >환경본부 전체</option>
+										<option value="ROLE_KECO_GRP01_USER" >수도권동부환경본부</option>
+										<option value="ROLE_KECO_GRP02_USER" >부산울산경남환경본부</option>
+										<option value="ROLE_KECO_GRP03_USER" >광주전남제주환경본부</option>
+									</select>
+								
+								<label for="searchKeyword" class="hd-element">검색어</label>
+								<input type="text" id="searchKeyword" name="searchKeyword" value="" title="검색어" placeholder="사업장명, 관리번호, 접수번호">
+								<button type="button" class="btn_search" onclick="fn_search('1')" style="cursor:pointer;">검색</button>
+							</fieldset>
+						</div>
+
+						<p class="countText">총 <span class="count">6</span>건의 사업장이 있습니다.</p>
+						<table class="tBoard">
+							<caption>제출서류 사전안내 사업장 목록</caption>
+							<thead>
+								<tr>
+									<th scope="col" width="5%">번호</th>
+									<th scope="col" width="14%">관리번호</th>
+									<th scope="col">사업장명</th>
+									<th scope="col" width="13%">최근 접수번호</th>
+									<th scope="col" width="11%">최근 신청일</th>
+									<th scope="col" width="11%">수수료 입금일</th>
+									<th scope="col" width="18%">관할</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr>
+									<td>1</td>
+									<td>2023-04-0012</td>
+									<td class="tleft">
+										<a href="documentGuide.html">(주)삼성테이프</a>
+									</td>
+									<td>2023-04-0012-01</td>
+									<td>2023-05-15</td>
+									<td>2023-06-01</td>
+									<td>원주지방환경청</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>2023-02-0056</td>
+									<td class="tleft">
+										<a href="documentGuide.html">(주)테크피아</a>
+									</td>
+									<td>2023-02-0056-01</td>
+									<td>2023-04-10</td>
+									<td>2023-04-28</td>
+									<td>수도권동부환경본부</td>
+								</tr>
+    
+							</tbody>
+						</table>
+
+						<div class="pagination mt50">
+							
+							<ul class="clear">
+								<li class="first"><a href="javascript:void(0)">처음</a></li>
+								<li class="prev"><a href="javascript:void(0)">이전</a></li>
+								<li class="on"><a href="javascript:void(0)">1</a></li>
+								<li><a href="javascript:void(0)">2</a></li>
+								<li class="next"><a href="javascript:void(0)">다음</a></li>
+								<li class="last"><a href="javascript:void(0)">마지막</a></li>
+							</ul>
+    
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+	</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

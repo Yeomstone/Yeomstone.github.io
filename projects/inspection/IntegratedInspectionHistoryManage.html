@@ -1,0 +1,674 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Language" content="ko">
+	<title>정기점검 수행실적 통합 이력 관리</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+	<link rel="stylesheet" href="./plugins/fontawesome-free/css/all.min.css">
+	<link rel="stylesheet" href="./plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+	<link rel="stylesheet" href="./dist/css/adminlte.min.css">
+	<link rel="stylesheet" href="./css/paging.css">
+	<script type="text/javascript">
+		var message = "";
+		if (message != null && message != "") {
+			alert(message);
+		}
+
+		function fnLinkPage(pageNo) {
+			document.listForm.pageIndex.value = pageNo;
+			document.listForm.action = "./IntegratedInspectionHistoryManage.html";
+			document.listForm.submit();
+		}
+
+		function fnSearch() {
+			document.listForm.pageIndex.value = 1;
+			document.listForm.action = "./IntegratedInspectionHistoryManage.html";
+			document.listForm.submit();
+		}
+
+		function fnResetSearch() {
+			var form = document.listForm;
+			var authCode = document.getElementById("authCode");
+			var year = document.getElementById("year");
+			form.pageIndex.value = 1;
+			form.searchStatus.value = "";
+			form.picEnvAgcyCd.value = "";
+			form.searchKeyword.value = "";
+			form.pageUnit.value = "10";
+			if (year != null) {
+				year.value = new Date().getFullYear().toString();
+			}
+			if (authCode != null) {
+				authCode.value = "";
+			}
+			fnSearch();
+		}
+
+		function fnDetail(rcptNo) {
+			document.listForm.rcptNo.value = rcptNo;
+			document.listForm.action = "./IntegratedInspectionHistoryDetail.html";
+			document.listForm.submit();
+		}
+
+		function fnHistory(rcptNo) {
+			document.listForm.rcptNo.value = rcptNo;
+			document.listForm.action = "./IntegratedInspectionChangeHistory.html";
+			document.listForm.submit();
+		}
+
+		function fnExcel() {
+			document.listForm.action = "./integratedInspectionHistoryExcel.do";
+			document.listForm.submit();
+		}
+
+		document.addEventListener("DOMContentLoaded", function() {
+			var keyword = document.getElementById("searchKeyword");
+			if (keyword != null) {
+				keyword.addEventListener("keyup", function(e) {
+					if (e.keyCode === 13) {
+						fnSearch();
+					}
+				});
+			}
+			var historyButtons = document.querySelectorAll(".js-history");
+			for (var i = 0; i < historyButtons.length; i++) {
+				historyButtons[i].addEventListener("click", function() {
+					fnHistory(this.getAttribute("data-rcpt-no"));
+				});
+			}
+			var detailButtons = document.querySelectorAll(".js-detail");
+			for (var j = 0; j < detailButtons.length; j++) {
+				detailButtons[j].addEventListener("click", function() {
+					fnDetail(this.getAttribute("data-rcpt-no"));
+				});
+			}
+		});
+	</script>
+	<style>
+		.content-wrapper {
+			background: #f6f6f6;
+		}
+		.integrated-search-box .info-box-content {
+			padding: 0 10px;
+		}
+		.integrated-search-box .info-box-text {
+			margin-bottom: 4px;
+			font-size: 13px;
+		}
+		.integrated-search-box .form-control {
+			height: 34px;
+			font-size: 13px;
+		}
+		.integrated-search-box .search-field {
+			margin-bottom: 8px;
+		}
+		.integrated-search-actions {
+			flex: 0 0 auto;
+			margin-top: 5px;
+			padding-right: 10px;
+			white-space: nowrap;
+		}
+		.integrated-search-actions label {
+			display: block;
+			margin-bottom: 4px;
+		}
+		.integrated-search-actions .btn {
+			height: 34px;
+			margin-left: 3px;
+			white-space: nowrap;
+		}
+		.integrated-stat .info-box {
+			min-height: 86px;
+			border: 1px solid #e5e5e5;
+		}
+		.integrated-stat .info-box-number {
+			color: #343a40;
+			font-size: 20px;
+		}
+		.history-table {
+			min-width: 1420px;
+			table-layout: fixed;
+		}
+		.history-table th {
+			vertical-align: middle;
+			white-space: normal;
+			line-height: 1.3;
+			word-break: keep-all;
+			text-align: center;
+		}
+		.history-table td {
+			vertical-align: middle;
+			white-space: nowrap;
+			text-align: center;
+		}
+		.history-table .text-left-cell {
+			white-space: normal;
+			text-align: left;
+		}
+		.history-bottom {
+			margin-top: 18px;
+		}
+		.history-bottom .card {
+			height: 100%;
+		}
+		.integrated-chart {
+			height: 230px;
+			display: flex;
+			align-items: stretch;
+			gap: 14px;
+			padding: 15px 10px 0;
+			border-left: 1px solid #dee2e6;
+			border-bottom: 1px solid #dee2e6;
+		}
+		.integrated-chart .bar {
+			flex: 1;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			align-items: center;
+			text-align: center;
+			color: #6c757d;
+			font-size: 12px;
+			min-width: 34px;
+		}
+		.integrated-chart .bar i {
+			display: block;
+			width: 36px;
+			margin: 0 auto 7px;
+			background: #ced4da;
+			border-radius: 3px 3px 0 0;
+		}
+		.integrated-chart .bar.active i {
+			background: #17a2b8;
+		}
+		.integrated-chart .bar strong {
+			display: block;
+			color: #343a40;
+			margin-bottom: 4px;
+			font-size: 11px;
+			word-break: keep-all;
+		}
+		.integrated-chart .bar span {
+			display: block;
+			min-height: 18px;
+		}
+		.integrated-chart-empty {
+			height: 230px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #777;
+			border: 1px solid #dee2e6;
+		}
+		@media (max-width: 1200px) {
+			.integrated-search-actions {
+				width: 100%;
+				padding: 0 10px 10px 90px;
+				text-align: right;
+			}
+			.history-bottom .col-md-4 {
+				margin-bottom: 12px;
+			}
+		}
+	</style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<noscript class="noScriptTitle">자바스크립트를 지원하지 않는 브라우저에서는 일부 기능을 사용할 수 없습니다.</noscript>
+<div class="wrapper">
+	<nav class="main-header navbar navbar-expand navbar-white navbar-light"><a class="navbar-brand" href="./IntegratedInspectionHistoryManage.html">한국환경공단 관리자</a><a class="nav-link" href="./index.html">과업 안내</a></nav>
+	<aside class="main-sidebar sidebar-dark-primary elevation-4"><a href="./IntegratedInspectionHistoryManage.html" class="brand-link">정기점검 관리시스템</a><div class="sidebar"><nav><ul class="nav nav-pills nav-sidebar flex-column"><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryManage.html">통합 이력 관리</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryDetail.html">사업장 상세</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionChangeHistory.html">변경 이력</a></li></ul></nav></div></aside>
+
+	<div class="content-wrapper">
+		<div class="content-header">
+			<div class="container-fluid">
+				<div class="row mb-2">
+					<div class="col-sm-6">
+						<h1 class="m-0">정기점검 수행실적 통합 이력 관리</h1>
+					</div>
+					<div class="col-sm-6">
+						<ol class="breadcrumb float-sm-right">
+							<li class="breadcrumb-item"><a href="#">Home</a></li>
+							<li class="breadcrumb-item active">통합 이력 관리</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<section class="content">
+			<div class="container-fluid">
+				<form name="listForm" id="listForm" action="./IntegratedInspectionHistoryManage.html" method="post">
+					<input type="hidden" name="mNo" value="">
+					<input type="hidden" name="pageIndex" value="1">
+					<input type="hidden" name="rcptNo" value="">
+					
+
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="info-box integrated-search-box">
+								<span class="info-box-icon bg-info elevation-1"><i class="fas fa-search" title="검색"></i></span>
+								<div class="info-box-content">
+									<div class="row">
+										<div class="col-md-1 search-field">
+											<label for="pageUnit" class="info-box-text">목록</label>
+											<select id="pageUnit" name="pageUnit" title="목록 개수" class="form-control">
+												<option value="10" selected="selected">10개 보기</option>
+												<option value="20" >20개 보기</option>
+												<option value="30" >30개 보기</option>
+												<option value="50" >50개 보기</option>
+											</select>
+										</div>
+										
+											<div class="col-md-2 search-field">
+												<label for="authCode" class="info-box-text">환경본부</label>
+												<select id="authCode" name="authCode" title="환경본부" class="form-control">
+													<option value="" >환경본부 전체</option>
+													<option value="ROLE_KECO_GRP01_USER" selected="selected">수도권동부환경본부</option>
+													<option value="ROLE_KECO_GRP02_USER" >부산울산경남환경본부</option>
+													<option value="ROLE_KECO_GRP03_USER" >전북환경본부</option>
+												</select>
+											</div>
+										
+										<div class="col-md-2 search-field">
+											<label for="year" class="info-box-text">점검 대상연도</label>
+											<select id="year" name="year" title="점검 대상연도" class="form-control">
+												
+													<option value="2026" selected="selected">2026년</option>
+												
+													<option value="2025" >2025년</option>
+												
+													<option value="2024" >2024년</option>
+												
+													<option value="2023" >2023년</option>
+												
+											</select>
+										</div>
+										<div class="col-md-2 search-field">
+											<label for="picEnvAgcyCd" class="info-box-text">환경청</label>
+											<select id="picEnvAgcyCd" name="picEnvAgcyCd" title="환경청" class="form-control">
+												<option value="">환경청 전체</option>
+												
+													<option value="01" selected="selected">한강유역환경청</option>
+												
+													<option value="02" >낙동강유역환경청</option>
+												
+											</select>
+										</div>
+										<div class="col-md-2 search-field">
+											<label for="searchStatus" class="info-box-text">사업장 상태</label>
+											<select id="searchStatus" name="searchStatus" title="사업장 상태" class="form-control">
+												<option value="">사업장 상태 전체</option>
+												<option value="가동중지" >가동중지</option>
+												<option value="반납" >반납</option>
+												<option value="전체제외" >전체제외</option>
+												<option value="기타" >기타</option>
+											</select>
+										</div>
+										<div class="col-md-3 search-field">
+											<label for="searchKeyword" class="info-box-text">검색어</label>
+											<input type="text" id="searchKeyword" name="searchKeyword" value="" title="검색어" placeholder="사업장명, 사업장 식별번호, 접수번호, 사업자등록번호, 대표자" class="form-control">
+										</div>
+									</div>
+								</div>
+								<div class="integrated-search-actions">
+									<label>&nbsp;</label>
+									<button type="button" class="btn btn-default" onclick="fnExcel(); return false;">엑셀</button>
+									<button type="button" class="btn btn-default" onclick="fnSearch(); return false;"><i class="fas fa-search"></i> 조회</button>
+									<button type="button" class="btn btn-info" onclick="fnResetSearch(); return false;"><i class="fas fa-redo"></i> 초기화</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					
+					<div class="row integrated-stat">
+						<div class="col-md-3 col-sm-6">
+							<div class="info-box">
+								<span class="info-box-icon bg-primary elevation-1"><i class="fas fa-building"></i></span>
+								<div class="info-box-content">
+									<span class="info-box-text">조회 사업장</span>
+									<span class="info-box-number">2건</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3 col-sm-6">
+							<div class="info-box">
+								<span class="info-box-icon bg-success elevation-1"><i class="fas fa-history"></i></span>
+								<div class="info-box-content">
+									<span class="info-box-text">변경 이력</span>
+									<span class="info-box-number">2건</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3 col-sm-6">
+							<div class="info-box">
+								<span class="info-box-icon bg-warning elevation-1"><i class="fas fa-calendar-check"></i></span>
+								<div class="info-box-content">
+									<span class="info-box-text">차기연도 점검 대상</span>
+									<span class="info-box-number">1건</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3 col-sm-6">
+							<div class="info-box">
+								<span class="info-box-icon bg-info elevation-1"><i class="fas fa-check-circle"></i></span>
+								<div class="info-box-content">
+									<span class="info-box-text">수수료 입금 완료</span>
+									<span class="info-box-number">1,250,000건</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">전체 사업장 목록</h3>
+									<div class="card-tools">
+										<span>총 <strong>2</strong>건</span>
+										<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+									</div>
+								</div>
+								<div class="card-body p-0">
+									<div class="table-responsive">
+										<table class="table m-0 history-table" id="table" summary="정기점검 수행실적 사업장 목록" cellpadding="0" cellspacing="0">
+											<caption>정기점검 수행실적 사업장 목록</caption>
+											<colgroup>
+												<col width="60">
+												<col width="140">
+												<col width="240">
+												<col width="130">
+												<col width="120">
+												<col width="190">
+												<col width="190">
+												<col width="150">
+												<col width="120">
+												<col width="90">
+												<col width="100">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">번호</th>
+													<th scope="col">사업장 식별번호</th>
+													<th scope="col">사업장명</th>
+													<th scope="col">업종코드</th>
+													<th scope="col">신고 수리일</th>
+													<th scope="col">마지막 정기점검일(수수료 입금일)</th>
+													<th scope="col">정기점검기한(수수료 입금일 +3년)</th>
+													<th scope="col">관할</th>
+													<th scope="col">변경 이력</th>
+													<th scope="col">상세</th>
+													<th scope="col">상태</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+											<tr>
+												<td>1</td>
+												<td>MOCK-2026-001</td>
+												<td class="text-left-cell">샘플 사업장</td>
+												<td>2-가</td>
+												<td>2026-04-15</td>
+												<td>2026-05-02</td>
+
+												<td>2027-05-02</td>
+												<td>
+													
+															수도권동부<br>환경본부
+														
+												</td>
+												<td>
+													
+															<button type="button" class="btn btn-default btn-sm js-history" data-rcpt-no="2026-04-0012-01">보기</button>
+														
+												</td>
+												<td>
+													
+															<button type="button" class="btn btn-default btn-sm js-detail" data-rcpt-no="2026-04-0012-01">보기</button>
+														
+												</td>
+												<td>정상</td>
+											</tr>
+										
+											<tr>
+												<td>2</td>
+												<td>MOCK-2026-002</td>
+												<td class="text-left-cell">예시 화학 사업장</td>
+												<td>2-가</td>
+												<td>2026-04-15</td>
+												<td>2026-05-02</td>
+
+												<td>2027-05-02</td>
+												<td>
+													
+															수도권동부<br>환경본부
+														
+												</td>
+												<td>
+													
+															<button type="button" class="btn btn-default btn-sm js-history" data-rcpt-no="2026-04-0012-01">보기</button>
+														
+												</td>
+												<td>
+													
+															<button type="button" class="btn btn-default btn-sm js-detail" data-rcpt-no="2026-04-0013-01">보기</button>
+														
+												</td>
+												<td>가동중지</td>
+											</tr>
+										
+												
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="card-footer clearfix">
+									<div id="paging_div">
+										 0}">
+											<ul class="paging_align">
+												<div class="pagination"><a href="javascript:void(0)" onclick="fn_search && fn_search(1)">1</a></div>
+											</ul>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row history-bottom">
+						
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">변경 정보 이력 연계 현황</h3>
+								</div>
+								<div class="card-body p-0">
+									<div class="table-responsive">
+										<table class="table m-0" summary="변경 정보 이력 연계 현황">
+											<caption>변경 정보 이력 연계 현황</caption>
+											<thead>
+												<tr>
+													<th scope="col">구분</th>
+													<th scope="col">연계 대상</th>
+													<th scope="col">상태</th>
+												</tr>
+											</thead>
+											<tbody>
+												
+													<tr>
+														<td>변경정보 이력</td>
+														<td>샘플 사업장</td>
+														<td>연계 완료</td>
+													</tr>
+												
+												
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">연도별 사업장 물량</h3>
+								</div>
+								<div class="card-body">
+									
+											<div class="integrated-chart">
+												
+													<div class="bar active">
+														<strong>6건</strong>
+														<i style="height:40%;"></i>
+														<span>2021</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>7건</strong>
+														<i style="height:50%;"></i>
+														<span>2022</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>8건</strong>
+														<i style="height:60%;"></i>
+														<span>2023</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>9건</strong>
+														<i style="height:70%;"></i>
+														<span>2024</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>10건</strong>
+														<i style="height:80%;"></i>
+														<span>2025</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>11건</strong>
+														<i style="height:90%;"></i>
+														<span>2026</span>
+													</div>
+												
+											</div>
+										
+									<p class="mt-3 mb-0 text-muted">검색연도를 포함한 최근 6개년 사업장 물량입니다.</p>
+								</div>
+							</div>
+						</div>
+
+						
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">연도별 수수료(전체금액)</h3>
+								</div>
+								<div class="card-body">
+									
+											<div class="integrated-chart">
+												
+													<div class="bar active">
+														<strong>7,500,000원</strong>
+														<i style="height:45%;"></i>
+														<span>2021</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>8,750,000원</strong>
+														<i style="height:55%;"></i>
+														<span>2022</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>10,000,000원</strong>
+														<i style="height:65%;"></i>
+														<span>2023</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>11,250,000원</strong>
+														<i style="height:75%;"></i>
+														<span>2024</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>12,500,000원</strong>
+														<i style="height:85%;"></i>
+														<span>2025</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>13,750,000원</strong>
+														<i style="height:95%;"></i>
+														<span>2026</span>
+													</div>
+												
+											</div>
+										
+									<p class="mt-3 mb-0 text-muted">검색연도를 포함한 최근 6개년 수수료 전체금액입니다.</p>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-md-12 mt-3">
+							<div class="card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">검색연도 포함 미래 3년 사업장 물량</h3>
+								</div>
+								<div class="card-body">
+									
+											<div class="integrated-chart">
+												
+													<div class="bar active">
+														<strong>10건</strong>
+														<i style="height:65%;"></i>
+														<span>2026</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>11건</strong>
+														<i style="height:77%;"></i>
+														<span>2027</span>
+													</div>
+												
+													<div class="bar active">
+														<strong>12건</strong>
+														<i style="height:89%;"></i>
+														<span>2028</span>
+													</div>
+												
+											</div>
+										
+									<p class="mt-3 mb-0 text-muted">검색연도를 포함한 미래 3개년 정기점검 대상 사업장 물량입니다.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+
+	<footer class="main-footer"><strong>Copyright &copy; 2022 한국환경공단.</strong> All rights reserved.</footer>
+</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+/* 목업 화면 이동 버튼은 원본 페이지의 배치를 바꾸지 않는다. */
+.inspection-tour-tools {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 2147483600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.inspection-tour-overview,
+.inspection-tour-launcher {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 2px;
+    font: 700 13px/1.2 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.inspection-tour-overview {
+    border: 1px solid #aaa;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+}
+.inspection-tour-launcher {
+    border: 1px solid #005b43;
+    background: #005b43;
+    color: #fff;
+}
+.inspection-tour-overview:hover,
+.inspection-tour-overview:focus-visible {
+    border-color: #555;
+    background: #f5f5f5;
+    color: #222;
+    text-decoration: none;
+    outline: 2px solid #555;
+    outline-offset: 2px;
+}
+.inspection-tour-launcher:hover,
+.inspection-tour-launcher:focus-visible {
+    border-color: #004b38;
+    background: #004b38;
+    color: #fff;
+    outline: 2px solid #005b43;
+    outline-offset: 2px;
+}
+.inspection-tour-frame {
+    position: fixed;
+    z-index: 2147483598;
+    box-sizing: border-box;
+    border: 3px solid #e02432;
+    border-radius: 7px;
+    box-shadow: 0 0 0 5px rgba(224, 36, 50, .14), 0 0 22px rgba(224, 36, 50, .23);
+    pointer-events: none;
+    transition: left .35s ease, top .35s ease, width .35s ease, height .35s ease;
+    animation: inspection-tour-pulse 2s ease-in-out infinite;
+}
+.inspection-tour-bubble {
+    position: fixed;
+    z-index: 2147483599;
+    box-sizing: border-box;
+    width: min(350px, calc(100vw - 24px));
+    padding: 17px 18px 15px;
+    border: 1px solid #dc444d;
+    border-radius: 12px;
+    background: #fff;
+    color: #222;
+    box-shadow: 0 13px 34px rgba(35, 19, 20, .2);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    text-align: left;
+    word-break: keep-all;
+}
+.inspection-tour-bubble::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 25px;
+    width: 14px;
+    height: 14px;
+    border-top: 1px solid #dc444d;
+    border-left: 1px solid #dc444d;
+    background: #fff;
+    transform: rotate(45deg);
+}
+.inspection-tour-bubble.is-above::before {
+    top: auto;
+    bottom: -8px;
+    transform: rotate(225deg);
+}
+.inspection-tour-top,
+.inspection-tour-actions,
+.inspection-tour-actions > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.inspection-tour-kicker {
+    color: #c62935;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+.inspection-tour-close {
+    width: 27px;
+    height: 27px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #555;
+    font: 24px/1 Arial, sans-serif;
+    cursor: pointer;
+}
+.inspection-tour-title {
+    margin: 7px 0 6px;
+    color: #20242b;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+.inspection-tour-text {
+    margin: 0 0 15px;
+    color: #484d55;
+    font-size: 13px;
+    line-height: 1.65;
+}
+.inspection-tour-actions {
+    padding-top: 11px;
+    border-top: 1px solid #ededed;
+}
+.inspection-tour-counter { color: #767676; font-size: 12px; }
+.inspection-tour-prev,
+.inspection-tour-next {
+    min-height: 31px;
+    padding: 5px 11px;
+    border: 1px solid #d2d5da;
+    border-radius: 5px;
+    background: #fff;
+    color: #31363b;
+    font: 700 12px/1.2 "Malgun Gothic", sans-serif;
+    cursor: pointer;
+}
+.inspection-tour-next { border-color: #c62935; background: #c62935; color: #fff; }
+.inspection-tour-prev:disabled { opacity: .4; cursor: default; }
+.inspection-tour-bubble button:focus-visible { outline: 2px solid #c62935; outline-offset: 2px; }
+.inspection-tour-frame[hidden],
+.inspection-tour-bubble[hidden] { display: none !important; }
+.inspection-tour-bubble.step-enter { animation: inspection-tour-enter .3s ease-out both; }
+@keyframes inspection-tour-pulse {
+    50% { box-shadow: 0 0 0 9px rgba(224, 36, 50, .08), 0 0 26px rgba(224, 36, 50, .3); }
+}
+@keyframes inspection-tour-enter {
+    from { opacity: 0; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 600px) {
+    .inspection-tour-tools { left: 12px; right: 12px; bottom: 12px; justify-content: center; }
+    .inspection-tour-overview, .inspection-tour-launcher { min-height: 40px; padding: 8px 10px; font-size: 12px; }
+    .inspection-tour-bubble { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .inspection-tour-frame,
+    .inspection-tour-bubble { animation: none !important; transition: none !important; }
+}

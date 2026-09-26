@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>비산배출 정기점검 관리시스템 기능개선 | 염민규 포트폴리오</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="./css/inspection-overview.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="project-brand" href="../../index.html">YEOM MINGYU</a>
+      <nav class="site-nav" aria-label="프로젝트 메뉴">
+        <a class="nav-link" href="#project-overview">프로젝트 소개</a>
+        <a class="nav-link" href="#work">기능개선 화면</a>
+      </nav>
+      <a class="btn-pill-black project-back" href="../../index.html">포트폴리오로 돌아가기</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="project-hero" id="project-overview" aria-labelledby="project-title">
+      <div class="content-shell hero-layout">
+        <div class="hero-copy">
+          <p class="hero-category">비산배출시설 정기점검 관리시스템</p>
+          <h1 id="project-title">비산배출 정기점검<br><span>관리시스템 기능개선</span></h1>
+          <p class="hero-description">시설별 제출서류 안내부터 점검 결과, 수수료 예측, 수행실적 이력까지. 실제 업무 화면의 기능개선 내용을 연결된 목업으로 살펴볼 수 있습니다.</p>
+          <div class="hero-actions">
+            <a class="btn-pill-black" href="#work">기능개선 화면 보기</a>
+            <p>원본 JSP 화면 · 샘플 데이터 기반 목업</p>
+          </div>
+        </div>
+        <div class="hero-image-wrap">
+          <img src="../../assets/haps-favicon.svg" alt="비산배출시설 신고·점검 사이트 파비콘">
+        </div>
+      </div>
+    </section>
+
+    <section class="work-section" id="work" aria-labelledby="work-title">
+      <div class="watermark-bg" aria-hidden="true">PROJECT</div>
+      <div class="content-shell">
+        <div class="section-top-row">
+          <h2 id="work-title" class="section-heading-slash"><span class="slash">/</span>기능개선 내용</h2>
+          <p class="work-intro">업무 흐름에 따라 화면을 선택해 볼 수 있습니다.</p>
+        </div>
+        <div class="task-list">
+          <section class="task-card" aria-labelledby="task-one">
+            <div class="task-copy">
+              <p class="task-index">01</p>
+              <h3 id="task-one">사업장 시설 특성 기반<br>제출서류 안내</h3>
+              <p>최근 수수료 납부 건의 시설 정보를 기준으로 필요한 제출서류를 안내합니다. 수수료 상세에서 사전안내로 이동하고, 사업장은 준비 상태를 확인하며 관리자는 대상 사업장을 조회합니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>사업장 화면</h4><nav aria-label="제출서류 안내 사업장 화면"><a href="./feesCalBoard.html">수수료 조회·납부 목록</a><a href="./feesCalHistBoard.html">수수료 납부 이력</a><a href="./applyCharge.html">수수료 산정 상세</a><a href="./documentGuide.html">시설별 제출서류 안내</a><a href="./applyForm.html">정기점검 신청</a></nav></div>
+              <div class="page-group"><h4>관리자 화면</h4><nav aria-label="제출서류 안내 관리자 화면"><a href="./DocoumentGuideList.html">제출서류 사전안내 대상 목록</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-two">
+            <div class="task-copy">
+              <p class="task-index">02</p>
+              <h3 id="task-two">점검 결과 기반<br>기술지원 신청</h3>
+              <p>미준수 결과에서 추천 분야를 확인하고, 동의와 신청 정보 입력을 거쳐 맞춤형 기술지원으로 이어집니다. 관리자 결과 입력과 사업장 신청 내역을 함께 볼 수 있습니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>사업장 화면</h4><nav aria-label="기술지원 사업장 화면"><a href="./applyFormResultList.html">점검 결과 목록</a><a href="./applyFormResultDetail.html">점검 결과·기술지원 신청</a><a href="./applyFormTechList.html">기술지원 신청 목록</a></nav></div>
+              <div class="page-group"><h4>관리자 화면</h4><nav aria-label="기술지원 관리자 화면"><a href="./applyFormResultDetailAdmin.html">점검 결과 입력</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-three">
+            <div class="task-copy">
+              <p class="task-index">03</p>
+              <h3 id="task-three">셀프 수수료 계산과 예측</h3>
+              <p>시설 수와 노임단가를 조정해 예상 수수료를 계산하고 과거 산정값과 차기 예상값을 비교합니다. 입력한 조건은 예측 금액에 바로 반영됩니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>사업장 화면</h4><nav aria-label="수수료 계산 화면"><a href="./selfApplyCharge.html">셀프 수수료 계산·예측</a></nav></div>
+            </div>
+          </section>
+          <section class="task-card" aria-labelledby="task-four">
+            <div class="task-copy">
+              <p class="task-index">04</p>
+              <h3 id="task-four">정기점검 수행실적<br>통합 이력 관리</h3>
+              <p>연도별 사업장 목록, 점검 상세, 사업장 상태와 변경 기록을 한 흐름으로 확인합니다. 사용자 화면과 관리자 화면에서 같은 사업장의 이력을 각각 조회할 수 있습니다.</p>
+            </div>
+            <div class="task-pages">
+              <div class="page-group"><h4>사용자 화면</h4><nav aria-label="수행실적 사용자 화면"><a href="./periodicPerformanceHistory.html">수행실적 목록</a><a href="./periodicPerformanceHistoryDetail.html">사업장 상세 이력</a><a href="./periodicPerformanceChangeHistory.html">변경 이력</a></nav></div>
+              <div class="page-group"><h4>관리자 화면</h4><nav aria-label="수행실적 관리자 화면"><a class="admin-entry" href="./IntegratedInspectionHistoryManage.html">정기점검 수행실적 통합 이력 관리</a><a href="./IntegratedInspectionHistoryDetail.html">사업장 상세 관리</a><a href="./IntegratedInspectionChangeHistory.html">변경 기록</a></nav></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="project-footer">
+    <div class="content-shell">
+      <p>화면의 사업장·접수·금액 정보는 시연용 샘플입니다.</p>
+
+    </div>
+  </footer>
+
+</body>
+</html>

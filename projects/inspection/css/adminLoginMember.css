@@ -1,0 +1,44 @@
+@charset "utf-8";
+#logo { margin-top: 100px; text-align: center; }
+.mbbox { width:100%; max-width:500px; margin:30px auto;}
+.mbbox h2 { font-size:30px;color:#222; text-align:center; padding:20px 0;}
+.mbbox ul li { margin-bottom:10px;}
+.mbbox .error { color: #9a1085; font-size: 14px; margin-bottom: 10px;}
+.btns_wrap { text-align:center; margin-top:20px;}
+.mbbox .mb_btn { display: inline-block; width: 100%; height: 60px; line-height: 100%; background: linear-gradient( 120deg, rgba(112,39,138,1), rgba(54,50,143,1) ); color: #fff; cursor: pointer; font-size: 18px;margin:0 auto;}
+.mbbox .btn_half { max-width:calc( 50% - 5px ); }
+.mbbox .btn_grey { background:#666; }
+.mbbox .colorbox { background:#f8f8f8; padding:20px; margin-bottom:10px; border-top:1px solid #333; border-bottom:1px solid #eee;}
+
+/* �α��� */
+.form_control { display: block; width: 100%; height: 50px; padding: 8px 16px; color: #333; border: 1px solid #bbb; background-repeat: no-repeat; background-position: right center;}
+#loginBox .find_info { text-align: center; margin-top: 10px; }
+#loginBox .find_info a { position:relative; display: inline-block; padding: 0 10px; box-sizing: border-box; }
+#loginBox .find_info a:hover{  color: #9a1085; }
+#loginBox .find_info a:after { content: ""; position: absolute; right: -2px; top: 8px; width: 1px; height: 10px; background: #999;}
+#loginBox .find_info a:last-child:after { display:none;}
+.checkbox { padding-bottom: 10px;}
+.checkbox input[type="checkbox"] { display: none;}
+.checkbox input[type="checkbox"]:checked + label { background: url("../images/check_on.png") no-repeat 0 0; background-size: 20px 20px;}
+.checkbox input[type="checkbox"] + label { display: inline-block; height: 20px; padding-left: 20px; text-indent: 8px; color: #222; line-height: 1.25rem; font-weight: 400; background: url("../images/check_off.png") no-repeat 0 0; background-size: 20px 20px;}
+
+/* ���̵� �н����� ã�� */
+.resultbox { margin-bottom:30px; border-top:1px solid #ccc; border-bottom:1px solid #ccc; }
+.resultbox dt { text-align:center; margin-bottom:10px; border-bottom:1px solid #ddd; padding:10px 0; background:#f8f8f8; }
+.resultbox dd { text-align:center; padding:20px 0;}
+.resultbox dd strong { font-weight:500; color:#333;}
+.resultbox dd span { font-weight:500; color:#333; margin-left:10px;}
+
+/* Tablet */
+@media screen and (max-width:1024px){
+}
+
+/* Moblie */
+@media screen and (max-width:768px){
+
+}
+@media screen and (max-width:767px){
+
+}
+@media screen and (max-width:400px){
+}

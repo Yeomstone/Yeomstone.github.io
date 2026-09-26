@@ -1,0 +1,199 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Language" content="ko">
+	<title>정기점검 수행실적 변경 이력</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+	<link rel="stylesheet" href="./plugins/fontawesome-free/css/all.min.css">
+	<link rel="stylesheet" href="./plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+	<link rel="stylesheet" href="./dist/css/adminlte.min.css">
+	<script type="text/javascript">
+		function fnList() {
+			document.historyForm.action = "./IntegratedInspectionHistoryManage.html";
+			document.historyForm.submit();
+		}
+
+		function fnDetail() {
+			document.historyForm.action = "./IntegratedInspectionHistoryDetail.html";
+			document.historyForm.submit();
+		}
+	</script>
+	<style>
+		.history-readonly-card .card-footer .row {
+			margin-bottom: 0;
+		}
+		.history-readonly-card .form-group {
+			margin-bottom: 0;
+		}
+		.history-readonly-card .form-group label {
+			margin-bottom: 4px;
+		}
+		.history-readonly-card .form-control[readonly] {
+			background: #f8f9fa;
+			opacity: 1;
+		}
+		.history-section-title {
+			margin: 8px 0 6px;
+		}
+		.history-section-title:first-child {
+			margin-top: 0;
+		}
+		.history-change-table {
+			border: 1px solid #bfc5cc;
+		}
+		.history-change-table thead th {
+			background: #f4f6f9;
+			border-color: #bfc5cc;
+			text-align: center;
+			vertical-align: middle;
+		}
+		.history-change-table tbody td {
+			border-color: #cfd4da;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<div class="wrapper">
+	<nav class="main-header navbar navbar-expand navbar-white navbar-light"><a class="navbar-brand" href="./IntegratedInspectionHistoryManage.html">한국환경공단 관리자</a><a class="nav-link" href="./index.html">과업 안내</a></nav>
+	<aside class="main-sidebar sidebar-dark-primary elevation-4"><a href="./IntegratedInspectionHistoryManage.html" class="brand-link">정기점검 관리시스템</a><div class="sidebar"><nav><ul class="nav nav-pills nav-sidebar flex-column"><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryManage.html">통합 이력 관리</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryDetail.html">사업장 상세</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionChangeHistory.html">변경 이력</a></li></ul></nav></div></aside>
+
+	<div class="content-wrapper">
+		<div class="content-header">
+			<div class="container-fluid">
+				<div class="row mb-2">
+					<div class="col-sm-6">
+						<h1 class="m-0">정기점검 수행실적 변경 이력</h1>
+					</div>
+					<div class="col-sm-6">
+						<ol class="breadcrumb float-sm-right">
+							<li class="breadcrumb-item"><a href="#">Home</a></li>
+							<li class="breadcrumb-item active">변경 이력</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<section class="content">
+			<div class="container-fluid">
+				<form name="historyForm" id="historyForm" action="./IntegratedInspectionHistoryManage.html" method="post">
+					<input type="hidden" name="mNo" value="">
+					<input type="hidden" name="rcptNo" value="2026-04-0012-01">
+					<input type="hidden" name="pageIndex" value="1">
+					<input type="hidden" name="year" value="2026">
+					<input type="hidden" name="authCode" value="ROLE_KECO_GRP01_USER">
+					<input type="hidden" name="searchStatus" value="">
+					<input type="hidden" name="picEnvAgcyCd" value="01">
+					<input type="hidden" name="payerYn" value="">
+					<input type="hidden" name="searchKeyword" value="">
+					<input type="hidden" name="pageUnit" value="10">
+
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card history-readonly-card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">정기점검 통합관리 변경 이력 : MOCK-2026-001</h3>
+									<div class="card-tools">
+										<button type="button" class="btn btn-default" onclick="fnList(); return false;"><i class="fas fa-list"></i> 목록</button>
+										<button type="button" class="btn btn-primary" onclick="fnDetail(); return false;"><i class="fas fa-search"></i> 상세</button>
+									</div>
+								</div>
+								<div class="card-body p-0">
+								</div>
+								<div class="card-footer clearfix">
+									
+									<h5 class="history-section-title">기본정보</h5>
+									<div class="row">
+										<div class="col-md-3">
+											<div class="form-group">
+												<label>접수번호</label>
+												<input type="text" class="form-control" readonly="readonly" value="2026-04-0012-01">
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<label>관리번호</label>
+												<input type="text" class="form-control" readonly="readonly" value="MOCK-2026-001">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>사업장명</label>
+												<input type="text" class="form-control" readonly="readonly" value="샘플 사업장">
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group">
+												<label>사업장 상태</label>
+												<input type="text" class="form-control" readonly="readonly" value="정상">
+											</div>
+										</div>
+									</div>
+
+									
+									<h5 class="history-section-title">변경 이력</h5>
+									<div class="table-responsive">
+										<table class="table table-bordered table-hover m-0 history-change-table">
+											<caption>정기점검 수행실적 변경 이력 목록</caption>
+											<thead>
+											<tr>
+												<th scope="col" style="width:14%">구분</th>
+												<th scope="col" style="width:10%">처리유형</th>
+												<th scope="col">변경 전</th>
+												<th scope="col">변경 후</th>
+												<th scope="col" style="width:14%">처리자</th>
+												<th scope="col" style="width:18%">처리 일시</th>
+											</tr>
+										</thead>
+											<tbody>
+											
+												<tr>
+													<td></td>
+													<td></td>
+													<td>정상</td>
+													<td>가동중지</td>
+													<td>
+														
+														
+													</td>
+													<td></td>
+												</tr>
+											
+												<tr>
+													<td></td>
+													<td></td>
+													<td>-</td>
+													<td>정상</td>
+													<td>
+														
+														
+													</td>
+													<td></td>
+												</tr>
+											
+											
+										</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+
+	<footer class="main-footer"><strong>Copyright &copy; 2022 한국환경공단.</strong> All rights reserved.</footer>
+</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

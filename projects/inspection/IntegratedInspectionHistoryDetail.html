@@ -1,0 +1,663 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Language" content="ko">
+	<title>정기점검 수행실적 상세</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+	<link rel="stylesheet" href="./plugins/fontawesome-free/css/all.min.css">
+	<link rel="stylesheet" href="./plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+	<link rel="stylesheet" href="./dist/css/adminlte.min.css">
+	<link rel="stylesheet" href="./plugins/jquery-ui/jquery-ui.min.css">
+
+	<script type="text/javascript" src="./plugins/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="./plugins/jquery-ui/jquery-ui.min.js"></script>
+
+	<script type="text/javascript">
+		var siteHistoryRowSeq = 0;
+
+		function fnList() {
+			document.detailForm.action = "./IntegratedInspectionHistoryManage.html";
+			document.detailForm.submit();
+		}
+
+		function fnHistory() {
+			document.detailForm.action = "./IntegratedInspectionChangeHistory.html";
+			document.detailForm.submit();
+		}
+
+		function fnResultDetail(rcptNo) {
+			if (!rcptNo) {
+				return;
+			}
+			document.detailForm.rcptNo.value = rcptNo;
+			document.detailForm.action = "./siteResultReportDetail.do";
+			document.detailForm.submit();
+		}
+
+		function fnChangeSiteStatus() {
+			var status = $("#siteSttsCd").val();
+			$("#siteStatusCertWrap").toggle(status === "반납" || status === "전체제외");
+			$("#siteStatusOtherWrap").toggle(status === "기타");
+		}
+
+		function fnChangeSiteStatusFile(input) {
+			var fileName = input.files && input.files.length > 0 ? input.files[0].name : "";
+			if (fileName) {
+				$("#siteStatusSelectedFileName").text(fileName).attr("title", fileName);
+			}
+		}
+
+		function fnInitializeSiteHistoryCalendar(context) {
+			var inputs = context ? $(context).find(".site-history-date") : $(".site-history-date");
+			inputs.each(function() {
+				var input = $(this);
+				if (input.hasClass("hasDatepicker")) {
+					input.datepicker("destroy");
+				}
+				input.datepicker({
+					dateFormat: "yy-mm-dd",
+					showOtherMonths: true,
+					showMonthAfterYear: true,
+					changeYear: true,
+					changeMonth: true,
+					yearSuffix: "년",
+					monthNamesShort: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+					dayNamesMin: ["일", "월", "화", "수", "목", "금", "토"]
+				});
+				input.off("click.siteHistoryCalendar").on("click.siteHistoryCalendar", function() {
+					$(this).datepicker("show");
+				});
+			});
+		}
+
+		function fnOpenSiteHistoryCalendar(button) {
+			$(button).siblings(".site-history-date").datepicker("show");
+			return false;
+		}
+
+		function fnAddSiteHistoryRow() {
+			siteHistoryRowSeq++;
+			$("#siteHistoryEmptyRow").remove();
+			var fromId = "newHistFrom" + siteHistoryRowSeq;
+			var toId = "newHistTo" + siteHistoryRowSeq;
+			var row = $("<tr class='site-history-new history-required'>"
+					+ "<td><select name='newHistType' class='form-control'><option value='전체제외시설'>전체 제외시설</option><option value='6개월이상가동중지'>6개월 이상 전체 가동중지</option></select></td>"
+					+ "<td><div class='site-history-date-wrap'><label class='sr-only' for='" + fromId + "'>시작일</label><input type='text' id='" + fromId + "' name='newHistFromYmd' class='form-control site-history-date history-from-ymd' readonly='readonly'><button type='button' class='btn btn-default calendar-button' onclick='return fnOpenSiteHistoryCalendar(this);'><i class='far fa-calendar-alt'></i><span class='sr-only'>날짜 선택</span></button></div></td>"
+					+ "<td><div class='site-history-date-wrap'><label class='sr-only' for='" + toId + "'>종료일</label><input type='text' id='" + toId + "' name='newHistToYmd' class='form-control site-history-date history-to-ymd' readonly='readonly'><button type='button' class='btn btn-default calendar-button' onclick='return fnOpenSiteHistoryCalendar(this);'><i class='far fa-calendar-alt'></i><span class='sr-only'>날짜 선택</span></button></div></td>"
+					+ "<td><button type='button' class='btn btn-danger btn-sm' onclick='return fnRemoveSiteHistoryRow(this);'>삭제</button></td></tr>");
+			$("#siteHistoryBody").append(row);
+			fnInitializeSiteHistoryCalendar(row);
+			return false;
+		}
+
+		function fnRemoveSiteHistoryRow(button) {
+			var row = $(button).closest("tr");
+			if (row.hasClass("site-history-new")) {
+				row.remove();
+			} else {
+				row.find(".history-delete-yn").val("Y");
+				row.addClass("history-deleted").hide();
+			}
+			return false;
+		}
+
+		function fnToggleMngTrgtSbstn() {
+			var wrap = $("#mngTrgtSbstnWrap");
+			var isOpen = !wrap.hasClass("open");
+			wrap.toggleClass("open", isOpen);
+			$("#mngTrgtSbstnOptions").toggle(isOpen);
+			$("#mngTrgtSbstnDisplay").attr("aria-expanded", isOpen ? "true" : "false");
+			return false;
+		}
+
+		function fnUpdateMngTrgtSbstn() {
+			var selectedValues = [];
+			$(".mng-target-option:checked").each(function() {
+				selectedValues.push($(this).val());
+			});
+			$("#mngTrgtSbstnDisplay").val(selectedValues.join(", "));
+		}
+
+		function fnMngTrgtSbstnKeydown(event) {
+			if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 40) {
+				event.preventDefault();
+				return fnToggleMngTrgtSbstn();
+			}
+		}
+
+		function fnSaveIntegratedHistory() {
+			var status = $("#siteSttsCd").val();
+			if ($(".mng-target-option:checked").length === 0) {
+				alert("관리대상물질을 선택해주세요.");
+				return false;
+			}
+			if (status === "기타" && !$.trim($("#othrRsn").val())) {
+				alert("기타 상태는 사유를 입력해야 합니다.");
+				return false;
+			}
+
+			var valid = true;
+			$("#siteHistoryBody tr").not(".history-deleted").each(function() {
+				var fromYmd = $(this).find(".history-from-ymd").val() || "";
+				var toYmd = $(this).find(".history-to-ymd").val() || "";
+				if (($(this).hasClass("history-required") && !fromYmd)
+						|| (!fromYmd && toYmd) || (fromYmd && toYmd && fromYmd > toYmd)) {
+					valid = false;
+					return false;
+				}
+			});
+			if (!valid) {
+				alert("시작일과 종료일을 확인해주세요.");
+				return false;
+			}
+			$("#detailForm").attr("action", "./integratedInspectionHistorySave.do").submit();
+			return false;
+		}
+
+		function fnSiteStatusFileDown(atchFileId) {
+			if (!atchFileId) {
+				return false;
+			}
+			var form = document.createElement("form");
+			form.method = "post";
+			form.action = "./FileDown.do";
+			var input = document.createElement("input");
+			input.type = "hidden";
+			input.name = "atchFileId";
+			input.value = atchFileId;
+			form.appendChild(input);
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+			return false;
+		}
+
+		$(function() {
+			fnUpdateMngTrgtSbstn();
+			$(document).on("click", function(event) {
+				if ($(event.target).closest("#mngTrgtSbstnWrap").length === 0) {
+					$("#mngTrgtSbstnWrap").removeClass("open");
+					$("#mngTrgtSbstnOptions").hide();
+					$("#mngTrgtSbstnDisplay").attr("aria-expanded", "false");
+				}
+			});
+			fnChangeSiteStatus();
+			fnInitializeSiteHistoryCalendar();
+		});
+	</script>
+	<style>
+		.inspection-readonly-card .form-group {
+			margin-bottom: 16px;
+		}
+		.inspection-readonly-card .form-group label {
+			margin-bottom: 4px;
+		}
+		.inspection-readonly-card .form-control[readonly] {
+			background: #e9ecef;
+			color: #222;
+			opacity: 1;
+		}
+		.inspection-section-title {
+			margin: 0 0 14px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid #343a40;
+			font-weight: 600;
+		}
+		.inspection-section {
+			margin-top: 28px;
+		}
+		.inspection-section:first-child {
+			margin-top: 0;
+		}
+		.inspection-history-count {
+			margin: 0 0 8px;
+			color: #555;
+		}
+		.inspection-history-table {
+			table-layout: fixed;
+		}
+		.inspection-history-table th,
+		.inspection-history-table td {
+			vertical-align: middle;
+			text-align: center;
+			word-break: keep-all;
+		}
+		.inspection-history-table tbody tr.history-link {
+			cursor: pointer;
+		}
+		.inspection-history-table tbody tr.history-link:hover {
+			background: #eef5f2;
+		}
+			.site-history-heading {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 14px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid #343a40;
+		}
+		.site-history-heading .inspection-section-title {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+		.site-history-add,
+		.site-history-add:hover,
+		.site-history-add:focus,
+		.site-history-add:active {
+			background-color: #6c757d !important;
+			border-color: #6c757d !important;
+			color: #fff !important;
+			box-shadow: none !important;
+		}
+		.integrated-history-save,
+		.integrated-history-save:hover,
+		.integrated-history-save:focus,
+		.integrated-history-save:active {
+			background-color: #28a745 !important;
+			border-color: #28a745 !important;
+			color: #fff !important;
+			box-shadow: none !important;
+		}
+		.site-history-date-wrap {
+			display: flex;
+			width: 100%;
+		}
+		.site-history-date-wrap .site-history-date {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+		.site-history-date-wrap .calendar-button {
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+		.site-history-action {
+			width: 70px;
+		}
+		.site-status-required {
+			color: #dc3545;
+		}
+		.site-status-file-control {
+			display: flex;
+			align-items: center;
+			width: 100%;
+			min-height: 38px;
+			border: 1px solid #ced4da;
+			border-radius: 4px;
+			background-color: #fff;
+			overflow: hidden;
+		}
+		.site-status-file-input {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+		}
+		.site-status-file-select {
+			flex: 0 0 auto;
+			margin: 0;
+			padding: 5px 9px;
+			border-right: 1px solid #ced4da;
+			background-color: #f8f9fa;
+			color: #212529;
+			font-weight: 400;
+			cursor: pointer;
+		}
+		.site-status-current-file {
+			display: flex;
+			flex: 0 0 auto;
+			align-items: center;
+			padding: 3px 5px;
+		}
+		.site-status-file-name {
+			flex: 1 1 auto;
+			min-width: 0;
+			padding: 0 8px;
+			overflow: hidden;
+			color: #495057;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		.site-status-download,
+		.site-status-download:hover,
+		.site-status-download:focus {
+			flex: 0 0 auto;
+			border: 1px solid #0069d9 !important;
+			background-color: #007bff !important;
+			color: #fff !important;
+			box-shadow: none !important;
+		}
+		#ui-datepicker-div {
+			z-index: 1050 !important;
+		}
+		.mng-target-multiselect {
+			position: relative;
+		}
+		.mng-target-display {
+			padding-right: 34px;
+			background: #fff !important;
+			cursor: pointer;
+		}
+		.mng-target-multiselect::after {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			content: "";
+			border-top: 6px solid #555;
+			border-right: 5px solid transparent;
+			border-left: 5px solid transparent;
+			pointer-events: none;
+		}
+		.mng-target-multiselect.open::after {
+			border-top: 0;
+			border-bottom: 6px solid #555;
+		}
+		.mng-target-options {
+			display: none;
+			position: absolute;
+			z-index: 1060;
+			top: calc(100% + 2px);
+			left: 0;
+			width: 100%;
+			max-height: 240px;
+			overflow-y: auto;
+			border: 1px solid #ced4da;
+			border-radius: 3px;
+			background: #fff;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, .15);
+		}
+		.mng-target-option-label {
+			display: block;
+			margin: 0 !important;
+			padding: 7px 10px;
+			cursor: pointer;
+		}
+		.mng-target-option-label:hover {
+			background: #f1f3f5;
+		}
+		.mng-target-option {
+			margin-right: 7px;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<div class="wrapper">
+	<nav class="main-header navbar navbar-expand navbar-white navbar-light"><a class="navbar-brand" href="./IntegratedInspectionHistoryManage.html">한국환경공단 관리자</a><a class="nav-link" href="./index.html">과업 안내</a></nav>
+	<aside class="main-sidebar sidebar-dark-primary elevation-4"><a href="./IntegratedInspectionHistoryManage.html" class="brand-link">정기점검 관리시스템</a><div class="sidebar"><nav><ul class="nav nav-pills nav-sidebar flex-column"><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryManage.html">통합 이력 관리</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionHistoryDetail.html">사업장 상세</a></li><li class="nav-item"><a class="nav-link" href="./IntegratedInspectionChangeHistory.html">변경 이력</a></li></ul></nav></div></aside>
+
+	<div class="content-wrapper">
+		<div class="content-header">
+			<div class="container-fluid">
+				<div class="row mb-2">
+					<div class="col-sm-6">
+						<h1 class="m-0">정기점검 수행실적 상세</h1>
+					</div>
+					<div class="col-sm-6">
+						<ol class="breadcrumb float-sm-right">
+							<li class="breadcrumb-item"><a href="#">Home</a></li>
+							<li class="breadcrumb-item active">통합 이력 상세</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<section class="content">
+			<div class="container-fluid">
+				<form name="detailForm" id="detailForm" action="./IntegratedInspectionHistoryManage.html" method="post" enctype="multipart/form-data">
+					<input type="hidden" name="mNo" value="">
+					<input type="hidden" name="rcptNo" value="2026-04-0012-01">
+					<input type="hidden" name="pageIndex" value="1">
+					<input type="hidden" name="year" value="2026">
+					<input type="hidden" name="authCode" value="ROLE_KECO_GRP01_USER">
+					<input type="hidden" name="searchStatus" value="">
+					<input type="hidden" name="picEnvAgcyCd" value="01">
+					<input type="hidden" name="payerYn" value="">
+					<input type="hidden" name="searchKeyword" value="">
+					<input type="hidden" name="searchWrd" value="">
+					<input type="hidden" name="pageUnit" value="10">
+
+					
+
+					
+					
+					
+					
+
+
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card inspection-readonly-card">
+								<div class="card-header border-transparent">
+									<h3 class="card-title">정기점검 수행실적 상세 : 2026-04-0012-01</h3>
+									<div class="card-tools">
+                                        <button type="button" class="btn btn-default btn-sm" onclick="fnList(); return false;"><i class="fas fa-list"></i> 목록</button>
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="fnHistory(); return false;"><i class="fas fa-history"></i> 변경 이력</button>
+                                        <button type="button" class="btn btn-success btn-sm integrated-history-save" onclick="return fnSaveIntegratedHistory();"><i class="fas fa-save"></i> 저장</button>
+                                    </div>
+								</div>
+								<div class="card-body">
+									<section class="inspection-section">
+										<h5 class="inspection-section-title">사업장</h5>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="bsnsNm">상호(사업장명칭)</label>
+													<input type="text" id="bsnsNm" class="form-control" readonly="readonly" value="샘플 사업장">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="intgrLcnsYn">통합환경허가 여부</label>
+													<input type="text" id="intgrLcnsYn" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="bsnsLoc">소재지</label>
+													<input type="text" id="bsnsLoc" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="bsnsDetailLoc">상세주소</label>
+													<input type="text" id="bsnsDetailLoc" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="bsnsTelNo">전화번호</label>
+													<input type="text" id="bsnsTelNo" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="bsnsCat">업종</label>
+													<input type="text" id="bsnsCat" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-12">
+												<div class="form-group">
+													<label for="mngTrgtSbstnDisplay"><span class="text-danger">*</span>관리대상물질</label>
+											
+											
+											<div id="mngTrgtSbstnWrap" class="mng-target-multiselect">
+												<input type="text" id="mngTrgtSbstnDisplay" class="form-control mng-target-display" readonly="readonly"
+													value="" aria-haspopup="listbox" aria-expanded="false"
+													onclick="return fnToggleMngTrgtSbstn();" onkeydown="return fnMngTrgtSbstnKeydown(event);">
+												<div id="mngTrgtSbstnOptions" class="mng-target-options" role="listbox" aria-multiselectable="true">
+													
+												</div>
+											</div>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="statusNm">신청 상태</label>
+													<input type="text" id="statusNm" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="atchCertYn">신고증명서 첨부</label>
+													<input type="text" id="atchCertYn" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label for="siteSttsCd">사업장 상태</label>
+													<select id="siteSttsCd" name="siteSttsCd" class="form-control" onchange="fnChangeSiteStatus();">
+														<option value="">선택</option>
+														<option value="가동중지" >가동중지</option>
+														<option value="반납" >반납</option>
+														<option value="전체제외" >전체제외</option>
+														<option value="기타" >기타</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-md-6" id="siteStatusCertWrap">
+												<div class="form-group">
+													<label for="siteStatusCertFile">신고증명서 첨부</label>
+													<div class="site-status-file-control">
+														<input type="file" id="siteStatusCertFile" name="siteStatusCertFile" class="site-status-file-input" title="신고증명서 첨부파일" onchange="fnChangeSiteStatusFile(this);">
+														<label for="siteStatusCertFile" class="site-status-file-select">파일 선택</label>
+														<span id="siteStatusSelectedFileName" class="site-status-file-name" title="">선택된 파일 없음</span>
+														<input type="hidden" id="currentSiteStatusCertFileId" value="">
+														
+													</div>
+												</div>
+											</div>
+											<div class="col-md-12" id="siteStatusOtherWrap">
+												<div class="form-group">
+													<label for="othrRsn">기타 사유 <span class="site-status-required">*</span></label>
+													<textarea id="othrRsn" name="othrRsn" class="form-control" rows="4" maxlength="1000"></textarea>
+												</div>
+											</div>
+										</div>
+									</section>
+
+									<section class="inspection-section">
+										<h5 class="inspection-section-title">정기점검 이력</h5>
+										<div class="row">
+											<div class="col-md-4">
+												<div class="form-group">
+													<label for="frstInspYmd">최초정기점검일</label>
+													<input type="text" id="frstInspYmd" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="form-group">
+													<label for="lastInspYmd">마지막정기점검일</label>
+													<input type="text" id="lastInspYmd" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="form-group">
+													<label for="prdinDdlnYmd">정기점검기한</label>
+													<input type="text" id="prdinDdlnYmd" class="form-control" readonly="readonly" value="">
+												</div>
+											</div>
+										</div>
+										<p class="inspection-history-count">총 <strong>1</strong>건이 등록되었습니다.</p>
+										<div class="table-responsive">
+											<table class="table table-bordered table-striped inspection-history-table">
+												<caption class="sr-only">정기점검 이력</caption>
+												<thead>
+													<tr>
+														<th scope="col">접수번호</th>
+														<th scope="col">사업장명</th>
+														<th scope="col">대표자</th>
+														<th scope="col">현장점검시작일</th>
+														<th scope="col">현장점검종료일</th>
+														<th scope="col">수수료 입금일</th>
+														<th scope="col">결과보고서 제출 기한</th>
+														<th scope="col">상태</th>
+														<th scope="col">준수여부</th>
+													</tr>
+												</thead>
+												<tbody>
+													
+														<tr class="history-link" onclick="fnResultDetail('2026-04-0012-01');">
+															<td>2026-04-0012-01</td>
+															<td>샘플 사업장</td>
+															<td>홍길동</td>
+															<td>-</td>
+															<td>-</td>
+															<td>2026-05-02</td>
+															<td>-</td>
+															<td></td>
+															<td></td>
+														</tr>
+													
+													
+												</tbody>
+											</table>
+										</div>
+									</section>
+
+									<section class="inspection-section">
+										<div class="site-history-heading">
+											<h5 class="inspection-section-title">전체 제외 시설 및 6개월 이상 가동중지 이력</h5>
+											<button type="button" class="btn btn-secondary btn-sm site-history-add" onclick="return fnAddSiteHistoryRow();" title="이력 추가 등록"><i class="fas fa-plus"></i> 추가</button>
+										</div>
+										<div class="table-responsive">
+											<table class="table table-bordered inspection-history-table">
+												<caption class="sr-only">전체 제외 시설 및 6개월 이상 가동중지 이력</caption>
+												<colgroup>
+													<col width="30%">
+													<col width="32%">
+													<col width="32%">
+													<col width="6%">
+												</colgroup>
+												<thead>
+													<tr>
+														<th scope="col">구분</th>
+														<th scope="col">시작일</th>
+														<th scope="col">종료일</th>
+														<th scope="col" class="site-history-action">관리</th>
+													</tr>
+												</thead>
+												<tbody id="siteHistoryBody">
+													
+													
+														
+														
+													
+													
+														
+														<tr class="site-history-saved history-required">
+															<td><input type="hidden" name="savedHistSn" value="1"><input type="hidden" name="savedHistDeleteYn" class="history-delete-yn" value="N"></td>
+															<td><div class="site-history-date-wrap"><label class="sr-only" for="savedHistFrom1">시작일</label><input type="text" id="savedHistFrom1" name="savedHistFromYmd" class="form-control site-history-date history-from-ymd" value="2026-01-01" readonly="readonly"><button type="button" class="btn btn-default calendar-button" onclick="return fnOpenSiteHistoryCalendar(this);"><i class="far fa-calendar-alt"></i><span class="sr-only">날짜 선택</span></button></div></td>
+															<td><div class="site-history-date-wrap"><label class="sr-only" for="savedHistTo1">종료일</label><input type="text" id="savedHistTo1" name="savedHistToYmd" class="form-control site-history-date history-to-ymd" value="2026-12-31" readonly="readonly"><button type="button" class="btn btn-default calendar-button" onclick="return fnOpenSiteHistoryCalendar(this);"><i class="far fa-calendar-alt"></i><span class="sr-only">날짜 선택</span></button></div></td>
+															<td><button type="button" class="btn btn-danger btn-sm" onclick="return fnRemoveSiteHistoryRow(this);">삭제</button></td>
+														</tr>
+													
+													
+												</tbody>
+											</table>
+										</div>
+									</section>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+
+	<footer class="main-footer"><strong>Copyright &copy; 2022 한국환경공단.</strong> All rights reserved.</footer>
+</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

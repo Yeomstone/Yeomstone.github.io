@@ -1253,3 +1253,20 @@ img {
     justify-content: center;
   }
 }
+/* HAPS favicon artwork */
+.portfolio-card[data-category="maintenance"] .card-image-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7faf8;
+}
+.portfolio-card[data-category="maintenance"] .card-img {
+  width: clamp(100px, 13vw, 175px);
+  height: clamp(100px, 13vw, 175px);
+  object-fit: contain;
+}
+#service-item-3 .service-card-img {
+  object-fit: contain;
+  padding: 38px;
+  background: #f7faf8;
+}

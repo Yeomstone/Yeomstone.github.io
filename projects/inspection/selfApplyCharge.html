@@ -1,0 +1,1042 @@
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>비산배출시설 정기점검 관리시스템 - 셀프 수수료 계산</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="keywords" content="한국환경공단">
+    <meta name="description" content="한국환경공단">
+
+    <!--[if lte IE 9]>
+    <script type="text/javascript" src="js/respond.min.js"></script>
+    <script type="text/javascript" src="js/html5.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script src="./js/vue.min.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script type="text/javascript" src="./js/bxslider/jquery.bxslider.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/bxslider/jquery.bxslider.css">
+    <link rel="stylesheet" type="text/css" href="./css/common.css">
+    <link rel="stylesheet" type="text/css" href="./css/layout.css">
+    <link rel="stylesheet" type="text/css" href="./css/sub.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+            white-space: nowrap;
+        }
+        /* 수수료 예측: 예측 영역을 기존 포털 UI 톤에 맞춰 먼저 노출한다. */
+        .self_fee_forecast {
+            margin-bottom: 45px;
+        }
+        .self_fee_forecast .forecast_title {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #016241;
+        }
+        .self_fee_forecast .forecast_title strong {
+            display: block;
+            color: #111;
+            font-size: 28px;
+            line-height: 1.35;
+        }
+        .self_fee_forecast .forecast_title span {
+            display: block;
+            margin-top: 8px;
+            color: #555;
+            font-size: 15px;
+        }
+        .self_fee_forecast .forecast_cards {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 35px;
+        }
+        .self_fee_forecast .forecast_card {
+            flex: 1;
+            padding: 24px 26px;
+            border: 1px solid #cfded6;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .self_fee_forecast .forecast_card h5 {
+            margin-bottom: 18px;
+            color: #016241;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .self_fee_forecast .forecast_step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid #d6e2dc;
+        }
+        .self_fee_forecast .forecast_step:first-of-type {
+            border-top: 0;
+            padding-top: 0;
+        }
+        .self_fee_forecast .forecast_badge {
+            display: inline-block;
+            min-width: 58px;
+            padding: 6px 14px;
+            border-radius: 18px;
+            color: #fff;
+            background: #19743d;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .self_fee_forecast .forecast_badge.sub {
+            color: #00727c;
+            background: #e1f2f1;
+        }
+        .self_fee_forecast .forecast_step strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #111;
+            font-size: 18px;
+        }
+        .self_fee_forecast .forecast_step span,
+        .self_fee_forecast .forecast_scope li {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .self_fee_forecast .forecast_scope li {
+            position: relative;
+            padding-left: 18px;
+        }
+        .self_fee_forecast .forecast_scope li:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #ea7c1f;
+        }
+        .self_fee_forecast .forecast_notice {
+            margin-top: 18px;
+            padding: 14px 18px;
+            color: #19743d;
+            background: #e5f2ea;
+            font-weight: 700;
+        }
+        .self_fee_forecast .forecast_change {
+            font-weight: 700;
+        }
+        .self_fee_forecast .forecast_change.increase {
+            color: #c0392b;
+        }
+        .self_fee_forecast .forecast_change.decrease {
+            color: #006eb6;
+        }
+        .self_fee_forecast .forecast_change.neutral {
+            color: #016241;
+        }
+        .self_fee_forecast .forecast_reason {
+            margin-top: 10px;
+            border-top: 2px solid #016241;
+        }
+        .self_fee_forecast .forecast_reason li {
+            padding: 12px 10px;
+            border-bottom: 1px solid #d9e3df;
+            color: #333;
+            line-height: 1.7;
+        }
+
+        /* 예상 수수료 계산 추가 - applyCharge 업종 탭 UI 적용 */
+        #selfFeeCalc {
+            position: relative;
+        }
+        #selfFeeCalc input[type="number"] {
+            padding: 0 5px;
+            display: inline-block;
+            width: 130px;
+            margin: 0 5px;
+        }
+        #selfFeeCalc input[type="custom"] {
+            padding: 0 5px;
+            display: inline-block;
+            width: 80px;
+            margin: 0 5px;
+            text-align: right;
+        }
+        #selfFeeCalc .ckbox_wrap {
+            word-break: keep-all;
+            border: 1px solid #555;
+        }
+        #selfFeeCalc .ckbox_wrap dt {
+            color: #fff;
+            background: #555;
+            padding: 10px 20px;
+        }
+        #selfFeeCalc .ckbox_wrap dd {
+            padding: 10px 20px;
+        }
+        #selfFeeCalc .ckbox_wrap dd .checkbox {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        #selfFeeCalc .tabmenu {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+        }
+        #selfFeeCalc .tabmenu li {
+            width: 20%;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            background: #f8f8f8;
+            border-right: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+        #selfFeeCalc .tabmenu li a {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+        }
+        #selfFeeCalc .tabmenu li.on a {
+            font-weight: 500;
+            color: #fff;
+            background: #016241;
+        }
+        /* 수수료 예측: 메인 예측/계산 탭을 화면 폭 기준 50:50으로 배치한다. */
+        #selfFeeCalc .main_tabmenu {
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+        #selfFeeCalc .main_tabmenu li {
+            width: 50%;
+        }
+        /* 수수료 예측: 비교 조건 항목의 라벨/입력 시작 위치를 동일하게 맞춘다. */
+        #selfFeeCalc .forecast_condition .form_con {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 10px;
+            row-gap: 0;
+        }
+        #selfFeeCalc .forecast_condition .form_con > li {
+            float: none;
+            width: auto;
+        }
+        #selfFeeCalc .forecast_condition .ipbox.align_inline {
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+        #selfFeeCalc .forecast_condition .ipbox.align_inline label {
+            flex: 0 0 120px;
+            width: 120px;
+            margin-bottom: 0;
+        }
+        #selfFeeCalc .forecast_condition .ipbox.align_inline input {
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 0;
+        }
+        #selfFeeCalc .tabBox {
+            display: none;
+        }
+        #selfFeeCalc .tabBox.on {
+            display: block;
+        }
+        /* Ⅱ/Ⅳ업종 사전 입력 팝업: 업종 탭 클릭 시 추가 조건을 계산표 입력 전에 받는다. */
+        #selfFeeCalc .sector2_pre_input_modal.modal,
+        #selfFeeCalc .sector4_pre_input_modal.modal {
+            display: block;
+            z-index: 10000;
+        }
+        #selfFeeCalc .sector2_pre_input_body.modal_body,
+        #selfFeeCalc .sector4_pre_input_body.modal_body {
+            max-width: 700px;
+            border: 1px solid #999;
+            border-radius: 0;
+            background: #fff;
+            box-shadow: none;
+            overflow: visible;
+        }
+        #selfFeeCalc .sector2_pre_input_inner,
+        #selfFeeCalc .sector4_pre_input_inner {
+            padding: 24px 28px 12px;
+        }
+        #selfFeeCalc .sector2_pre_input_body .formbox,
+        #selfFeeCalc .sector4_pre_input_body .formbox {
+            padding: 0;
+        }
+        #selfFeeCalc .sector2_pre_input_body .form_tit,
+        #selfFeeCalc .sector4_pre_input_body .form_tit {
+            margin: 0 0 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #555;
+            color: #222;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        #selfFeeCalc .sector2_pre_input_notice,
+        #selfFeeCalc .sector4_pre_input_notice {
+            margin: 0 0 20px;
+            color: #555;
+            line-height: 1.6;
+        }
+        #selfFeeCalc .sector2_pre_input_section,
+        #selfFeeCalc .sector4_pre_input_section {
+            margin-bottom: 18px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+        #selfFeeCalc .sector2_pre_input_section .form_tit1,
+        #selfFeeCalc .sector4_pre_input_section .form_tit1 {
+            display: block;
+            color: #222;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        #selfFeeCalc .sector2_pre_input_section .form_tit1:before,
+        #selfFeeCalc .sector4_pre_input_section .form_tit1:before {
+            content: none;
+        }
+        #selfFeeCalc .sector2_pre_input_body .form_con,
+        #selfFeeCalc .sector4_pre_input_body .form_con {
+            margin-bottom: 0;
+        }
+        #selfFeeCalc .sector2_pre_input_table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border-top: 1px solid #555;
+            background: #fff;
+        }
+        #selfFeeCalc .sector2_pre_input_table th,
+        #selfFeeCalc .sector2_pre_input_table td {
+            height: 38px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+        }
+        #selfFeeCalc .sector2_pre_input_table thead th {
+            background: #f5f5f5;
+            color: #222;
+            font-weight: 700;
+            text-align: center;
+        }
+        #selfFeeCalc .sector2_pre_input_table tbody th {
+            background: #f8f8f8;
+            color: #333;
+            font-weight: 600;
+            text-align: left;
+        }
+        #selfFeeCalc .sector2_pre_input_table tbody label {
+            display: block;
+            margin: 0;
+            color: #333;
+        }
+        #selfFeeCalc .sector2_pre_input_body input[type="number"],
+        #selfFeeCalc .sector4_pre_input_body input[type="number"] {
+            width: 100%;
+            margin: 0;
+            text-align: right;
+        }
+        #selfFeeCalc .sector2_pre_input_radio_box,
+        #selfFeeCalc .sector4_pre_input_radio_box {
+            display: block;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            background: #f8f8f8;
+        }
+        #selfFeeCalc .sector2_pre_input_radio_box .radiobox,
+        #selfFeeCalc .sector4_pre_input_radio_box .radiobox {
+            position: static;
+            display: inline-block;
+            margin-right: 24px;
+            white-space: nowrap;
+        }
+        #selfFeeCalc .sector2_pre_input_radio_box .radiobox input[type="radio"],
+        #selfFeeCalc .sector4_pre_input_radio_box .radiobox input[type="radio"] {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            overflow: hidden;
+        }
+        #selfFeeCalc .sector2_pre_input_radio_box .radiobox label,
+        #selfFeeCalc .sector4_pre_input_radio_box .radiobox label {
+            display: inline-block;
+            width: 23px;
+            height: 23px;
+            min-height: 23px;
+            padding: 0;
+            border: 0;
+            background: url("images/check_off.png") no-repeat 0 0;
+            background-size: 23px 23px;
+            color: transparent;
+            font-size: 0;
+            line-height: 23px;
+            text-indent: -9999px;
+            overflow: hidden;
+            cursor: pointer;
+            box-sizing: content-box;
+            vertical-align: middle;
+        }
+        #selfFeeCalc .sector2_pre_input_radio_box .radiobox input[type="radio"]:checked + label,
+        #selfFeeCalc .sector4_pre_input_radio_box .radiobox input[type="radio"]:checked + label {
+            background: url("images/check_on.png") no-repeat 0 0;
+            background-size: 23px 23px;
+        }
+        #selfFeeCalc .sector_pre_input_radio_text {
+            display: inline-block;
+            margin-left: 6px;
+            color: #333;
+            line-height: 23px;
+            vertical-align: middle;
+        }
+        #selfFeeCalc .sector2_pre_input_body .btn_wrap,
+        #selfFeeCalc .sector4_pre_input_body .btn_wrap {
+            margin: 18px 0 0;
+        }
+        #selfFeeCalc .sector2_pre_input_body .btn_wrap .btn,
+        #selfFeeCalc .sector4_pre_input_body .btn_wrap .btn {
+            min-width: 120px;
+            line-height: 42px;
+            font-size: 15px;
+        }
+        @media all and (max-width:1023px) {
+            .self_fee_forecast .forecast_cards {
+                display: block;
+            }
+            .self_fee_forecast .forecast_card {
+                margin-bottom: 18px;
+            }
+            #selfFeeCalc .tabmenu li {
+                width: 33.333%;
+            }
+            #selfFeeCalc .main_tabmenu li {
+                width: 50%;
+            }
+            #selfFeeCalc .forecast_condition .form_con {
+                grid-template-columns: 1fr;
+            }
+            #selfFeeCalc .sector2_pre_input_body.modal_body,
+            #selfFeeCalc .sector4_pre_input_body.modal_body {
+                max-width: 92%;
+            }
+        }
+        @media all and (max-width:640px) {
+            .self_fee_forecast .forecast_title strong {
+                font-size: 22px;
+            }
+            .self_fee_forecast .forecast_card {
+                padding: 20px;
+            }
+            .self_fee_forecast .forecast_step {
+                display: block;
+            }
+            .self_fee_forecast .forecast_badge {
+                margin-bottom: 8px;
+            }
+            #selfFeeCalc .tabmenu li {
+                width: 50%;
+            }
+            #selfFeeCalc .main_tabmenu li {
+                width: 50%;
+            }
+            #selfFeeCalc .forecast_condition .form_con {
+                grid-template-columns: 1fr;
+            }
+            #selfFeeCalc .tabmenu {
+                font-size: 13px;
+            }
+            #selfFeeCalc .tabmenu li a {
+                padding: 10px;
+            }
+            #selfFeeCalc .sector2_pre_input_body.modal_body,
+            #selfFeeCalc .sector4_pre_input_body.modal_body {
+                top: 20px;
+                transform: translateX(-50%);
+            }
+            #selfFeeCalc .sector2_pre_input_inner,
+            #selfFeeCalc .sector4_pre_input_inner {
+                padding: 0;
+            }
+            #selfFeeCalc .sector2_pre_input_body .formbox,
+            #selfFeeCalc .sector4_pre_input_body .formbox {
+                padding: 22px 18px 20px;
+            }
+            #selfFeeCalc .sector2_pre_input_section,
+            #selfFeeCalc .sector4_pre_input_section {
+                padding: 0;
+            }
+            #selfFeeCalc .sector2_pre_input_radio_box,
+            #selfFeeCalc .sector4_pre_input_radio_box {
+                display: block;
+            }
+            #selfFeeCalc .sector2_pre_input_radio_box .radiobox,
+            #selfFeeCalc .sector4_pre_input_radio_box .radiobox {
+                margin-bottom: 8px;
+            }
+            #selfFeeCalc .sector2_pre_input_radio_box .radiobox:last-child,
+            #selfFeeCalc .sector4_pre_input_radio_box .radiobox:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+
+    <script src="./js/data.js"></script>
+    <script>
+    (function() {
+        if (window.axios) {
+            var originalPost = window.axios.post;
+            window.axios.post = function(url, data) {
+                if (url.indexOf('selfFeeCalcData.do') > -1) {
+                    return Promise.resolve({
+                        data: {
+                            success: true,
+                            basis: {
+                                calcYear: "2026",
+                                unitWages: 286200
+                            },
+                            info: {
+                                calcYear: "2026",
+                                unitWages: 286200
+                            },
+                            sectors: [
+                                { value: "1-가", text: "Ⅰ업종_석유화학계등" },
+                                { value: "1-나", text: "Ⅰ업종_원유정제처리업등" },
+                                { value: "2-가", text: "Ⅱ업종" },
+                                { value: "3-가", text: "Ⅲ업종" },
+                                { value: "4-가", text: "Ⅳ업종" }
+                            ],
+                            detailList: (typeof All_DATA === "undefined" ? [] : All_DATA.flatMap(function(row) {
+                                return ["1-가", "1-나", "2-가", "3-가", "4-가"].filter(function(sector) {
+                                    return row[sector] === sector;
+                                }).map(function(sector) {
+                                    var count = row.SEQ === "0001" ? 2 : row.SEQ === "0002" ? 3 : Number(row.시설의수) || 0;
+                                    return {
+                                        bsnsClsL: row.업무대, bsnsClsM: row.업무중,
+                                        fcltyClsL: row.시설구분대, fcltyClsM: row.시설구분중,
+                                        fcltyClsS: row.시설구분소, feeCalc: row.공량,
+                                        fcltyItemNum: count, fcltyItem: row.시설의수,
+                                        seq: row.SEQ, bsnsCatCd: sector, savedBsnsCat: sector,
+                                        forecastBaseRcptNo: "2023-04-0012-01",
+                                        forecastBaseTotalFee: 1426111,
+                                        forecastBaseTaxInvoiceAddFee: 0,
+                                        forecastBaseUnitWages: 268500,
+                                        forecastBaseFeeDepYmd: "2023-06-01",
+                                        forecastBaseFeeCalc: row.공량,
+                                        forecastBaseFcltyItemNum: count
+                                    };
+                                });
+                            }))
+                        }
+                    });
+                }
+                return originalPost.apply(this, arguments);
+            };
+        }
+    })();
+    </script>
+    
+</head>
+<body>
+    <div class="skip">
+        <strong class="hide">반복영역 건너뛰기</strong>
+        <a href="#gnb">주메뉴 바로가기</a>
+        <a href="#contents">본문 바로가기</a>
+    </div>
+    <div id="wrap">
+        
+<header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>셀프 수수료 계산</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+
+        <div id="contents">
+            <h3 id="subTitle">셀프 수수료 계산</h3>
+            <div id="selfFeeCalc" class="container" v-cloak>
+                <h4 class="sub_title1">사전 예상·셀프 수수료 계산</h4>
+
+                <dl class="ckbox_wrap mb20">
+                    <dt>※해당되는 업종을 선택하세요(중복선택 가능)</dt>
+                    <dd>
+                        <span class="checkbox" v-for="(tab, idx) in sectors" v-bind:key="tab.value">
+                            <input type="checkbox" v-model="appSectors" v-bind:value="tab.value" v-bind:id="'appSectors_' + idx" v-bind:title="tab.text" v-bind:aria-label="tab.text" v-on:change="changeSector(tab.value)">
+                            <label v-bind:for="'appSectors_' + idx">{{tab.text}}</label>
+                        </span>
+                    </dd>
+                </dl>
+
+                
+                <ul id="mainForecastTabs" class="tabmenu main_tabmenu mb40">
+                    <li v-bind:class="{ on: activeMainTab === 'forecast' }">
+                        <a href="#forecastTab" v-on:click.prevent="changeMainTab('forecast')">수수료 예측</a>
+                    </li>
+                    <li v-bind:class="{ on: activeMainTab === 'calc' }">
+                        <a href="#selfCalcTab" v-on:click.prevent="changeMainTab('calc')">셀프 수수료 계산</a>
+                    </li>
+                </ul>
+
+                <div id="forecastTab" class="tabBox self_fee_forecast" v-bind:class="{ on: activeMainTab === 'forecast' }">
+                    <div class="formbox forecast_condition mb40">
+                        <h5 class="form_tit">비교 조건</h5>
+                        <ul class="form_con clear">
+                            <li class="wd_half">
+                                <div class="ipbox align_inline">
+                                    <label for="forecastCompareYear">비교 기준</label>
+                                    <input type="text" id="forecastCompareYear" v-bind:value="forecastCompareYearText" title="비교 기준" readonly>
+                                </div>
+                            </li>
+                            <li class="wd_half">
+                                <div class="ipbox align_inline">
+                                    <label for="forecastBaseData">과거 기준</label>
+                                    <input type="text" id="forecastBaseData" v-bind:value="forecastBaseBasisText" title="과거 기준" readonly>
+                                </div>
+                            </li>
+                            <li class="wd_half">
+                                <div class="ipbox align_inline">
+                                    <label for="forecastNextBasis">차기 입력 기준</label>
+                                    <input type="text" id="forecastNextBasis" v-bind:value="forecastNextBasisText" title="차기 입력 기준" readonly>
+                                </div>
+                            </li>
+                            <li class="wd_half">
+                                <div class="ipbox align_inline">
+                                    <label for="forecastUnitWagesBasis">단가 기준</label>
+                                    <input type="text" id="forecastUnitWagesBasis" v-bind:value="forecastUnitWagesBasisText" title="단가 기준" readonly>
+                                </div>
+                            </li>
+                        </ul>
+                        <p class="descripBox"><span class="descrip">※</span> 과거는 실제 3년 전 마지막 수수료 산정 데이터를 기준으로 표시하고, 차기는 셀프 수수료 계산 입력값으로 예측합니다.</p>
+                    </div>
+
+                    <h5 class="sub_title2">과거/차기 수수료 비교</h5>
+                    <div class="tb_wrap mb40">
+                        <table class="tb_basic">
+                            <caption class="sub_title2" style="display:block;">과거/차기 수수료 비교</caption>
+                            <colgroup>
+                                <col width="25%">
+                                <col width="25%">
+                                <col width="25%">
+                                <col width="25%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">구분</th>
+                                    <th scope="col">과거 산정 수수료<br><span class="descrip">실제 3년 전 마지막 수수료 산정 데이터</span></th>
+                                    <th scope="col">차기 예상 수수료<br><span class="descrip">현재 입력 기준</span></th>
+                                    <th scope="col">예상증감</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="tbg">전체</td>
+                                    <td>{{forecastBaseFeeText}}</td>
+                                    <td class="tcolor3"><strong>{{forecastNextFeeText}}</strong></td>
+                                    <td class="forecast_change" v-bind:class="forecastChangeClass"><strong>{{forecastChangeText}}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    
+                    <h5 class="sub_title2">수수료 변동 사유</h5>
+                    <ul class="forecast_reason mb50">
+                        <li v-for="(reason, idx) in forecastReasons" v-bind:key="idx">{{reason}}</li>
+                    </ul>
+
+                    <p class="descripBox mb50"><span class="descrip">※</span> 실제 수수료와 다를 수 있으며, 입력값과 계산 결과는 저장되지 않습니다.</p>
+                </div>
+
+                <div id="selfCalcTab" class="tabBox" v-bind:class="{ on: activeMainTab === 'calc' }">
+                <div id="totalCharge" class="mb40">
+                    <a class="btn_ttcharge"><strong>전체 예상 수수료 산정내역</strong></a>
+                    <div class="tb_wrap">
+                        <table class="tb_basic">
+                            <caption class="sub_title2" style="display:block;">전체 예상 수수료 산정내역</caption>
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">직접인건비</th>
+                                    <th scope="col">직접경비</th>
+                                    <th scope="col">제경비</th>
+                                    <th scope="col">기술료</th>
+                                    <th scope="col">합계</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>총공량 x 노임단가</td>
+                                    <td>직접인건비 x 0.2</td>
+                                    <td>직접인건비 x 1.1</td>
+                                    <td>(직접인건비 + 제경비) x 0.2</td>
+                                    <td>보정계수 0.65 적용</td>
+                                </tr>
+                                <tr>
+                                    <td>{{numRound(totalCalcValue.laborCosts)}} 원</td>
+                                    <td>{{numRound(totalCalcValue.expenses)}} 원</td>
+                                    <td>{{numRound(totalCalcValue.otherCost)}} 원</td>
+                                    <td>{{numRound(totalCalcValue.fee)}} 원</td>
+                                    <td>{{numRound(totalCalcValue.costTotal)}} 원</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">부가세</td>
+                                    <td>{{numRound(totalCalcValue.vat)}} 원</td>
+                                </tr>
+                                
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="tcolor5">정기점검 예상 수수료(부가세 포함)</td>
+                                    <td class="tbg1">{{numFormat(totalGrandTotalWithTaxInvoiceAddFee)}} 원</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <ul class="tabmenu mb10">
+                    <li v-for="tab in tabs" v-bind:key="tab.value" v-bind:class="{ on: tab === selected }" v-on:click="selected = tab"><a href="javascript:void(0)">{{tab.text}}</a></li>
+                </ul>
+
+                
+                <div class="modal show sector2_pre_input_modal" v-if="sector2PreInputPopup.visible">
+                    <div class="modal_body sector2_pre_input_body" role="dialog" aria-modal="true" aria-labelledby="sector2PreInputTitle">
+                        <div class="sector2_pre_input_inner">
+                            <div class="formbox">
+                                <h5 class="form_tit" id="sector2PreInputTitle">Ⅱ업종 추가 입력</h5>
+                                <p class="sector2_pre_input_notice">Ⅱ업종 수수료 산정 전 비산먼지 배출시설 시설수와 플레어스택 총발열량 해당 여부를 입력하세요.</p>
+
+                                <div class="sector2_pre_input_section">
+                                    <h6 class="form_tit1">비산먼지 배출시설</h6>
+                                    <table class="sector2_pre_input_table">
+                                        <caption class="sr-only">비산먼지 배출시설 시설수 입력</caption>
+                                        <colgroup>
+                                            <col width="45%">
+                                            <col>
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">시설구분</th>
+                                                <th scope="col">시설수</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row"><label for="sector2DustYard">야적</label></th>
+                                                <td><input id="sector2DustYard" type="number" min="0" max="999999" v-model.number="sector2PreInputPopup.dust.yard" title="야적 시설수" aria-label="야적 시설수"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row"><label for="sector2DustLoading">싣기·내리기</label></th>
+                                                <td><input id="sector2DustLoading" type="number" min="0" max="999999" v-model.number="sector2PreInputPopup.dust.loading" title="싣기·내리기 시설수" aria-label="싣기·내리기 시설수"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row"><label for="sector2DustTransport">수송</label></th>
+                                                <td><input id="sector2DustTransport" type="number" min="0" max="999999" v-model.number="sector2PreInputPopup.dust.transport" title="수송 시설수" aria-label="수송 시설수"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row"><label for="sector2DustTransfer">이송</label></th>
+                                                <td><input id="sector2DustTransfer" type="number" min="0" max="999999" v-model.number="sector2PreInputPopup.dust.transfer" title="이송 시설수" aria-label="이송 시설수"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="sector2_pre_input_section">
+                                    <h6 class="form_tit1">플레어스택 총발열량</h6>
+                                    <div class="sector2_pre_input_radio_box">
+                                        <span class="radiobox">
+                                            <input id="sector2FlareNone" type="radio" value="none" v-model="sector2PreInputPopup.flare" title="해당 없음" aria-label="해당 없음">
+                                            <label for="sector2FlareNone"><span class="sr-only">해당 없음 선택</span></label>
+                                            <span class="sector_pre_input_radio_text">해당 없음</span>
+                                        </span>
+                                        <span class="radiobox">
+                                            <input id="sector2FlareApplied" type="radio" value="applied" v-model="sector2PreInputPopup.flare" title="총발열량 적용" aria-label="총발열량 적용">
+                                            <label for="sector2FlareApplied"><span class="sr-only">총발열량 적용 선택</span></label>
+                                            <span class="sector_pre_input_radio_text">총발열량 적용</span>
+                                        </span>
+                                        <span class="radiobox">
+                                            <input id="sector2FlareNotApplied" type="radio" value="notApplied" v-model="sector2PreInputPopup.flare" title="총발열량 미적용" aria-label="총발열량 미적용">
+                                            <label for="sector2FlareNotApplied"><span class="sr-only">총발열량 미적용 선택</span></label>
+                                            <span class="sector_pre_input_radio_text">총발열량 미적용</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="btn_wrap">
+                                    <a href="javascript:void(0)" class="btn btn_bg color" v-on:click="applySector2PreInputPopup">확인</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="modal show sector4_pre_input_modal" v-if="sector4PreInputPopup.visible">
+                    <div class="modal_body sector4_pre_input_body" role="dialog" aria-modal="true" aria-labelledby="sector4PreInputTitle">
+                        <div class="sector4_pre_input_inner">
+                            <div class="formbox">
+                                <h5 class="form_tit" id="sector4PreInputTitle">Ⅳ업종 추가 입력</h5>
+                                <p class="sector4_pre_input_notice">Ⅳ업종 수수료 산정 전 친환경도료 해당 여부를 입력하세요.</p>
+
+                                <div class="sector4_pre_input_section">
+                                    <h6 class="form_tit1">친환경도료</h6>
+                                    <div class="sector4_pre_input_radio_box">
+                                        <span class="radiobox">
+                                            <input id="sector4EcoPaintNotApplied" type="radio" value="notApplied" v-model="sector4PreInputPopup.ecoPaint" title="해당 없음" aria-label="해당 없음">
+                                            <label for="sector4EcoPaintNotApplied"><span class="sr-only">해당 없음 선택</span></label>
+                                            <span class="sector_pre_input_radio_text">해당 없음</span>
+                                        </span>
+                                        <span class="radiobox">
+                                            <input id="sector4EcoPaintApplied" type="radio" value="applied" v-model="sector4PreInputPopup.ecoPaint" title="해당" aria-label="해당">
+                                            <label for="sector4EcoPaintApplied"><span class="sr-only">해당 선택</span></label>
+                                            <span class="sector_pre_input_radio_text">해당</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="btn_wrap">
+                                    <a href="javascript:void(0)" class="btn btn_bg color" v-on:click="applySector4PreInputPopup">확인</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabBox on">
+                    <p v-if="selected.subTitle" class="colorbox01 mb50">{{selected.subTitle}}</p>
+                    <h5 class="sub_title2">수수료 산정내역[예상]</h5>
+                    <div class="tb_wrap">
+                        <table class="tb_basic mb20">
+                            <caption class="sub_title2" style="display:block;">수수료 산정내역[예상]</caption>
+                            <colgroup>
+                                <col width="100">
+                                <col width="100">
+                                <col width="15%">
+                                <col width="15%">
+                                <col width="15%">
+                                <col>
+                                <col>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th colspan="2" scope="col">업무</th>
+                                    <th colspan="3" scope="col">시설구분</th>
+                                    <th colspan="5" scope="col">공량<span class="descrip">※</span></th>
+                                    <th scope="col" width="100">산정공량</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="tabs.length === 0">
+                                    <td colspan="11">업종을 선택하세요.</td>
+                                </tr>
+                                <tr v-for="(row, idx) in tableData" v-bind:key="idx">
+                                    <td v-for="(col, colIdx) in row" v-bind:key="colIdx" v-bind:colspan="col.colspan" v-bind:rowspan="col.rowspan" class="tbg">{{col.value}}</td>
+                                    <td colspan="5">
+                                        <span v-if="calcData[idx] ? calcData[idx].input : false">
+                                            {{calcData[idx].prefix}}
+                                            <input v-if="calcData[idx].placeholder === '측정대상 시설의수'" v-model.number="calcData[idx].inputValue" v-on:input="autoCal(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value"/>
+                                            <input v-else-if="calcData[idx].placeholder === '보고서'" v-model.number="calcData[idx].inputValue" v-on:input="totalVariable(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value"/>
+                                            <input v-else v-model.number="calcData[idx].inputValue" v-on:input="autoCal(idx)" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:name="calcData[idx].bsnscatcd+idx" type="number" v-bind:placeholder="calcData[idx].placeholder" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value"/>
+                                            <label v-bind:for="calcData[idx].bsnscatcd+idx"><span class="sr-only">{{row[row.length - 1].value}}</span></label>
+                                            {{calcData[idx].suffix}}
+                                        </span>
+                                        <span v-else-if="calcData[idx] ? calcData[idx].checkBox : false" class="checkbox">
+                                            <input type="checkbox" v-model.number="calcData[idx].inputValue" v-bind:id="calcData[idx].bsnscatcd+idx" v-bind:title="row[row.length - 1].value" v-bind:aria-label="row[row.length - 1].value" true-value="1" false-value="0">
+                                            <label v-bind:for="calcData[idx].bsnscatcd+idx"><span class="sr-only">{{row[row.length - 1].value}}</span></label>
+                                        </span>
+                                        <span v-else>{{calcData[idx] ? calcData[idx].value : ""}}</span>
+                                    </td>
+                                    <td v-if="idx === calcData.length - 1">{{numFormat(totalData)}}</td>
+                                    <td v-else>{{calcData[idx] ? numFormat(calcData[idx].valueFn(calcData[idx].inputValue)) : ""}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="8">총 공량</td>
+                                    <td colspan="3" class="tbg2">{{numFormat(calcValue.totalCost)}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">엔지니어링산업 진흥법 제31조제2항에 따른 엔지니어링사업대가 기준 중<br>
+                                        환경부문의 중급기술자 노임단가(<span class="tcolor2" style="color:#00DCFF;">{{calcYear}}년 기준</span>)</td>
+                                    <td colspan="3" class="tbg1">
+                                        <label for="wagesInput" class="sr-only">환경부문 중급기술자 노임단가</label>
+                                        <vue-input-format id="wagesInput" name="wagesInput" v-model.number="wages" type="text" style="color: black;" title="환경부문 중급기술자 노임단가" aria-label="환경부문 중급기술자 노임단가"></vue-input-format> 원
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">직접인건비</td>
+                                    <td colspan="1">직접경비</td>
+                                    <td colspan="2">제경비</td>
+                                    <td colspan="3">기술료</td>
+                                    <td colspan="3">합계</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">총공량 x 노임단가</td>
+                                    <td colspan="1">직접인건비 x 0.2</td>
+                                    <td colspan="2">직접인건비 x 1.1</td>
+                                    <td colspan="3">(직접인건비 + 제경비) x 0.2</td>
+                                    <td colspan="3">보정계수 0.65 적용</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="tbg3">{{numRound(calcValue.laborCosts)}} 원</td>
+                                    <td colspan="1" class="tbg3">{{numRound(calcValue.expenses)}} 원</td>
+                                    <td colspan="2" class="tbg3">{{numRound(calcValue.otherCost)}} 원</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.fee)}} 원</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.costTotal)}} 원</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">부가세</td>
+                                    <td colspan="3" class="tbg3">{{numRound(calcValue.vat)}} 원</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="8">정기점검 예상 수수료(부가세 포함)</td>
+                                    <td colspan="3" class="tbg1">{{numFormat(calcGrandTotalWithTaxInvoiceAddFee)}} 원</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="descripBox mb50" style="margin-bottom: 15px;"><span class="descrip">※</span> 엔지니어링사업대가 기준의 중급기술자가 해당 업무를 수행하는데 소요되는 일수</p>
+                </div>
+
+                <div class="btn_wrap mt50 mb50">
+                    <a href="javascript:void(0)" v-on:click="resetBase" class="btn btn_bg color">초기화</a>
+                </div>
+                </div>
+            </div>
+        </div>
+        
+<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+    </div>
+    <script src="./js/vueComp/vue-inputFormat.js"></script>
+    <script src="./js/selfFeeCalc.js?v=20260714_submit_docs_first"></script>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,1876 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <title>비산배출시설 정기점검 관리시스템 - 결과확인 상세</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="keywords" content="한국환경공단 ">
+    <meta name="description" content="한국환경공단">
+
+       <!--[if lte IE 9]>
+	<script type="text/javascript" src="js/respond.min.js"></script>
+	<script type="text/javascript" src="js/html5.js"></script>
+	<![endif]-->
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
+    
+    <script src="./js/common.js"></script>
+    <script src="./js/jquery.sumoselect.min.js"></script>   
+    
+    <script type="text/javascript" src="./js/bxslider/jquery.bxslider.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/bxslider/jquery.bxslider.css">
+    <link rel="stylesheet" type="text/css" href="./css/common.css">
+    <link rel="stylesheet" type="text/css" href="./css/layout.css">
+    <link rel="stylesheet" type="text/css" href="./css/sub.css">
+    <link rel="stylesheet" type="text/css" href="./css/sumoselect.min.css"/>
+    <script type="text/javascript" src="./js/CalPopup.js" ></script>
+</head>
+<script type="text/javaScript" language="javascript" defer="defer">
+
+var techSupYnSavedValue = "";
+
+function fn_setTechSupYn(){
+	if($("#techSupYnCheck").length > 0){
+		if($("#msrmnRsltsCd").length > 0 && $("#msrmnRsltsCd").val() != "N"){
+			$("#techSupYn").val("N");
+			return;
+		}
+		// 관리자 체크박스 값을 TECH_SUP_YN 저장 파라미터로 전달한다.
+		$("#techSupYn").val($("#techSupYnCheck").is(":checked") ? "Y" : "N");
+	}
+}
+
+function fn_toggleTechSupControl(msrmnRsltsCd){
+	if($("#techSupYnWrap").length === 0){
+		return;
+	}
+
+	if(msrmnRsltsCd == "N"){
+		$("#techSupYnWrap").show();
+		fn_setTechSupYn();
+		return;
+	}
+
+	$("#techSupYnCheck").prop("checked", false);
+	$("#techSupYn").val("N");
+	$("#techSupYnWrap").hide();
+}
+
+function fn_restoreTechSupYn(){
+	$("#techSupYnCheck").prop("checked", techSupYnSavedValue === "Y");
+	$("#techSupYn").val(techSupYnSavedValue);
+}
+
+function fn_saveTechSupYn(){
+	fn_setTechSupYn();
+
+	if("1" !== "1"){
+		return;
+	}
+
+	var techSupYn = $("#techSupYn").val();
+	$("#techSupYnCheck").prop("disabled", true);
+
+	$.ajax({
+		url: "/applyFormResultTechSupUpdate.do",
+		type: "POST",
+		async: false,
+		dataType: "json",
+		data: {
+			rcptNo: "2026-04-0012-01",
+			techSupYn: techSupYn
+		},
+		success: function(result){
+			if(result && result.success === true){
+				techSupYnSavedValue = techSupYn;
+				return;
+			}
+
+			fn_restoreTechSupYn();
+			alert(result && result.message ? result.message : "기술지원 원클릭 신청 기능 저장에 실패했습니다.");
+		},
+		error: function(){
+			fn_restoreTechSupYn();
+			alert("기술지원 원클릭 신청 기능 저장 중 오류가 발생했습니다.");
+		},
+		complete: function(){
+			$("#techSupYnCheck").prop("disabled", false);
+		}
+	});
+}
+
+function fn_toggleTechOneStopAgreePopup(){
+    if($('#techOneStopAgreeCheck').is(':checked')){
+        $('#techOneStopAgreePopup').css('display', 'flex');
+        return;
+    }
+    fn_closeTechOneStopAgreePopup();
+}
+
+function fn_closeTechOneStopAgreePopup(){
+    $('#techOneStopAgreePopup').hide();
+    $('#techOneStopAgreeCheck').prop('checked', false);
+}
+
+function fn_startTechOneStopNiceAuthentication(){
+    if(!$('#techOneStopAgreement').is(':checked')){
+        alert('통합관리시스템 정보 활용 동의에 체크해 주세요.');
+        $('#techOneStopAgreement').focus();
+        return;
+    }
+
+    var authUrl = "/niceIntegratedAuthStart.do";
+    window.open(authUrl, 'popupNiceIntegrated', 'width=500, height=812, top=100, left=100, fullscreen=no, menubar=no, status=no, toolbar=no, titlebar=yes, location=no, scrollbar=no');
+}
+
+function fn_authenticationCallback(ci, di, name, mobileNo, birthdate, gender){
+    if(!di){
+        alert('NICE 통합인증 결과를 확인할 수 없습니다.');
+        return;
+    }
+
+    $('#oneStopNiceAuthCi').val(di);
+    $('#techOneStopAgreePopup').hide();
+    $('#techOneStopApplyWrap').show();
+    $('#techOneStopApplyArea').show();
+}
+function fn_setMsrmnRsltsReasonValues(){
+	let msrmnRsltsRsnCd = [];
+	let msrmnRsltsDtlRsnCd = [];
+
+	$("#NCCTableTbody tr").each(function(){
+		let tr = $(this);
+		let td = tr.children();
+		let detailReasonValue = tr.find("input.nccDetailReasonValue").val() || "";
+
+		msrmnRsltsRsnCd.push(td.eq(0).find('input').val()+"|"+td.eq(1).find('input').val()+"|"+td.eq(2).find('input').val());
+		msrmnRsltsDtlRsnCd.push(detailReasonValue);
+	});
+
+	$("#msrmnRsltsRsnCdVal").val(msrmnRsltsRsnCd.join(","));
+	$("#msrmnRsltsDtlRsnCdVal").val(msrmnRsltsDtlRsnCd.join(","));
+}
+
+function fn_clearDetailReason(){
+	$("#msrmnRsltsDtlRsnCd").empty();
+	$("#msrmnRsltsDtlRsnCd").append($("<option value=''> 선택 </option>"));
+}
+
+function fn_getDetailReasonCodeNm(detailReason){
+	return detailReason.codenm || detailReason.codeNm || "";
+}
+
+function fn_getDetailReasonTechSupNm(detailReason){
+	return detailReason.techsupnm || detailReason.techSupNm || "";
+}
+
+function fn_selectDetailReason(obj){
+	fn_clearDetailReason();
+
+	let facilityCode = $("#facility").val();
+	let reasonCode = obj.value;
+
+	if(facilityCode == '' || reasonCode == ''){
+		return;
+	}
+
+	$.ajax({
+	    url: "/selectDetailReason.do",
+	    data: {"codeId": facilityCode, "code": reasonCode},
+	    type: "POST",
+	    dataType: "json",
+	    success : function(result){
+	    	let res = result.result;
+
+	    	for(var i = 0; i < res.length; i++){
+                let option = $("<option></option>");
+                option.val(res[i].code);
+                option.text(fn_getDetailReasonCodeNm(res[i]));
+                option.attr("data-tech-sup-nm", fn_getDetailReasonTechSupNm(res[i]));
+                $('#msrmnRsltsDtlRsnCd').append(option);
+            }
+		}
+	});
+}
+
+function fn_getDetailReasonText(facilityCode, reasonCode, detailReasonCode){
+	if(detailReasonCode == null || detailReasonCode == ''){
+		return '';
+	}
+
+	let detailReasonText = detailReasonCode;
+
+	$.ajax({
+	    url: "/selectDetailReason.do",
+	    data: {"codeId": facilityCode, "code": reasonCode},
+	    async:false,
+	    type: "POST",
+	    dataType: "json",
+	    success : function(result){
+	    	let res = result.result;
+	    	for(var i = 0; i < res.length; i++){
+	    		if(res[i].code == detailReasonCode){
+	    			detailReasonText = fn_getDetailReasonCodeNm(res[i]);
+	    			break;
+	    		}
+	    	}
+		}
+	});
+
+	return detailReasonText;
+}
+
+function fn_getDetailReasonTechSupText(facilityCode, reasonCode, detailReasonCode){
+	if(detailReasonCode == null || detailReasonCode == ''){
+		return '';
+	}
+
+	let techSupNm = '';
+
+	$.ajax({
+	    url: "/selectDetailReason.do",
+	    data: {"codeId": facilityCode, "code": reasonCode},
+	    async:false,
+	    type: "POST",
+	    dataType: "json",
+	    success : function(result){
+	    	let res = result.result;
+	    	for(var i = 0; i < res.length; i++){
+	    		if(res[i].code == detailReasonCode){
+	    			techSupNm = fn_getDetailReasonTechSupNm(res[i]);
+	    			break;
+	    		}
+	    	}
+		}
+	});
+
+	return techSupNm;
+}
+
+function fn_getDetailReasonValueByIndex(msrmnRsltsDtlRsnCd, index){
+	if(msrmnRsltsDtlRsnCd == null || msrmnRsltsDtlRsnCd == ''){
+		return '';
+	}
+
+	let result = msrmnRsltsDtlRsnCd.split(",");
+	return result[index] || '';
+}
+
+function fn_applyFormUpdate(stu){
+	var a = document.inspectionVO.prdinInspFrom.value;
+	var b = document.inspectionVO.prdinInspTo.value;
+	if(a == "" || a == null){
+		alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+		return;
+	}else if(b == "" || b == null){
+		alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+		return;
+	}else if(a > b){
+		alert("점검종료일자가 시작일자보다 작습니다. 점검기간을 확인해주세요.");
+		return;
+	}else{
+		var prdinInspFromYmd = "";
+		if(a != null && a != ""){
+			prdinInspFromYmd = a.replaceAll("-", "");
+		}
+		var prdinInspToYmd = "";
+		if(b != null && b != ""){
+			prdinInspToYmd = b.replaceAll("-", "");
+		}
+		document.inspectionVO.prdinInspFromYmd.value = prdinInspFromYmd;
+		document.inspectionVO.prdinInspToYmd.value = prdinInspToYmd;
+		
+		fn_setMsrmnRsltsReasonValues();
+		
+		if(confirm("수정 하시겠습니까?")){
+			fn_setTechSupYn();
+			document.inspectionVO.action="./applyFormResultInsert.do";
+			document.inspectionVO.submit();
+		}
+	}
+}
+
+function fn_applyFormInsert(stu){
+	var a = document.inspectionVO.prdinInspFrom.value;
+	var b = document.inspectionVO.prdinInspTo.value;
+	if(a == "" || a == null){
+		alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+		return;
+	}else if(b == "" || b == null){
+		alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+		return;
+	}else if(a > b){
+		alert("점검종료일자가 시작일자보다 작습니다. 점검기간을 확인해주세요.");
+		return;
+	}else{
+		var prdinInspFromYmd = "";
+		if(a != null && a != ""){
+			prdinInspFromYmd = a.replaceAll("-", "");
+		}
+		var prdinInspToYmd = "";
+		if(b != null && b != ""){
+			prdinInspToYmd = b.replaceAll("-", "");
+		}
+		document.inspectionVO.prdinInspFromYmd.value = prdinInspFromYmd;
+		document.inspectionVO.prdinInspToYmd.value = prdinInspToYmd;
+		
+		
+		fn_setMsrmnRsltsReasonValues();
+		if($('#status').val() == null || $('#status').val() == ''){
+			$('#status').val('1');
+		}
+		if(confirm("저장 하시겠습니까?")){
+			fn_setTechSupYn();
+			document.inspectionVO.action="./applyFormResultInsert.do";
+			document.inspectionVO.submit();
+		}
+	}
+}
+
+function fn_selectUpjong(obj){
+	if(obj.value == 'N'){
+		fn_toggleTechSupControl(obj.value);
+		$('#lili2').css('display', 'block');
+		$('#lili3').css('display', 'block');
+		$('#lili4').css('display', 'block');
+		$('#lili5').css('display', 'block');
+		$('#addButton').css('display', 'block');
+		$('#NCC').css('display', 'block');
+	}else if(obj.value == 'Y'){
+		fn_toggleTechSupControl(obj.value);
+		$('#lili2').css('display', 'none');
+		$('#lili3').css('display', 'none');
+		$('#lili4').css('display', 'none');
+		$('#lili5').css('display', 'none');
+		$('#addButton').css('display', 'none');
+		$('#NCC').css('display', 'none');
+	}	
+}
+/* function gb_fn_getSumoSelectOption(opt){
+	var option = { 
+				triggerChangeCombined: true, 
+				placeholder: '보완사항',
+			    searchText : '검색...',
+			    captionFormat: '{0}개 선택되었습니다.',
+			    captionFormatAllSelected: '{0}개 모두선택되었습니다.!',
+			    locale :  ['확인', '취소', '모두 선택'],
+				search: true }
+				
+	var returnedTarget = Object.assign(option, opt);
+	return returnedTarget;
+} */
+
+function fn_applyFinalyUpdateAdmin(){
+	$("#status").val(7);
+	fn_setTechSupYn();
+	document.inspectionVO.action="./applyFormResultDetailReportAdmin.do";
+	document.inspectionVO.submit();
+}
+
+function fn_applyFinalyUpdate(stu){
+	var a = document.inspectionVO.prdinInspFrom.value;
+	var b = document.inspectionVO.prdinInspTo.value;
+	if(confirm("제출 하시겠습니까?")){
+		if(a == "" || a == null){
+			alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+			return;
+		}else if(b == "" || b == null){
+			alert("점검기간을 입력하지 않았습니다. 점검기간을 확인해주세요.");
+			return;
+		}else if(a > b){
+			alert("점검종료일자가 시작일자보다 작습니다. 점검기간을 확인해주세요.");
+			return;
+		}else{
+			
+    		var prdinInspFromYmd = "";
+    		if(a != null && a != ""){
+    			prdinInspFromYmd = a.replaceAll("-", "");
+    		}
+    		var prdinInspToYmd = "";
+    		if(b != null && b != ""){
+    			prdinInspToYmd = b.replaceAll("-", "");
+    		}
+    		document.inspectionVO.prdinInspFromYmd.value = prdinInspFromYmd;
+    		document.inspectionVO.prdinInspToYmd.value = prdinInspToYmd;
+    		$("#status").val(stu);
+    		
+    		
+    		fn_setMsrmnRsltsReasonValues();
+    		
+    		
+    		fn_setTechSupYn();
+    		document.inspectionVO.action="./applyFormResultDetailReport.do";
+    		document.inspectionVO.submit();
+		}
+	}
+}
+
+function fn_applyFormList(){
+	 	document.listForm.action="./applyFormResultList.html";
+	 	document.listForm.submit();		
+
+}
+
+function fn_deleteFile(atchFileId, fileSn, e) {
+	if(confirm("파일을 삭제 하시겠습니까?")){
+		location.href = "./deleteFileInfs.do?atchFileId="+atchFileId+"&fileSn="+fileSn+"&returnUrl=/applyFormResultDetail.do?rcptNo=2026-04-0012-01";
+	}
+}
+function fn_downFile(atchFileId, fileSn){
+	var ifm = document.createElement('iframe');
+ 	var tempInfoForm = document.createElement('form');
+ 	tempInfoForm.name= "tempInfoView";
+ 	tempInfoForm.action = "./FileDown.do";
+ 	tempInfoForm.method= "POST";
+ 	tempInfoForm.target= "ifm";
+ 	
+ 	var input = document.createElement('input');
+ 	input.type = 'hidden';
+ 	input.name = "atchFileId";
+ 	input.value = atchFileId
+ 	tempInfoForm.appendChild(input);
+
+ 	var input = document.createElement('input');
+ 	input.type = 'hidden';
+ 	input.name = "fileSn";
+ 	input.value = fileSn;
+ 	tempInfoForm.appendChild(input);
+ 	//최종 만들어진form 생성
+ 	document.body.appendChild(tempInfoForm);
+ 	tempInfoForm.submit();
+}
+
+$(document).ready(function(){
+	if("" != ""){
+		alert("");
+	}
+	if($("#intgrLcnsYn").val() === "Y")$("#intgrLcns").prop("checked", true);
+	$("#techSupYnCheck").on("change", fn_saveTechSupYn);
+	$("input[name='oneStopTechFld']").on("change", fn_setTechOneStopApplyReason);
+	$("#oneStopRsnsAplctInput").on("input", function() {
+		techOneStopReasonManuallyEdited = true;
+	});
+	if($("#msrmnRsltsCd").length > 0){
+		fn_toggleTechSupControl($("#msrmnRsltsCd").val());
+	}
+	fn_setTechSupYn();
+	
+	if($("#msrmnRsltsCd").length > 0 && ($("#status").val() != '2' || $("#status").val() == '')){
+		if($("#msrmnRsltsCd").val() == "Y" || $("#msrmnRsltsCd").val() == ""){
+			$('#lili2').css('display', 'none');
+			$('#lili3').css('display', 'none');
+			$('#lili4').css('display', 'none');
+			$('#lili5').css('display', 'none');
+			$('#addButton').css('display', 'none');
+			$('#NCC').css('display', 'none');
+		}else{
+			$('#lili2').css('display', 'block');
+			$('#lili3').css('display', 'block');
+			$('#lili4').css('display', 'block');
+			$('#lili5').css('display', 'block');
+			$('#addButton').css('display', 'block');
+			$('#NCC').css('display', 'block');
+			
+			let msrmnRsltsRsnCd = "2-가|F001|R001";
+			let msrmnRsltsDtlRsnCd = "D001";
+			let result = msrmnRsltsRsnCd.split(",");
+			
+			let upjong ='';
+			let facility ='';
+			let ncc ='';
+			let detailReason ='';
+			
+			if(msrmnRsltsRsnCd != "" && msrmnRsltsRsnCd != null){
+				for(let i = 0; i < result.length; i++){
+					let att = result[i].split("|");
+					let detailReasonCode = fn_getDetailReasonValueByIndex(msrmnRsltsDtlRsnCd, i);
+					
+					
+					$.ajax({
+					    url: "/selectUpjongCode.do",
+					    data: {"clCode": att[0]},
+					    async:false,
+					    type: "POST",
+					    dataType: "json",
+					    success : function(result){
+					    	upjong = result.result[0].clcodenm;
+						}
+					});
+					
+					$.ajax({
+					    url: "/selectFacilityCode.do",
+					    data: {"clCode": att[1]},
+					    async:false,
+					    type: "POST",
+					    dataType: "json",
+					    success : function(result){
+					    	facility = result.result[0].codeidnm;
+						}
+					});
+					
+					$.ajax({
+					    url: "/selectMsrmnRsltsRsnCd.do",
+					    data: {"clCode": att[2]},
+					    async:false,
+					    type: "POST",
+					    dataType: "json",
+					    success : function(result){
+					    	ncc = result.result[0].codenm;
+						}
+					});
+
+					detailReason = fn_getDetailReasonText(att[1], att[2], detailReasonCode);
+					
+					let innerHtml = '';
+					innerHtml += '<tr>';
+					innerHtml += '<td align="center">'+ upjong +'<input type="hidden" value="'+ att[0] +'"/></td>';
+				    innerHtml += '<td align="center">'+ facility +'<input type="hidden" value="'+ att[1] +'"/></td>';
+					innerHtml += '<td align="center">'+ ncc +'<input type="hidden" value="'+ att[2] +'"/></td>';
+					innerHtml += '<td align="center">'+ detailReason +'<input type="hidden" class="nccDetailReasonValue" value="'+ detailReasonCode +'"/></td>';
+					innerHtml += fn_getNCCActionCellHtml(true);
+					innerHtml += '</tr>';
+					
+					$("#NCCTable > tbody:last").append(innerHtml); 
+					
+				}
+			}
+			
+		}
+	}else if($("#msrmnRsltsCd").length > 0){
+		$('#lili2').css('display', 'none');
+		$('#lili3').css('display', 'none');
+		$('#lili4').css('display', 'none');
+		$('#lili5').css('display', 'none');
+		$('#addButton').css('display', 'none');
+		$('#NCC').css('display', 'block');
+		
+		let msrmnRsltsRsnCd = "2-가|F001|R001";
+		let msrmnRsltsDtlRsnCd = "D001";
+		let result = msrmnRsltsRsnCd.split(",");
+		
+		let upjong ='';
+		let facility ='';
+		let ncc ='';
+		let detailReason ='';
+		
+		if(msrmnRsltsRsnCd != "" && msrmnRsltsRsnCd != null){
+			for(let i = 0; i < result.length; i++){
+				let att = result[i].split("|");
+				let detailReasonCode = fn_getDetailReasonValueByIndex(msrmnRsltsDtlRsnCd, i);
+				
+				$.ajax({
+				    url: "/selectUpjongCode.do",
+				    data: {"clCode": att[0]},
+				    async:false,
+				    type: "POST",
+				    dataType: "json",
+				    success : function(result){
+				    	upjong = result.result[0].clcodenm;
+					}
+				});
+				
+				$.ajax({
+				    url: "/selectFacilityCode.do",
+				    data: {"clCode": att[1]},
+				    async:false,
+				    type: "POST",
+				    dataType: "json",
+				    success : function(result){
+				    	facility = result.result[0].codeidnm;
+					}
+				});
+				
+				$.ajax({
+				    url: "/selectMsrmnRsltsRsnCd.do",
+				    data: {"clCode": att[2]},
+				    async:false,
+				    type: "POST",
+				    dataType: "json",
+				    success : function(result){
+				    	ncc = result.result[0].codenm;
+					}
+				});
+
+				detailReason = fn_getDetailReasonText(att[1], att[2], detailReasonCode);
+				
+				let innerHtml = '';
+				innerHtml += '<tr>';
+				innerHtml += '<td align="center">'+ upjong +'<input type="hidden" value="'+ att[0] +'"/></td>';
+			    innerHtml += '<td align="center">'+ facility +'<input type="hidden" value="'+ att[1] +'"/></td>';
+				innerHtml += '<td align="center">'+ ncc +'<input type="hidden" value="'+ att[2] +'"/></td>';
+				innerHtml += '<td align="center">'+ detailReason +'<input type="hidden" class="nccDetailReasonValue" value="'+ detailReasonCode +'"/></td>';
+				innerHtml += fn_getNCCActionCellHtml(false);
+				innerHtml += '</tr>';
+				
+				$("#NCCTable > tbody:last").append(innerHtml); 
+				
+			}
+		}
+		
+	}
+
+	fn_setTechOneStopReasonSummary();
+	fn_setTechOneStopRecommendations();
+	fn_initTechOneStopControls();
+
+	var status = "1";
+	
+	if(status != '10'){
+	    $("#prdinInspFrom").datepicker({
+	        dateFormat: 'yy-mm-dd' //달력 날짜 형태
+	        ,showOtherMonths: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+	        ,showMonthAfterYear:true // 월- 년 순서가아닌 년도 - 월 순서
+	        ,changeYear: true //option값 년 선택 가능
+	        ,changeMonth: true //option값  월 선택 가능                
+	        ,showOn: "button" //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
+	        ,buttonImage: gbn_getContextPath() + "/images/icon_cal.png" //버튼 이미지 경로
+	        ,buttonImageOnly: true //버튼 이미지만 깔끔하게 보이게함
+	        ,buttonText: "선택" //버튼 호버 텍스트              
+	        ,yearSuffix: "년" //달력의 년도 부분 뒤 텍스트
+	        ,monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 텍스트
+	        ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip
+	        ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 텍스트
+	        ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 Tooltip
+	        ,minDate: "-5Y" //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+	        ,maxDate: "+5y" //최대 선택일자(+1D:하루후, -1M:한달후, -1Y:일년후)  
+	    });                    
+
+	    $('#prdinInspFrom').datepicker(); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+	    
+	    $("#prdinInspTo").datepicker({
+	        dateFormat: 'yy-mm-dd' //달력 날짜 형태
+	        ,showOtherMonths: true //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+	        ,showMonthAfterYear:true // 월- 년 순서가아닌 년도 - 월 순서
+	        ,changeYear: true //option값 년 선택 가능
+	        ,changeMonth: true //option값  월 선택 가능                
+	        ,showOn: "button" //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
+	        ,buttonImage: gbn_getContextPath() + "/images/icon_cal.png" //버튼 이미지 경로
+	        ,buttonImageOnly: true //버튼 이미지만 깔끔하게 보이게함
+	        ,buttonText: "선택" //버튼 호버 텍스트              
+	        ,yearSuffix: "년" //달력의 년도 부분 뒤 텍스트
+	        ,monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 텍스트
+	        ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip
+	        ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 텍스트
+	        ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 Tooltip
+	        ,minDate: "-5Y" //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+	        ,maxDate: "+5y" //최대 선택일자(+1D:하루후, -1M:한달후, -1Y:일년후)  
+	    });                    
+
+	    $('#prdinInspTo').datepicker(); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+	    
+	    $('.ui-datepicker ').css({ "margin-left" : "200px", "margin-top": "-250px"})
+	    $('.ui-datepicker-trigger ').attr("style","position:absolute; cursor: pointer; margin-top:9px; right:10px; top:0; display:inline-block; width:24px; height:23px; background: url('"+gbn_getContextPath()+"/images/icon_cal.png') no-repeat center; text-indent:-999em;");
+	    fn_placeTechOneStopCalendarIcon();
+	}
+
+	var addrDetail = document.getElementById("addrDetail");
+	var addr = document.getElementById("addr");
+	var ofcDetailAddr = "";
+	
+	if(ofcDetailAddr == null || ofcDetailAddr == ""){
+		addrDetail.style.display = "none";
+		addr.style.width = "100%";
+	}
+
+    setDateBox();
+	
+    const uploadLabels = document.querySelectorAll('label[for^="file"]');		
+    uploadLabels.forEach(label => {
+    	label.addEventListener('keydown', function(e) {
+    		if (e.key === 'Enter' || e.key === ' ') {
+    			let div = $(label).text();
+    			e.preventDefault();
+    			
+    			if(div == '다운로드'){
+    				label.click();
+    			}else{
+        			const targetId = label.getAttribute('for');
+        			document.getElementById(targetId).click();	
+    			}
+    		}
+    	});    	
+    });
+    
+    
+    
+// 	var authorCode = "ROLE_KECO_GRP01_USER";
+// 	if(authorCode == "ROLE_KECO_GRP01_USER" || authorCode == "ROLE_KECO_GRP02_USER" || authorCode != "ROLE_KECO_GRP03_USER" || authorCode != "ROLE_ME_USER"){
+// 		$(".displayNone").css("display", "");
+// 	}else{
+// 		$(".displayNone").css("display", "none");
+// 	}
+});    
+
+// select box 연도 , 월 표시
+function setDateBox(){
+    var dt = new Date();
+    var year = "";
+    var com_year = dt.getFullYear();
+    var y = $("#ymd").val();
+//     // 발행 뿌려주기
+	if(null == y || "" == y){
+		$("#prdinInspYr").append("<option value=''>--연도 선택--</option>");		
+	}else{
+		$("#prdinInspYr").append("<option value='"+ y +"'>"+ y +"</option>");		
+	}
+    // 올해 기준으로 -1년부터 +5년을 보여준다.
+    for(var y = (com_year-5); y <= (com_year+5); y++){
+        $("#prdinInspYr").append("<option value='"+ y +"'>"+ y +"</option>");
+    }
+}
+
+function fn_write(arg1){
+	if(1 == arg1){
+		$("#inspectionVO").attr("action","/applyRegResultSummary.do").removeAttr("enctype").submit();
+	}else if(2 == arg1){
+		$("#inspectionVO").attr("action","/applyRegResult.do").removeAttr("enctype").submit();
+	}
+}
+
+
+function fn_selectFacility(obj){
+	
+	$.ajax({
+	    url: "/selectFacility.do",
+	    data: {"clCode": obj.value},
+	    type: "POST",
+	    dataType: "json",
+	    success : function(result){
+	    	let res = result.result;
+	    	var option = $("<option value=''>선택</option>");
+	    	$("#facility").empty();
+	    	$('#facility').append(option);
+	    	$("#msrmnRsltsRsnCd").empty();
+	    	$("#msrmnRsltsRsnCd").append($("<option value=''>선택</option>"));
+	    	fn_clearDetailReason();
+	    	
+	    	for(var i = 0; i < res.length; i++){                
+                let option = $("<option value="+ res[i].codeid +">"+res[i].codeidnm+"</option>");
+                $('#facility').append(option);
+            }
+		}
+	});
+	
+}
+
+function fn_selectReason(obj){
+	
+	$.ajax({
+	    url: "/selectReason.do",
+	    data: {"codeId": obj.value},
+	    type: "POST",
+	    dataType: "json",
+	    success : function(result){
+	    	let res = result.result;
+	    	
+	    	$("#msrmnRsltsRsnCd").empty();
+	    	fn_clearDetailReason();
+	    	
+	    	let option = $("<option value=''>선택</option>");
+	    	$('#msrmnRsltsRsnCd').append(option);
+	    	for(var i = 0; i < res.length; i++){                
+                let option = $("<option value="+ res[i].code +">"+res[i].codenm+"</option>");
+                $('#msrmnRsltsRsnCd').append(option);
+            }
+		}
+	});
+	
+}
+
+function fn_NCCRowDelete(obj){
+	$(obj).parents("tr").remove();
+}
+
+function fn_isSiteTechResult(){
+	return "False" === "true";
+}
+
+function fn_getNCCActionCellHtml(editable){
+	if(fn_isSiteTechResult()){
+		return '';
+	}
+
+	if(editable){
+		return '<td align="center"><a href="javascript:void(0);" onclick="fn_NCCRowDelete(this);">삭제</a></td>';
+	}
+
+	return '<td align="center"></td>';
+}
+
+function fn_addNCCRow() {
+	let trCnt = $("#NCCTable tr").length;
+	if(trCnt > 10){
+		alert("최대 10개까지 추가할 수 있습니다.");
+		return;
+	}else{
+		
+		let innerHtml = "";
+		
+		let upjong = $("#upjong").val();
+		let upjongText = $("#upjong option:checked").text();
+		let facility = $("#facility").val();
+		let facilityText = $("#facility option:checked").text();
+		let msrmnRsltsRsnCd = $("#msrmnRsltsRsnCd").val();
+		let msrmnRsltsRsnCdText = $("#msrmnRsltsRsnCd option:checked").text();
+		let msrmnRsltsDtlRsnCd = $("#msrmnRsltsDtlRsnCd").val();
+		let msrmnRsltsDtlRsnCdText = $("#msrmnRsltsDtlRsnCd option:checked").text();
+		
+		if(facility == '' || msrmnRsltsRsnCd == ''){
+			alert("해당하는 비산배출시설과 보완사항을 선택해 주세요.");
+			return;
+		} else if($("#msrmnRsltsDtlRsnCd option").length > 1 && msrmnRsltsDtlRsnCd == ''){
+			alert("상세사유를 선택해 주세요.");
+			return;
+		} else{
+			let detailReasonText = msrmnRsltsDtlRsnCd == '' ? '' : msrmnRsltsDtlRsnCdText;
+			
+			innerHtml += '<tr>';
+			innerHtml += '<td align="center">'+ upjongText +'<input type="hidden" value="'+ upjong +'"/></td>';
+		    innerHtml += '<td align="center">'+ facilityText +'<input type="hidden" value="'+ facility +'"/></td>';
+			innerHtml += '<td align="center">'+ msrmnRsltsRsnCdText +'<input type="hidden" value="'+ msrmnRsltsRsnCd +'"/></td>';
+			innerHtml += '<td align="center">'+ detailReasonText +'<input type="hidden" class="nccDetailReasonValue" value="'+ msrmnRsltsDtlRsnCd +'"/></td>';
+			innerHtml += '<td align="center"><a class="btn_del" href="javascript:void(0);" onclick="fn_NCCRowDelete(this);">삭제</a></td>';
+			innerHtml += '</tr>';
+			
+			$("#NCCTable > tbody:last").append(innerHtml);
+		}
+	}
+}
+
+function fn_applyFormSample_move() {
+  	document.applyFormSample.action = "./applyFormSampleConfirmation.do";
+  	document.applyFormSample.submit();
+} 
+
+// 맞춤형 기술지원 원스톱 신청 추가
+var techOneStopReasonCount = 0;
+var techOneStopReasonManuallyEdited = false;
+
+// 맞춤형 기술지원 원스톱 신청 추가
+function fn_setTechOneStopReasonSummary() {
+	var msrmnRsltsRsnCd = "2-가|F001|R001";
+	techOneStopReasonCount = 0;
+
+	if (msrmnRsltsRsnCd == null || msrmnRsltsRsnCd === "") {
+		return;
+	}
+
+	var result = msrmnRsltsRsnCd.split(",");
+	var classificationNames = [];
+	var classificationCodes = {};
+
+	for (var i = 0; i < result.length; i++) {
+		if ($.trim(result[i]) === "") {
+			continue;
+		}
+
+		var att = result[i].split("|");
+		if (att.length < 3) {
+			continue;
+		}
+
+		var classificationCode = att[1];
+		if (classificationCodes[classificationCode]) {
+			continue;
+		}
+		classificationCodes[classificationCode] = true;
+
+		var classificationName = classificationCode;
+
+		$.ajax({
+		    url: "/selectFacilityCode.do",
+		    data: {"clCode": classificationCode},
+		    async: false,
+		    type: "POST",
+		    dataType: "json",
+		    success: function(result) {
+		    	if (result.result && result.result.length > 0) {
+		    		classificationName = result.result[0].codeidnm;
+		    	}
+			}
+		});
+
+		techOneStopReasonCount++;
+		classificationNames.push(classificationName);
+	}
+
+	if (techOneStopReasonCount > 0) {
+		$("#oneStopClassificationPrompt").text("올해 정기점검 결과 " + classificationNames.join(", ") + " 분류에 보완사항이 있습니다. 맞춤형 기술지원을 신청하시겠습니까?");
+	}
+}
+
+function fn_normalizeTechSupNm(value) {
+	if (value == null) {
+		return "";
+	}
+
+	return $.trim(value).replace(/\s/g, "");
+}
+
+function fn_checkOneStopTechFieldByName(techSupNm) {
+	var target = fn_normalizeTechSupNm(techSupNm);
+	if (target === "") {
+		return;
+	}
+
+	$("input[name='oneStopTechFld']").each(function() {
+		var current = fn_normalizeTechSupNm($(this).val());
+		if (target === current || target.indexOf(current) > -1 || current.indexOf(target) > -1) {
+			$(this).prop("checked", true);
+		}
+	});
+}
+
+function fn_setTechOneStopApplyReason(force) {
+	if ($("#oneStopRsnsAplctInput").length === 0) {
+		return;
+	}
+	if (Number("0") > 0 || (techOneStopReasonManuallyEdited && force !== true)) {
+		return;
+	}
+
+	var techFld = [];
+	$("input[name='oneStopTechFld']:checked").each(function() {
+		techFld.push($(this).val());
+	});
+
+	if (techFld.length === 0) {
+		$("#oneStopRsnsAplctInput").val("");
+		return;
+	}
+
+	$("#oneStopRsnsAplctInput").val(techFld.join(", ") + "에 대한 기술지원이 필요하여 기술지원을 신청합니다.");
+}
+
+function fn_setTechOneStopRecommendations() {
+	if ($("input[name='oneStopTechFld']").length === 0) {
+		return;
+	}
+
+	$("input[name='oneStopTechFld']").prop("checked", false);
+
+	var msrmnRsltsRsnCd = "2-가|F001|R001";
+	var msrmnRsltsDtlRsnCd = "D001";
+	if (msrmnRsltsRsnCd == null || msrmnRsltsRsnCd === "") {
+		return;
+	}
+
+	var result = msrmnRsltsRsnCd.split(",");
+	for (var i = 0; i < result.length; i++) {
+		if ($.trim(result[i]) === "") {
+			continue;
+		}
+
+		var att = result[i].split("|");
+		if (att.length < 3) {
+			continue;
+		}
+
+		var detailReasonCode = fn_getDetailReasonValueByIndex(msrmnRsltsDtlRsnCd, i);
+		var techSupNm = fn_getDetailReasonTechSupText(att[1], att[2], detailReasonCode);
+		fn_checkOneStopTechFieldByName(techSupNm);
+	}
+
+	fn_setTechOneStopApplyReason(true);
+}
+
+// 맞춤형 기술지원 원스톱 신청 추가
+var oneStopApplySubmitting = false;
+
+// 맞춤형 기술지원 원스톱 신청 추가
+function fn_applyTechOneStopMove() {
+	if (Number("0") > 0) {
+		location.href = "./applyFormTechList.html";
+		return;
+	}
+	
+	if ($.trim($("#oneStopNiceAuthCi").val()) === "") {
+        alert("NICE 통합인증을 완료해 주세요.");
+        return;
+    }
+
+	if (oneStopApplySubmitting) {
+		return;
+	}
+	
+	if (techOneStopReasonCount === 0) {
+		alert("보완사항이 있는 결과만 기술지원 신청이 가능합니다.");
+		return;
+	}
+
+	var techFld = [];
+	$("input[name='oneStopTechFld']:checked").each(function() {
+		techFld.push($(this).val());
+	});
+
+	if (techFld.length === 0) {
+		alert("추천 분야를 하나 이상 선택해 주세요.");
+		$("input[name='oneStopTechFld']").first().focus();
+		return;
+	}
+
+	var techSupYmd = $.trim($("#oneStopTechSupYmdInput").val());
+	if (techSupYmd === "") {
+		alert("희망일을 입력해 주세요.");
+		$("#oneStopTechSupYmdInput").focus();
+		return;
+	}
+
+	var rsnsAplct = $.trim($("#oneStopRsnsAplctInput").val());
+	if (rsnsAplct === "") {
+		alert("신청사유를 입력해 주세요.");
+		$("#oneStopRsnsAplctInput").focus();
+		return;
+	}
+
+	if (!confirm("기술지원 원클릭 신청을 완료하시겠습니까?")) {
+		return;
+	}
+
+	oneStopApplySubmitting = true;
+	$("#oneStopApplySubmitBtn").removeAttr("onclick").addClass("disabled").text("신청 처리중");
+	$("#oneStopTechFld").val(techFld.join(","));
+	$("#oneStopTechSupYmd").val(techSupYmd);
+	$("#oneStopRsnsAplct").val(rsnsAplct);
+	document.applyFormTechOneStopForm.submit();
+}
+
+// 맞춤형 기술지원 원스톱 신청 추가
+function fn_initTechOneStopControls() {
+	if ($("#oneStopTechSupYmdInput").length === 0) {
+		return;
+	}
+
+	$("#oneStopTechSupYmdInput").datepicker({
+        dateFormat: 'yy-mm-dd',
+        showOtherMonths: true,
+        showMonthAfterYear: true,
+        changeYear: true,
+        changeMonth: true,
+        showOn: "button",
+        buttonImage: gbn_getContextPath() + "/images/icon_cal.png",
+        buttonImageOnly: true,
+        buttonText: "선택",
+        yearSuffix: "년",
+        monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        dayNamesMin: ['일','월','화','수','목','금','토'],
+        dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+        minDate: 0,
+        maxDate: "+5y"
+    });
+	fn_placeTechOneStopCalendarIcon();
+
+	$("input[id^='oneStopFileTech']").on("change", function() {
+		var fileName = $(this).val().split("\\").pop();
+		$(this).closest(".drop_zone").find(".upload-name").val(fileName);
+	});
+}
+
+// 맞춤형 기술지원 원스톱 신청 추가
+function fn_placeTechOneStopCalendarIcon() {
+	var trigger = $("#oneStopTechSupYmdInput").next(".ui-datepicker-trigger");
+	if (trigger.length === 0) {
+		return;
+	}
+
+	trigger.attr("style", "position:absolute; cursor:pointer; margin-top:9px; right:10px; top:0; display:inline-block; width:24px; height:23px; background:url('" + gbn_getContextPath() + "/images/icon_cal.png') no-repeat center; text-indent:-999em;");
+	trigger.attr("src", gbn_getContextPath() + "/images/icon_cal.png");
+}
+
+const onInputHandler = (el) => {
+ 	let id = $(el).attr("id");
+    let val = $("#"+id).val().replace(/\D/g, "");
+    let leng = val.length;
+    let result = '';
+
+    if(leng < 6) result = val;
+    else if(leng < 8){
+        result += val.substring(0,4);
+        result += "-";
+        result += val.substring(4);
+    } else{
+        result += val.substring(0,4);
+        result += "-";
+        result += val.substring(4,6);
+        result += "-";
+        result += val.substring(6);
+
+        if(!checkValidDate(result)){
+            alert("YYYYMMDD 형식으로 입력해주세요");
+            $("#"+id).val("");
+            return false;
+        }
+    }
+    $("#"+id).val(result);
+}
+
+const checkValidDate = (value) => {
+    let result = true;
+    try {
+        let date = value.split("-");
+        let y = parseInt(date[0], 10),
+            m = parseInt(date[1], 10),
+            d = parseInt(date[2], 10);
+
+        let dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
+        result = dateRegex.test(d+'-'+m+'-'+y);
+    } catch (err) {
+        result = false;
+    }
+    return result;
+}
+
+$(function() {
+    fn_applyResultDetailAccessibility();
+});
+
+function fn_applyResultDetailAccessibility() {
+    $(".filebox .drop_zone").each(function(index) {
+        var dropZone = $(this);
+        var fileTitle = $.trim(dropZone.find(".file_tit").first().text()).replace(/\*/g, "").replace(/\s+/g, " ");
+        var fileInput = dropZone.find("input[type='file']").first();
+        var baseId = fileInput.attr("id") || ("resultFile" + index);
+
+        if (!fileTitle) {
+            fileTitle = "첨부파일";
+        }
+
+        dropZone.find("input.upload-name").each(function(nameIndex) {
+            var uploadName = $(this);
+            var uploadNameId = uploadName.attr("id") || (baseId + "Nm" + (nameIndex || ""));
+            var labelText = fileTitle + " 파일명";
+
+            uploadName.attr("id", uploadNameId);
+            uploadName.attr("title", uploadName.attr("title") || labelText);
+            uploadName.attr("aria-label", uploadName.attr("aria-label") || labelText);
+
+            if ($("label").filter(function() { return $(this).attr("for") === uploadNameId; }).length === 0) {
+                uploadName.before('<label for="' + fn_escapeResultDetailAttr(uploadNameId) + '" class="sr-only">' + fn_escapeResultDetailAttr(labelText) + '</label>');
+            }
+        });
+
+        if (fileInput.length > 0) {
+            var fileInputId = fileInput.attr("id") || baseId;
+            var fileInputLabel = fileTitle + " 업로드";
+            fileInput.attr("id", fileInputId);
+            fileInput.attr("title", fileInput.attr("title") || fileInputLabel);
+            fileInput.attr("aria-label", fileInput.attr("aria-label") || fileInputLabel);
+
+            if (dropZone.find("label.js-file-input-label[for='" + fileInputId + "']").length === 0) {
+                fileInput.before('<label for="' + fn_escapeResultDetailAttr(fileInputId) + '" class="sr-only js-file-input-label">' + fn_escapeResultDetailAttr(fileInputLabel) + '</label>');
+            }
+        }
+    });
+}
+
+function fn_escapeResultDetailAttr(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+</script>
+<style>
+	.disabled {
+		background:#eee;
+	}
+	.sr-only {
+	  position: absolute !important;
+	  width: 1px !important;
+	  height: 1px !important;
+	  padding: 0 !important;
+	  margin: -1px !important;
+	  overflow: hidden !important;
+	  clip: rect(0, 0, 0, 0) !important;
+	  white-space: nowrap !important;
+	  border: 0 !important;
+	}  
+	.tech_onestop_box .tb_wrap {
+		margin-top: 10px;
+	}
+	.tech_sup_toggle {
+		clear: both;
+		margin: 10px 0 18px;
+	}
+	.tech_sup_toggle .checkbox {
+		float: none;
+		display: inline-block;
+	}
+	.tech_sup_toggle .checkbox label {
+		margin-bottom: 0;
+	}
+	.tech_onestop_box .ckbox_wrap dd .checkbox {
+		margin-right: 22px;
+		margin-bottom: 8px;
+	}
+	.tech_onestop_box textarea {
+		min-height: 90px;
+	}
+	.tech_onestop_notice {
+		margin-top: 20px;
+		margin-bottom: 40px;
+	}
+	.tech_onestop_info_text {
+		padding: 12px 15px;
+		background: #f8f8f8;
+		border: 1px solid #eee;
+		color: #555;
+	}
+	.tech_onestop_value_red {
+		color: #bd0000 !important;
+		font-weight: 500;
+	}
+	.tech_onestop_auto_text {
+		color: #016241;
+		font-weight: 500;
+	}
+	.tech_onestop_need_text {
+		color: #bd0000;
+		font-weight: 500;
+	}
+	.tech_onestop_file_state {
+		display: inline-block;
+		width: 90px;
+		height: 38px;
+		line-height: 38px;
+		text-align: center;
+		border: 1px solid #ebebeb;
+		border-radius: 5px;
+		background: #fdfdfd;
+		font-size: 15px;
+	}
+	.tech_onestop_datebox {
+		width: 220px !important;
+	}
+	.tech_result_section {
+		margin-top: 50px;
+	}
+	#oneStopTechSupYmdInput {
+		width: 220px !important;
+		padding-right: 40px;
+		box-sizing: border-box;
+	}
+
+	.tech_onestop_agree_prompt { margin: 20px 0 0; padding: 16px 20px; background: #f7f7f7; border: 1px solid #e5e5e5; }
+	.tech_onestop_agree_prompt .checkbox { float: none; }
+	.tech_onestop_agree_prompt .checkbox label { margin-bottom: 0; color: #333; font-weight: 500; }
+	#techOneStopAgreePopup { z-index: 10; overflow-y: auto; }
+	#techOneStopAgreePopup .tech_onestop_agree_popup { width: 100%; max-width: 840px; max-height: calc(100vh - 40px); overflow-y: auto; background: #fff; }
+	#techOneStopAgreePopup .tech_onestop_agree_head { position: relative; padding: 20px 55px 20px 25px; background: #016241; color: #fff; font-size: 20px; font-weight: 500; }
+	#techOneStopAgreePopup .tech_onestop_agree_close { position: absolute; right: 20px; top: 16px; color: #fff; font-size: 26px; line-height: 1; }
+	#techOneStopAgreePopup .tech_onestop_agree_content { padding: 25px; }
+	#techOneStopAgreePopup .agree_certi_box { margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd; }
+	#techOneStopAgreePopup .agree_ckbox { margin-bottom: 16px; }
+	#techOneStopAgreePopup .certification { text-align: center; }
+	#techOneStopAgreePopup .certification a { display: inline-block; min-width: 160px; padding: 11px 20px; background: #bd0000; color: #fff; }
+#techOneStopAgreePopup .certification a:hover { background: #016241; }
+</style>
+<body>
+    <div class="skip">
+        <strong class="hide">반복영역 건너뛰기</strong>
+        <a href="#gnb">주메뉴 바로가기</a>
+        <a href="#contents">본문 바로가기</a>
+    </div>
+    <div id="wrap">
+    	
+    	
+    	<form id="listForm" name="listForm" action="" method="post">
+            <input type="hidden" name="searchCnd" id="searchCnd" value="">
+            <input type="hidden" name="searchWrd" id="searchWrd" value="">
+            <input type="hidden" name="pageIndex" id="pageIndex" value="">
+    	</form>
+    	<form commandName="inspectionVO" action="/applyFormResultUpdtl.do" id="inspectionVO" name="inspectionVO" method="post" enctype="multipart/form-data">
+        <header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>수수료 조회/납부 상세</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+        <div id="contents">
+            <h3 id="subTitle">결과 확인</h3>
+            <div id="applayForm" class="container">
+                <h4 class="sub_title1 tcen">비산배출의 저감을 위한 시설관리기준 정기점검 결과</h4>
+                <div class="formbox mb40">
+                    <h5 class="form_tit">사업장</h5>
+                   	 <input type="hidden" class="hidden" name="status" id="status" value="1">
+                     <input type="hidden" class="hidden" name="stu" id="stu" value="2">
+                    <input type="hidden" class="hidden" name="rcptNo" id="rcptNo" value="2026-04-0012-01">
+                    <input type="hidden" class="hidden" name="ddlnInspYmd" id="ddlnInspYmd" value="">
+                    <input type="hidden" class="hidden" name="feeDepYmd" id="feeDepYmd" value="2026-05-02">
+                    <input type="hidden" name="intgrLcnsYn" value="" id="intgrLcnsYn">
+                    <input type="hidden" name="prdinInspFromYmd" id="prdinInspFromYmd">
+                    <input type="hidden" name="prdinInspToYmd" id="prdinInspToYmd">
+                    <input type="hidden" name="msrmnRsltsRsnCd" id="msrmnRsltsRsnCdVal">
+                    <input type="hidden" name="msrmnRsltsDtlRsnCd" id="msrmnRsltsDtlRsnCdVal">
+                    <input type="hidden" name="techSupYn" id="techSupYn" value="">
+                    <ul class="form_con clear">
+                   	 <li class="wd_full">
+                            <div class="ipbox">
+                                <span class="checkbox fl">
+									<input type="checkbox" id="intgrLcns" name="intgrLcns" style="width:1px;">
+                                    <label for="intgrLcns">통합인허가 여부</label>
+                                </span>
+                            </div>
+                        </li>
+                        <li class="wd_quart">
+                            <div class="ipbox">
+                                <label for="bsnsNm">상호(사업장명칭)</label><input type="text" name="bsnsNm"id="bsnsNm" class="disabled" readonly="yes" value="샘플 사업장">
+                            </div>
+                        </li>
+                        <li class="wd_quart">
+                            <div class="ipbox">
+                                <label for="brNo">사업자등록번호</label><input type="text" name="brNo"  id="brNo" class="disabled" readonly="yes" value="">
+                            </div>
+                        </li>
+                        <li class="wd_quart">
+                            <div class="ipbox">
+                                <label for="rprsvNm">성명(대표자)</label><input type="text" name="rprsvNm"  id="rprsvNm" class="disabled" readonly="yes" value="홍길동">
+                            </div>
+                        </li>
+                        <li class="wd_quart">
+                            <div class="ipbox">
+                                <label for="bsnsCat">업종(표준산업분류 세세분류 코드)</label><input type="text" name="bsnsCat" id="bsnsCat" class="disabled" readonly="yes" value="">
+                            </div>
+                        </li>
+                        <li class="wd_half" style="width: 50%; padding-right: 3px;" id="addr">
+                            <div class="ipbox addrbox">
+                                <label for="ofcAddr1">소재지</label>
+                                <input type="text" name="ofcAddr1" id="ofcAddr1" juso="A" class="wdaddr2 disabled" readonly="yes" value="인천광역시 서구 환경로 42">
+                            </div>
+                        </li>
+                        <li class="wd_half" style="width:50%;" id="addrDetail">
+                            <div class="ipbox addrbox">
+                                <label for="ofcAddr2">상세주소</label>
+                                <input type="text" name="ofcAddr2" id="ofcAddr2" juso="A" class="wdaddr2 disabled" readonly="yes" title="상세주소" value="">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+				<div class="formbox mb40">
+                    <h5 class="form_tit">정기점검 연도</h5>
+                    <ul class="form_con clear">
+                        <li class="wd_half" style="width:50%; padding-right: 3px;">
+                            <div class="ipbox align_inline">                               
+								<label for="prdinInspYr" style="width:100%;"> 점검 연도(수수료입금 연도)</label>
+								<input type ="text" id="prdinInspYr" value="" class="disabled"   style="width: calc(100% - 0px);" >
+                            </div>
+                        </li>                       
+                        <li class="wd_half" style="width:50%;">
+                            <div class="ipbox align_inline">                               
+								<label for="prdinInspFrom" style="width:170px;">점검기간<span class="essential">*</span></label>
+								<div class="cal_wrap" style="width: calc(100% - 0px);">
+                                    
+                                    <label for="prdinInspFrom" class="sr-only">점검기간 시작일</label>
+                                    <span class="calselbox"><input type="text" oninput="onInputHandler(this);" name="prdinInspFrom"  value="2026-08-10" id="prdinInspFrom">
+                                    </span> ~
+                                    <label for="prdinInspTo" class="sr-only">점검기간 종료일</label> 
+                                    
+                                    <span class="calselbox"><input type="text" oninput="onInputHandler(this);" name="prdinInspTo" value="2026-08-12" id="prdinInspTo">
+                                    </span>
+                                </div>
+                            </div>
+                        </li>                       
+                    </ul>
+                </div>
+
+                
+                
+                <div class="file_wrap">
+					<div class="file_wrap">
+                    <h5 class="form_tit">첨부서류(첨부서류 파일이 다수일 경우 압축파일 1개로 첨부)</h5>
+					<ul class="filebox">
+							<li class="drop_zone">
+								<strong class="file_tit">1) 정기점검 결과서(직인)</strong>
+								
+									
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="정기점검_결과서.pdf" readonly style="width:98% !important" title="정기점검 결과서(직인) 파일"/>
+										</span>
+										<label for="file01" tabindex="0" role="button" onclick="fn_downFile('','0')">다운로드</label>
+										<a class="btn_addbox_del" href="javascript:void(0)" onclick="fn_deleteFile('','0',this);"><span>삭제</span></a>
+										<input type="hidden" value="정기점검_결과서.pdf" id="file11" />
+									
+										<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId1" id="file01" placeholder="1) 결과서(직인)"   data-file=""  />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">2) 정기점검 결과보고서(한글)</strong>
+								
+									
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="정기점검_결과보고서.hwp" readonly style="width:98% !important" title="정기점검 결과보고서(한글) 파일"/>
+										</span>
+										<label for="file02" tabindex="0" role="button" onclick="fn_downFile('','0')">다운로드</label>
+										<a class="btn_addbox_del" href="javascript:void(0)" onclick="fn_deleteFile('','0',this);"><span>삭제</span></a>
+										<input type="hidden" value="정기점검_결과보고서.hwp" id="file12" />
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId2" id="file02" placeholder="2) 정기점검 결과보고서(한글)"   data-file=""  />
+								
+								
+						    </li>
+							<li class="drop_zone">
+								<strong class="file_tit">3) 정기점검 결과보고서(PDF)</strong>
+								
+									
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="정기점검_결과보고서.pdf" readonly style="width:98% !important" title="정기점검 결과보고서(PDF) 파일"/>
+										</span>
+										<label for="file03" tabindex="0" role="button" onclick="fn_downFile('','0')">다운로드</label>
+										<a class="btn_addbox_del" href="javascript:void(0)" onclick="fn_deleteFile('','0',this);"><span>삭제</span></a>
+										<input type="hidden" value="정기점검_결과보고서.pdf" id="file13" />
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId3" id="file03" placeholder="3) 정기점검 결과보고서(PDF)"   data-file=""  />
+								
+								
+						    </li>
+							<li class="drop_zone">
+								<strong class="file_tit">4) 점검기관 측정자료(엑셀)</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="점검기관 측정자료(엑셀) 파일"/>
+										</span>
+										<label for="file04" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId4" id="file04" placeholder="4) 점검기관 측정자료(엑셀)"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">5) 점검기관 측정자료(PDF)</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="점검기관 측정자료(PDF) 파일"/>
+										</span>
+										<label for="file05" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId5" id="file05" placeholder="5) 점검기관 측정자료(PDF)"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">6) 냉각수 TOC 성적서</strong>	
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="냉각수 TOC 성적서 파일"/>
+										</span>
+										<label for="file06" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId6" id="file06" placeholder="6) 냉각수 TOC 성적서"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">7) 무기물질 측정 성적서</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="무기물질 측정 성적서 파일"/>
+										</span>
+										<label for="file07" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId7" id="file07" placeholder="7) 무기물질 측정 성적서"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">8) 안전관련자료(비산배출시설 현황표)</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="안전관련자료(비산배출시설 현황표) 파일"/>
+										</span>
+										<label for="file08" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId8" id="file08" placeholder="8) 안전관련자료(비산배출시설 현황표)"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">9) 정기점검 수수료 산정내역</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="정기점검 수수료 산정내역 파일"/>
+										</span>
+										<label for="file09" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId9" id="file09" placeholder="9) 정기점검 수수료 산정내역"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">10) 정기점검 시료채취 확인서</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="정기점검 시료채취 확인서 파일"/>
+										</span>
+										<label for="file010" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId10" id="file010" placeholder="10) 정기점검 시료채취 확인서"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">11) 정기점검 확인서</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="정기점검 확인서 파일"/>
+										</span>
+										<label for="file011" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId11" id="file011" placeholder="11) 정기점검 확인서"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">12) 공정도 PPT</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="공정도 PPT 파일"/>
+										</span>
+										<label for="file012" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId12" id="file012" placeholder="12) 공정도 PPT"  data-file=""   />
+								
+								
+							</li>
+							<li class="drop_zone">
+								<strong class="file_tit">13) 그 외 기타 서류(압축파일로 첨부)</strong>
+								
+									
+										<span class="drop_span" style="width:79%">
+											<input class="upload-name" value="" readonly style="width:98% !important" title="그 외 기타 서류(압축파일로 첨부) 파일"/>
+										</span>
+										<label for="file013" tabindex="0" role="button"  style="width:120px;" >업로드</label>
+									
+									
+									<input type="file" aria-hidden="true" class="upload-hidden" tabindex="-1" name="fAtchFileId13" id="file013" placeholder="13) 그 외 기타 서류(압축파일로 첨부)"  data-file=""   />
+								
+								
+							</li>
+						</ul>							
+                </div>
+                </div>
+                
+                
+                
+                
+                
+	                <input type ="hidden" id="gubunSelect">
+                 <div class="formbox mb40">
+                        <h5 class="form_tit">측정결과</h5>
+                        
+                        <div class="div_flex mb20">
+	                        <ul class="form_con">
+	                            <li class="wd_quart" id ="lili" style="width:calc(20% - 1px);">
+		                          <div class="ipbox">
+									
+										<label for="msrmnRsltsCd" class="sr-only">측정결과</label>
+										<select id="msrmnRsltsCd" class="wd_half mo_mb10" name="msrmnRsltsCd" title="측정결과" aria-label="측정결과" onchange="fn_selectUpjong(this)" style="margin-top:7px; width:100%;" >
+											<option value="Y" >준수</option>
+											<option value="N" selected>미준수</option>
+		                               </select>
+									
+									
+		                          </div>
+		                 		</li>  
+		                        <li class="wd_quart" id ="lili2" style="width:calc(20% - 1px);">
+		                          <div class="ipbox" style="padding-top: 7px;">
+									<label for="upjong" class="sr-only">업종</label>
+									<select id="upjong" title="업종" aria-label="업종" onchange="fn_selectFacility(this)">
+										<option value=""> 선택 </option>
+										
+												<option value="">  </option>
+										
+									</select>
+		                          </div>
+		                 		</li>  
+		                        <li class="wd_quart" id ="lili3"  style="width:calc(20% - 1px);">
+		                          <div class="ipbox" style="padding-top: 7px;">
+									<label for="facility" class="sr-only">비산배출시설</label>
+									<select id="facility" title="비산배출시설" aria-label="비산배출시설" onchange="fn_selectReason(this)">
+										<option value=""> 선택 </option>
+									</select>
+		                          </div>
+		                 		</li>  
+		                        <li class="wd_quart" id ="lili4" style="width:calc(20% - 1px);">
+		                          <div class="ipbox" style="padding-top: 7px;">
+									<label for="msrmnRsltsRsnCd" class="sr-only">보완사항</label>
+									<select id="msrmnRsltsRsnCd" title="보완사항" aria-label="보완사항" onchange="fn_selectDetailReason(this)">
+										<option value=""> 선택 </option>
+		                            </select>
+		                            
+		                          </div>
+		                 		</li>
+		                        <li class="wd_quart" id ="lili5" style="width:calc(20% - 1px);">
+		                          <div class="ipbox" style="padding-top: 7px;">
+									<label for="msrmnRsltsDtlRsnCd" class="sr-only">상세사유</label>
+									<select id="msrmnRsltsDtlRsnCd" title="상세사유" aria-label="상세사유">
+										<option value=""> 선택 </option>
+		                            </select>
+		                          </div>
+		                 		</li>
+	                        </ul>
+	                        <div id="addButton">
+                        		<a href="javascript:void(0);" onclick="fn_addNCCRow();" class="btn_add">추가</a>
+                        	</div>
+                    	</div>                        
+	                <dd id="NCC" class="tb_wrap mb20">
+                        <table id="NCCTable" class="tb_basic">
+                            <caption>측정결과 리스트</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">업종</th>
+                                    <th scope="col">비산배출시설</th>
+                                    <th scope="col">보완사항</th>
+                                    <th scope="col">상세사유</th>
+                                    <th scope="col">삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody id="NCCTableTbody">
+                            </tbody>
+                        </table>
+                    </dd>
+                
+
+                
+
+                
+                <div class="btn_wrap mt50 mb50">
+          		
+          		
+	                
+			               
+						  			<a href="javascript:void(0)" onclick="fn_applyFormUpdate();" class="btn btn_bg color">임시저장</a>
+						  		
+			  			<a href="javascript:void(0)" onclick="fn_applyFormSample_move();" class="btn btn_bg color">시료채취 측정값 입력하러 가기</a>
+						<a href="javascript:void(0)" onclick="fn_applyFinalyUpdate(7);" class="btn btn_bg color">결과서 제출</a>
+					
+				
+				
+                </div>
+                
+
+                
+                
+            </div><!-- // #applayForm -->
+        </div>
+        <!-- // #contents -->
+        <footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+        </form>
+        <div class="popup_wrap" id="techOneStopAgreePopup" role="dialog" aria-modal="true" aria-labelledby="techOneStopAgreeTitle">
+            <div class="tech_onestop_agree_popup">
+                <div class="tech_onestop_agree_head" id="techOneStopAgreeTitle">
+                    중소기업 지원사업 통합관리시스템 정보 활용 동의
+                    <a href="javascript:void(0);" class="tech_onestop_agree_close" onclick="fn_closeTechOneStopAgreePopup();" aria-label="팝업 닫기">×</a>
+                </div>
+                <div class="tech_onestop_agree_content">
+                    <div class="agree_wrap">
+                    <h4 class="sub_title1 tcen">중소기업 지원사업 통합관리시스템 정보 활용을 위한 동의서</h4>
+	                    <h5 class="sub_title3">목적</h5>
+	                    <ol class="mb20">
+	                        <li>① 정부와 지자체 중소기업 지원사업의 효율적 수행을 위해 운영하는 “중소기업 지원사업 통합관리시스템” 에서 신청기업 및 지원기업 지원이력 정보의 수집‧조회 및 활용</li>
+	                        <li>② 중소기업 시책에 참여하는 기업의 지원효과 분석</li>
+	                    </ol>
+	                    <h5 class="sub_title3">수집‧조회 및 활용 정보</h5>
+	                    <ol class="mb20">
+	                        <li>① (이력정보) 신청일, 지원금액 등 수혜정보와 사업자등록번호 등 기업 식별정보</li>
+	                        <li>② (과세정보 및 행정정보 등) 중소기업기본법 제20조의2제2항에 따른 매출액, 납입자본금, 자산총액, 부채총액, 영업이익, 당기순이익, 개업일·휴업일·폐업일, 근로소득 간이세액 인원</li>
+	                    </ol>
+	                    <h5 class="sub_title3">수집‧조회 및 활용 기관</h5>
+	                    <ul class="tlist mb20">
+	                        <li>해당 지원사업 소관부처(집행기관 포함), 중소기업 통합관리시스템 운영기관</li>
+						</ul>
+	                    <h5 class="sub_title3">동의 효력기간</h5>
+	                    <ul class="tlist mb20">
+	                        <li>사업자가 사업 신청시 본 동의서를 제출한 시점 이후
+	                            <ul class="tlist1">
+	                                <li>제공된 목적달성 후에는 중소기업 지원사업 통합관리시스템의 효율적인 운영을 위해 필요한 범위 내에서만 보유‧이용</li>
+	                            </ul>
+	                        </li>
+	                        <li>기업정보 수집 시점 : 신청 및 수혜기업의 사업 신청 이전 3개년부터 참여 이후   5년간 수집
+	                            <ul class="tlist1">
+	                                <li>보유 정보가 없을 경우 수집하지 않음</li>
+	                            </ul>
+	                        </li>
+	                    </ul>
+                </div>
+                    <div class="agree_certi_box">
+                        <div class="agree_ckbox">
+                            <input type="checkbox" id="techOneStopAgreement" style="display:block;">
+                            <label for="techOneStopAgreement">본인은 위 목적으로 동의서에 적시된 정보 및 기관에 한해 본인의 기업정보를 수집·조회 및 활용하는 것에 동의합니다.</label>
+                        </div>
+                        <div class="certification">
+                            <a href="javascript:void(0)" id="techOneStopSelfAuth" onclick="fn_startTechOneStopNiceAuthentication();" title="새 창 알림">NICE 통합인증</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <form id="applyFormTechOneStopForm" name="applyFormTechOneStopForm" action="./applyFormTechOneStopInsert.do" method="post" enctype="multipart/form-data">
+        	<input type="hidden" name="originRcptNo" value="2026-04-0012-01">
+        	<input type="hidden" name="niceAuthCi" id="oneStopNiceAuthCi">
+        	<input type="hidden" name="status" value="2">
+        	<input type="hidden" name="bsnsNm" value="샘플 사업장">
+        	<input type="hidden" name="brno" value="">
+        	<input type="hidden" name="rprsvNm" value="홍길동">
+        	<input type="hidden" name="ofcAddr" value="인천광역시 서구 환경로 42">
+        	<input type="hidden" name="ofcDetailAddr" value="">
+        	<input type="hidden" name="bsnsLoc" value="인천광역시 서구 환경로 42 ">
+        	<input type="hidden" name="techSupYmd" id="oneStopTechSupYmd">
+        	<input type="hidden" name="techFld" id="oneStopTechFld">
+        	<input type="hidden" name="rsnsAplct" id="oneStopRsnsAplct">
+        </form>
+        <form name="applyFormSample">
+		<input type="hidden" name="rcptNo" value="2026-04-0012-01"/>
+        </form>
+    </div>
+    <!--// #wrap -->
+<script src="./js/mock-runtime.js"></script>
+</body>
+
+</html>

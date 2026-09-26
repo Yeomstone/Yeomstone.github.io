@@ -1,0 +1,542 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<title>비산배출시설 정기점검 관리시스템 - 정기점검 수행실적 통합 이력 관리</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<script type="text/javascript" src="./js/jquery.min.js"></script>
+	<script src="./js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/common.css">
+	<link rel="stylesheet" type="text/css" href="./css/layout.css">
+	<link rel="stylesheet" type="text/css" href="./css/sub.css">
+	<link rel="stylesheet" type="text/css" href="./css/board.css">
+	<style>
+		#historyManage .schBox { margin-bottom: 30px; }
+		#historyManage .schBox fieldset { display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; gap: 4px; }
+		#historyManage .schBox fieldset select { flex: 0 0 auto; }
+		#historyManage .schBox fieldset input[type="text"] { flex: 1 1 auto; }
+		#historyManage .schBox .btn_search { flex: 0 0 70px; min-width: 70px; }
+		#historyManage .schBox #searchKeyword { width: auto !important; min-width: 160px; }
+		#historyManage .summary_table { margin-bottom: 30px; }
+		#historyManage .summary_table td { color: #333; font-weight: 500; text-align: center; }
+		#historyManage .summary_table .em { color: #016241; font-weight: 700; }
+		#historyManage .tBoard th { white-space: nowrap; line-height: 1.4; padding: 8px 3px; }
+		#historyManage .history_section { margin-top: 35px; }
+		#historyManage .history_section.last { margin-bottom: 70px; }
+		#historyManage .tBoard .btn_bg.sm.line { white-space: nowrap; min-width: 34px; box-sizing: border-box; }
+		#historyManage .pagination.mt50 { margin-top: 25px !important; }
+		#historyManage .history_chart_grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 15px; }
+		#historyManage .history_chart { border: 1px solid #ddd; padding: 20px 25px; background: #fff; }
+		#historyManage .future_chart { margin-top: 18px; }
+		#historyManage .history_chart_title { display: block; margin-bottom: 16px; color: #222; font-weight: 700; }
+		#historyManage .chart_row { display: flex; align-items: center; min-height: 28px; margin-top: 9px; }
+		#historyManage .chart_row:first-child { margin-top: 0; }
+		#historyManage .chart_year { width: 70px; color: #333; font-weight: 500; }
+		#historyManage .chart_track { position: relative; flex: 1; height: 16px; background: #eee; }
+		#historyManage .chart_bar { display: block; height: 16px; background: #bfc5cb; }
+		#historyManage .chart_bar.active { background: #016241; }
+		#historyManage .chart_value { width: 95px; text-align: right; color: #333; font-weight: 500; }
+		#historyManage .chart_value.fee { width: 130px; }
+		#historyManage .history_empty { padding: 24px 0; text-align: center; color: #666; }
+		@media all and (max-width: 767px) {
+			#historyManage .schBox fieldset { flex-wrap: wrap; }
+			#historyManage .schBox select,
+			#historyManage .schBox input,
+			#historyManage .schBox .btn_search { width: 100% !important; margin-top: 6px; }
+			#historyManage .schBox #searchKeyword { min-width: 100%; }
+			#historyManage .history_chart_grid { grid-template-columns: 1fr; }
+		}
+	</style>
+	<script>
+		function fn_search(pageNo) {
+			$("#pageIndex").val(pageNo);
+			$("#inspectionVO").attr("action", "./periodicPerformanceHistory.html").submit();
+		}
+
+		function fn_sort(odrCol) {
+			if ($("#odrCol").val() === odrCol) {
+				$("#odrSrt").val($("#odrSrt").val() === "DESC" ? "ASC" : "DESC");
+			} else {
+				$("#odrCol").val(odrCol);
+				$("#odrSrt").val("DESC");
+			}
+			fn_search("1");
+		}
+
+		function fn_detail(rcptNo) {
+			$("#rcptNo").val(rcptNo);
+			$("#inspectionVO").attr("action", "./periodicPerformanceHistoryDetail.html").submit();
+		}
+
+		function fn_history(rcptNo) {
+			$("#rcptNo").val(rcptNo);
+			$("#inspectionVO").attr("action", "./periodicPerformanceChangeHistory.html").submit();
+		}
+
+		$(document).ready(function() {
+			$("#print").remove();
+			if ($("#odrCol").val() !== "") {
+				$("#" + $("#odrCol").val() + "Sort").css("color", "crimson");
+			}
+			$("#searchKeyword").on("keyup", function(e) {
+				if (e.keyCode === 13) {
+					fn_search("1");
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="skip">
+		<strong class="hide">반복영역 건너뛰기</strong>
+		<a href="#gnb">주메뉴 바로가기</a>
+		<a href="#contents">본문 바로가기</a>
+	</div>
+	<div id="wrap">
+		<header id="header" style="max-width: 1940px;margin: 0 auto;">
+	<h1 id="logo"><a href="applyCharge.html">한국환경공단</a></h1>
+	<nav id="navWrap" class="container">
+		<ul id="nav" class="nav">
+			<li style="text-align: center;" id="nav1">
+				<a href="applyCharge.html" class="first after">정기점검 수수료</a>
+				<ul class="nav_sub">
+					<li><a href="applyCharge.html">수수료 산정내역 (과업1)</a></li>
+					<li><a href="documentGuide.html">제출서류 사전안내 (과업1 사업장)</a></li>
+					<li><a href="DocoumentGuideList.html">사전안내 사업장목록 (과업1 관리자)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav2">
+				<a href="applyFormResultDetail.html" class="first after">정기점검 결과/신청</a>
+				<ul class="nav_sub">
+					<li><a href="applyFormResultDetail.html">점검결과 및 기술지원 원스톱 신청 (과업2)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav3">
+				<a href="selfApplyCharge.html" class="first after">셀프 수수료 계산</a>
+				<ul class="nav_sub">
+					<li><a href="selfApplyCharge.html">셀프 수수료 계산 및 예측 (과업3)</a></li>
+				</ul>
+			</li>
+			<li style="text-align: center;" id="nav4">
+				<a href="periodicPerformanceHistory.html" class="first after">추진실적 및 이력관리</a>
+				<ul class="nav_sub">
+					<li><a href="periodicPerformanceHistory.html">정기점검 수행실적 통합이력 (과업4)</a></li>
+					<li><a href="periodicPerformanceHistoryDetail.html">사업장 이력 상세관리 (과업4)</a></li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+	<div id="utillWrap">
+		<ul class="ut_list" id="gnb">
+			<li class="beforeLoginDt"><a id="beforeLoginDt" href="javascript:void(0);" style="pointer-events: none;">직전 로그인 일시 - 2026-09-23 14:20</a></li>
+			<li><a href="javascript:void(0);">로그아웃</a></li>
+			<li class="mpbox"><a href="javascript:void(0)">마이페이지</a>
+				<ul>
+					<li><a href="javascript:void(0)">정보수정</a></li>
+					<li><a href="javascript:void(0)">1:1 문의</a></li>
+				</ul>
+			</li>
+			<li><a href="javascript:void(0);">사이트 맵</a></li>
+		</ul>
+		<button class="all_menu" type="button"><i class="ico_cate">사이트맵</i></button>
+	</div>
+	<label for="search_id" class="hd-element">검색</label>
+	<div id="hdSchbox">
+    	<div>
+	        <input type="text" title="검색" aria-label="검색" name="search" id="search_id" value="" placeholder="검색어를 입력하세요">
+        	<a href="javascript:void(0)" class="btn_search">검색</a>
+        	<a href="javascript:void(0)" class="btn_close">닫기</a>
+    	</div>
+	</div>
+</header>
+<div id="lnb">
+	<div class="container">
+		<ul>
+		   <li class="home"><a href="applyCharge.html" title="메인으로 바로가기"><i>메인</i></a></li>
+		   <li class="2dep">
+			   <a href="javascript:void(0)" title="하위 메뉴 열기"><i>수수료 조회/납부 상세</i></a>
+		   </li>
+		</ul>
+	</div>
+</div>
+		<div id="contents">
+			<h3 id="subTitle">정기점검 수행실적 통합 이력 관리</h3>
+			<div id="historyManage" class="container">
+				<div id="boardWrap">
+					<form name="inspectionVO" id="inspectionVO" action="./periodicPerformanceHistory.html" method="post">
+						<input type="hidden" name="rcptNo" id="rcptNo" value="">
+						<input type="hidden" name="pageIndex" id="pageIndex" value="1">
+						<input type="hidden" name="odrCol" id="odrCol" value="">
+						<input type="hidden" name="odrSrt" id="odrSrt" value="DESC">
+
+						<div class="schBox clear">
+							<fieldset>
+								<legend>정기점검 수행실적 검색</legend>
+								<label for="year" class="hd-element">점검 대상연도</label>
+								<select id="year" name="year" title="점검 대상연도" style="width: 120px;">
+									
+										<option value="2026" selected="selected">2026</option>
+									
+										<option value="2025" >2025</option>
+									
+										<option value="2024" >2024</option>
+									
+										<option value="2023" >2023</option>
+									
+								</select>
+								
+									<label for="authCode" class="hd-element">환경본부</label>
+									<select id="authCode" name="authCode" title="환경본부" style="width: 190px;">
+										<option value="" >환경본부 전체</option>
+										<option value="ROLE_KECO_GRP01_USER" selected="selected">수도권동부환경본부</option>
+										<option value="ROLE_KECO_GRP02_USER" >부산울산경남환경본부</option>
+										<option value="ROLE_KECO_GRP03_USER" >전북환경본부</option>
+									</select>
+								
+								<label for="picEnvAgcyCd" class="hd-element">환경청</label>
+								<select id="picEnvAgcyCd" name="picEnvAgcyCd" title="환경청" style="width: 135px;">
+									<option value="">환경청 전체</option>
+									
+										<option value="01" selected="selected">한강유역환경청</option>
+									
+										<option value="02" >낙동강유역환경청</option>
+									
+								</select>
+								<label for="searchStatus" class="hd-element">사업장 상태</label>
+								<select id="searchStatus" name="searchStatus" title="사업장 상태" style="width: 135px;">
+									<option value="">사업장 상태 전체</option>
+									<option value="가동중지" >가동중지</option>
+									<option value="반납" >반납</option>
+									<option value="전체제외" >전체제외</option>
+									<option value="기타" >기타</option>
+								</select>
+								<label for="searchKeyword" class="hd-element">검색어</label>
+								<input type="text" id="searchKeyword" name="searchKeyword" value="" title="검색어" placeholder="사업장명, 사업장 식별번호, 접수번호, 사업자등록번호, 대표자">
+								<button type="button" class="btn_search" onclick="fn_search('1')" style="cursor:pointer;">검색</button>
+							</fieldset>
+						</div>
+
+						<h5 class="sub_title2">조회 요약</h5>
+						<table class="tb_basic summary_table">
+							<caption>정기점검 수행실적 조회 요약</caption>
+							<colgroup>
+								<col width="33.33%">
+								<col width="33.33%">
+								<col width="33.34%">
+						</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">조회 사업장</th>
+									<th scope="col">차년도 점검 대상</th>
+									<th scope="col">수수료 입금 완료</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="em">2</span>건</td>
+									<td><span class="em">1</span>건</td>
+									<td><span class="em">1,250,000</span>건</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<p class="countText">총 <span class="count">2</span>건의 사업장이 있습니다.</p>
+						<table class="tBoard">
+							<caption>정기점검 수행실적 사업장 목록</caption>
+							<thead>
+								<tr>
+									<th scope="col" width="5%">번호</th>
+									<th scope="col" width="12%">사업장 식별번호</th>
+									<th scope="col" width="14%">사업장명</th>
+									<th scope="col" width="8%">업종코드</th>
+									<th scope="col" width="9%">신고 수리일</th>
+									<th scope="col" width="14%"><a href="javascript:void(0);" id="feeDepYmdSort" onclick="fn_sort('feeDepYmd');">마지막 정기점검일<br>(수수료 입금일)<span></span></a></th>
+									<th scope="col" width="14%"><a href="javascript:void(0);" id="nextFeeDepYmdSort" onclick="fn_sort('nextFeeDepYmd');">정기점검기한<br>(수수료 입금일 +3년)<span></span></a></th>							
+									<th scope="col" width="9%">관할</th>
+									<th scope="col" width="5%">상세</th>
+									<th scope="col" width="6%">상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+									<tr>
+										<td>1</td>
+										<td>MOCK-2026-001</td>
+										<td class="tleft">샘플 사업장</td>
+										<td>2-가</td>
+										<td>2026-04-15</td>
+									<td>2026-05-02</td>
+
+										<td>2027-05-02</td>
+										<td>
+											
+													수도권동부<br/>환경본부
+												
+										</td>
+										<td>
+											
+													<a href="javascript:void(0)" class="btn_bg sm line" onclick="fn_detail('2026-04-0012-01')">보기</a>
+												
+										</td>
+										<td>정상</td>
+									</tr>
+								
+									<tr>
+										<td>2</td>
+										<td>MOCK-2026-002</td>
+										<td class="tleft">예시 화학 사업장</td>
+										<td>2-가</td>
+										<td>2026-04-15</td>
+									<td>2026-05-02</td>
+
+										<td>2027-05-02</td>
+										<td>
+											
+													수도권동부<br/>환경본부
+												
+										</td>
+										<td>
+											
+													<a href="javascript:void(0)" class="btn_bg sm line" onclick="fn_detail('2026-04-0013-01')">보기</a>
+												
+										</td>
+										<td>가동중지</td>
+									</tr>
+								
+								
+							</tbody>
+						</table>
+
+						<div class="pagination mt50">
+							<ul class="clear">
+								<div class="pagination"><a href="javascript:void(0)" onclick="fn_search && fn_search(1)">1</a></div>
+							</ul>
+						</div>
+
+						<div class="history_section">
+							<h5 class="sub_title2">변경 정보 이력 연계 현황</h5>
+							<table class="tb_basic">
+								<caption>변경 정보 이력 연계 현황</caption>
+								<colgroup>
+									<col width="18%">
+									<col width="42%">
+									<col width="22%">
+									<col width="18%">
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">구분</th>
+										<th scope="col">연계 대상</th>
+										<th scope="col">최종 동기화</th>
+										<th scope="col">처리상태</th>
+									</tr>
+								</thead>
+								<tbody>
+									
+										<tr>
+											<td class="tbg">변경정보 이력</td>
+											<td>샘플 사업장</td>
+											<td>2026-09-01</td>
+											<td>연계 완료</td>
+										</tr>
+									
+									
+								</tbody>
+							</table>
+						</div>
+
+						<div class="history_section last">
+							<h5 class="sub_title2">연도별 정기점검 수행실적 예측</h5>
+							<div class="history_chart_grid">
+								<div class="history_chart">
+									<strong class="history_chart_title">연도별 사업장 물량</strong>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2021</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:40%;"></span>
+											</div>
+											<span class="chart_value">6건</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2022</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:50%;"></span>
+											</div>
+											<span class="chart_value">7건</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2023</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:60%;"></span>
+											</div>
+											<span class="chart_value">8건</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2024</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:70%;"></span>
+											</div>
+											<span class="chart_value">9건</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2025</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:80%;"></span>
+											</div>
+											<span class="chart_value">10건</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2026</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:90%;"></span>
+											</div>
+											<span class="chart_value">11건</span>
+										</div>
+									
+									
+								</div>
+								<div class="history_chart">
+									<strong class="history_chart_title">연도별 수수료(전체금액)</strong>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2021</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:45%;"></span>
+											</div>
+											<span class="chart_value fee">7,500,000원</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2022</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:55%;"></span>
+											</div>
+											<span class="chart_value fee">8,750,000원</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2023</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:65%;"></span>
+											</div>
+											<span class="chart_value fee">10,000,000원</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2024</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:75%;"></span>
+											</div>
+											<span class="chart_value fee">11,250,000원</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2025</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:85%;"></span>
+											</div>
+											<span class="chart_value fee">12,500,000원</span>
+										</div>
+									
+										<div class="chart_row">
+											<strong class="chart_year">2026</strong>
+											<div class="chart_track">
+												<span class="chart_bar active" style="width:95%;"></span>
+											</div>
+											<span class="chart_value fee">13,750,000원</span>
+										</div>
+									
+									
+								</div>
+							</div>
+							<div class="history_chart future_chart">
+								<strong class="history_chart_title">검색연도 포함 미래 3년 사업장 물량</strong>
+								
+									<div class="chart_row">
+										<strong class="chart_year">2026</strong>
+										<div class="chart_track">
+											<span class="chart_bar active" style="width:65%;"></span>
+										</div>
+										<span class="chart_value">10건</span>
+									</div>
+								
+									<div class="chart_row">
+										<strong class="chart_year">2027</strong>
+										<div class="chart_track">
+											<span class="chart_bar active" style="width:77%;"></span>
+										</div>
+										<span class="chart_value">11건</span>
+									</div>
+								
+									<div class="chart_row">
+										<strong class="chart_year">2028</strong>
+										<div class="chart_track">
+											<span class="chart_bar active" style="width:89%;"></span>
+										</div>
+										<span class="chart_value">12건</span>
+									</div>
+								
+								
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<footer id="footer">
+    <div class="ft_site">
+        <div class="container">
+            <ul class="link_site">
+                <li><a href="http://www.mcee.go.kr" target="_blank" title="새창으로 열림">기후에너지환경부</a></li>
+                <li><a href="http://nier.go.kr//" target="_blank" title="새창으로 열림">국립환경과학원</a></li>
+                <li><a href="http://www.keco.or.kr/" target="_blank" title="새창으로 열림">한국환경공단</a></li>
+                <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권동부환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남환경본부</a></li>
+                <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북환경본부</a></li>
+            </ul>
+            <div class="family_site">
+                <a href="javascript:void(0)" class="family_site_btn"><span>관련 사이트</span><i></i></a>
+                <ul class="family_site_list">
+                    <li><a href="http://www.keco.or.kr/group/group01/main/index.do" target="_blank" title="새창으로 열림">수도권 동부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group05/main/index.do" target="_blank" title="새창으로 열림">수도권 서부 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group02/main/index.do" target="_blank" title="새창으로 열림">부산울산경남 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group06/main/index.do" target="_blank" title="새창으로 열림">대구경북 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group03/main/index.do" target="_blank" title="새창으로 열림">충청권 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group04/main/index.do" target="_blank" title="새창으로 열림">광주전남제주 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group07/main/index.do" target="_blank" title="새창으로 열림">강원 환경본부</a></li>
+                    <li><a href="http://www.keco.or.kr/group/group08/main/index.do" target="_blank" title="새창으로 열림">전북 환경본부</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="ft_link">
+            <a class="ft_logo" href="applyCharge.html"><img src="./images/copy_logo.png" alt="한국환경공단"></a>
+            <ul>
+                <li><a href="https://www.keco.or.kr/web/lay1/S1T6C1348/contents.do" target="_blank" title="새창열림" class="txtRed" style="color:red;font-weight: bold;">개인정보처리방침</a></li>
+                <li><a href="javascript:void(0)" title="새창열림">이메일무단수집거부</a></li>
+            </ul>
+        </div>
+        <div class="ft_address">
+            <address>한국환경공단 본사, 주소: 인천광역시 서구 환경로 42, 사업자 등록번호: 137-82-07000, 대표자: 임상준</address><span>대표전화 032-590-4000</span>
+            <p class="copyright">COPYRIGHT © 2022 K-eco. ALL RIGHT RESERVED.</p>
+        </div>
+    </div>
+</footer>
+	</div>
+<script src="./js/mock-runtime.js"></script>
+</body>
+</html>
